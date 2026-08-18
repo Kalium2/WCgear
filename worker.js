@@ -162,20 +162,28 @@ async function handleItems(request, env) {
   const token = await getBlizzardToken(env);
   const host = BLIZZARD_API_HOST[region] || BLIZZARD_API_HOST.us;
   const namespace = BLIZZARD_STATIC_NAMESPACE[region] || BLIZZARD_STATIC_NAMESPACE.us;
+  const headers = { Authorization: `Bearer ${token}` };
 
   const results = {};
   await Promise.all(
     itemIds.map(async (id) => {
       try {
-        const res = await fetch(
-          `${host}/data/wow/item/${id}?namespace=${namespace}&locale=en_US`,
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-        if (!res.ok) return;
-        const item = await res.json();
+        const [itemRes, mediaRes] = await Promise.all([
+          fetch(`${host}/data/wow/item/${id}?namespace=${namespace}&locale=en_US`, { headers }),
+          fetch(`${host}/data/wow/media/item/${id}?namespace=${namespace}&locale=en_US`, { headers }),
+        ]);
+        if (!itemRes.ok) return;
+        const item = await itemRes.json();
+
+        let icon = null;
+        if (mediaRes.ok) {
+          const media = await mediaRes.json();
+          icon = media.assets?.find((a) => a.key === "icon")?.value || null;
+        }
+
         results[id] = {
           name: item.name,
-          icon: item.preview_item?.icon || null, // adapt to actual media field/media endpoint
+          icon,
           quality: item.quality?.type || null,
           itemLevel: item.level || null,
         };
