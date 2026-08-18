@@ -46,7 +46,6 @@
       </div>
       <button type="submit" class="btn btn-primary btn-fetch" id="loadReportBtn">
         <span class="btn-label">Load Report</span>
-        <span class="btn-spinner" hidden></span>
       </button>
     </form>
 
@@ -57,7 +56,6 @@
       </div>
       <button type="submit" class="btn btn-primary btn-fetch" id="fetchBtn">
         <span class="btn-label">Fetch Character</span>
-        <span class="btn-spinner" hidden></span>
       </button>
       <button type="button" class="btn btn-ghost" id="changeReportBtn">Use a different report</button>
     </form>
