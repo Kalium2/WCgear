@@ -461,23 +461,36 @@ function phaseLabel(phaseKey) {
 }
 
 /* ================================================================
-   COMPARISON ENGINE — UPDATED WITH SOURCE + RANK LOGIC
+   COMPARISON ENGINE
+   ================================================================
+   Operates entirely on gear already retrieved during Fetch Character
+   (section 17) and on the BiS dataset for the selected phase+spec.
+   Single-slot and multi-slot categories both flow through the same
+   reusable ranking function — section 19 requires this not be
+   hardcoded per-category logic.
    ================================================================ */
 function runComparison(gear, bisSet) {
   const results = { weapons: [], armor: [] };
 
-  // --- weapons: always show all three rows ---
-  results.weapons.push(compareSingleSlot("Two-Hand", gear.twohand, bisSet.twohand));
-  results.weapons.push(compareSingleSlot("Main Hand", gear.mainhand, bisSet.mainhand));
-  results.weapons.push(compareSingleSlot("Off Hand", gear.offhand, bisSet.offhand));
+  // --- weapons: simple display categories, section 22 ---
+  // The character's actual equipped layout drives which rows we show —
+  // a player running main hand + off hand shouldn't see a Two-Hand row
+  // just because the BiS list happens to recommend a staff (and vice
+  // versa). The BiS config is only a fallback when gear is ambiguous.
+  const weaponConfig = gear.weaponConfig || bisSet.weaponConfig;
+   (weaponConfig === "twohand") {
+    results.weapons.push(compareSingleSlot("Two-Hand", gear.twohand, bisSet.twohand));
+    results.weapons.push(compareSingleSlot("Main Hand", gear.mainhand, bisSet.mainhand));
+    results.weapons.push(compareSingleSlot("Off Hand", gear.offhand, bisSet.offhand));
+  }
 
   // --- single-item armor/accessory slots ---
   SINGLE_SLOTS.forEach(([key, label]) => {
-    if (!bisSet[key]) return;
+    if (!bisSet[key]) return; // slot not tracked for this spec
     results.armor.push(compareSingleSlot(label, gear[key], bisSet[key]));
   });
 
-  // --- multi-slot categories (trinket, finger) with rank-aware logic ---
+  // --- multi-slot categories (trinket, finger) via reusable ranking ---
   MULTI_SLOTS.forEach(([key, label, count]) => {
     if (!bisSet[key]) return;
     const positions = resolveMultiSlot(gear[key] || [], bisSet[key], count);
@@ -492,9 +505,8 @@ function runComparison(gear, bisSet) {
   return results;
 }
 
-/* ================================================================
-   SINGLE-SLOT COMPARISON — RANK 2 & 3 AS ALTERNATIVES ONLY
-   ================================================================ */
+/** Compares a single-item slot (0 or 1 equipped item) against a
+ *  ranked BiS list for that slot (rank 1 = best). */
 function compareSingleSlot(label, equippedIds, bisRanked) {
   if (!bisRanked || bisRanked.length === 0) {
     return {
@@ -502,127 +514,62 @@ function compareSingleSlot(label, equippedIds, bisRanked) {
       state: "unknown",
       equippedId: equippedIds?.[0] ?? null,
       recommendedId: null,
-      equippedSource: null,
-      recommendedSource: null,
-      bisAlternatives: [],
       note: `The BiS list for this phase and spec doesn't include a ${label.toLowerCase()} recommendation yet.`,
     };
   }
-
   const equippedId = equippedIds?.[0] ?? null;
-
-  // Rank 1 item = recommended
   const best = bisRanked[0];
 
-  // All ranked BiS items (rank 1, 2, 3, ...)
-  const bisAlternatives = bisRanked.map(b => ({
-    itemId: b.itemId,
-    rank: b.rank,
-    name: b.name,
-    source: b.source
-  }));
-
-  const equippedMatch = bisRanked.find((b) => b.itemId === equippedId);
-
-  // Equipped rank 1 = BiS
-  if (equippedMatch && equippedMatch.rank === 1) {
-    return {
-      label,
-      state: "bis",
-      equippedId,
-      recommendedId: equippedId,
-      equippedSource: equippedMatch.source || null,
-      recommendedSource: equippedMatch.source || null,
-      bisAlternatives
-    };
+  if (equippedId != null && bisRanked.some((b) => b.itemId === equippedId)) {
+    return { label, state: "bis", equippedId, recommendedId: equippedId };
   }
-
-  // Equipped rank 2 or 3 = upgrade, but recommended stays rank 1
-  if (equippedMatch && equippedMatch.rank > 1) {
-    return {
-      label,
-      state: "upgrade",
-      equippedId,
-      recommendedId: best.itemId,
-      equippedSource: equippedMatch.source || null,
-      recommendedSource: best.source || null,
-      bisAlternatives
-    };
-  }
-
-  // Equipped item not in BiS list
-  return {
-    label,
-    state: "upgrade",
-    equippedId,
-    recommendedId: best.itemId,
-    equippedSource: null,
-    recommendedSource: best.source || null,
-    bisAlternatives
-  };
+  return { label, state: "upgrade", equippedId, recommendedId: best.itemId };
 }
 
-/* ================================================================
-   MULTI-SLOT COMPARISON — RANK 2 CAN BE UPGRADE TARGET
-   ================================================================ */
+/**
+ * Generic multi-slot ranking system (section 19).
+ * Given the items currently equipped in a category and a ranked BiS
+ * list, assigns each equipped BiS item to its own position (best rank
+ * first), then fills any remaining positions with the next-highest
+ * ranked BiS items the character doesn't already own — never
+ * recommending a duplicate of something already equipped.
+ *
+ * @param {number[]} equippedIds   items currently in the slot category
+ * @param {{itemId:number, rank:number}[]} bisRanked   sorted ascending by rank
+ * @param {number} slotCount   number of identical slots (e.g. 2 for trinkets)
+ * @returns {{state:string, equippedId:number|null, recommendedId:number|null}[]}
+ */
 function resolveMultiSlot(equippedIds, bisRanked, slotCount) {
   const ranked = [...bisRanked].sort((a, b) => a.rank - b.rank);
   const rankOf = new Map(ranked.map((b) => [b.itemId, b.rank]));
   const ownedSet = new Set(equippedIds);
 
+  // Which equipped items are themselves on the BiS list, best rank first —
+  // each seats its own position and can never be displaced by a duplicate
+  // recommendation (section 19's duplicate-prevention requirement).
   const equippedBis = equippedIds
     .filter((id) => rankOf.has(id))
     .sort((a, b) => rankOf.get(a) - rankOf.get(b));
 
+  // Non-BiS equipped items — shown paired with an upgrade suggestion
+  // where a remaining position needs to display "what's worn now".
   const equippedNonBis = [...equippedIds.filter((id) => !rankOf.has(id))];
 
+  // Candidates for remaining positions: ranked BiS items not already owned.
   const availableCandidates = ranked.filter((b) => !ownedSet.has(b.itemId));
 
-  const positions = equippedBis.map((id) => {
-    const match = ranked.find((b) => b.itemId === id);
-    const isRank1 = match.rank === 1;
-    const isRank2 = match.rank === 2;
-
-    return {
-      state: isRank1 ? "bis" : "upgrade",
-      equippedId: id,
-      recommendedId: isRank1 ? id : ranked[0].itemId,
-      equippedSource: match.source || null,
-      recommendedSource: ranked[0].source || null,
-      rank: match.rank
-    };
-  });
+  const positions = equippedBis.map((id) => ({ state: "bis", equippedId: id, recommendedId: id }));
 
   const remainingSlots = slotCount - positions.length;
   let candidateIndex = 0;
-
   for (let i = 0; i < remainingSlots; i++) {
     const equippedForThis = equippedNonBis.shift() ?? null;
     const candidate = availableCandidates[candidateIndex];
-
     if (candidate) {
       candidateIndex++;
-
-      const isRank2 = candidate.rank === 2;
-      const isRank3Plus = candidate.rank > 2;
-
-      positions.push({
-        state: "upgrade",
-        equippedId: equippedForThis,
-        recommendedId: isRank2 ? candidate.itemId : ranked[0].itemId,
-        equippedSource: null,
-        recommendedSource: isRank2 ? candidate.source : ranked[0].source,
-        rank: candidate.rank
-      });
+      positions.push({ state: "upgrade", equippedId: equippedForThis, recommendedId: candidate.itemId });
     } else {
-      positions.push({
-        state: "unknown",
-        equippedId: equippedForThis,
-        recommendedId: null,
-        equippedSource: null,
-        recommendedSource: null,
-        rank: null
-      });
+      positions.push({ state: "unknown", equippedId: equippedForThis, recommendedId: null });
     }
   }
 
@@ -630,8 +577,32 @@ function resolveMultiSlot(equippedIds, bisRanked, slotCount) {
 }
 
 /* ================================================================
-   RENDER — UPDATED TO PASS REAL SOURCES
+   RENDER — RESULTS
    ================================================================ */
+function renderResults(results, phase, specMeta, enrichment) {
+  const all = [...results.weapons, ...results.armor];
+  const tally = { bis: 0, upgrade: 0, unknown: 0 };
+  all.forEach((r) => tally[r.state]++);
+
+  els.resultsSummary.innerHTML = `
+    <span class="tally-bis">${tally.bis} BiS</span>
+    <span class="tally-upgrade">${tally.upgrade} Upgrade</span>
+    <span class="tally-unknown">${tally.unknown} Unable to Check</span>
+  `;
+
+  els.weaponResults.innerHTML = "";
+  results.weapons.forEach((r) => els.weaponResults.appendChild(renderSlotCard(r, enrichment)));
+
+  els.armorResults.innerHTML = "";
+  results.armor.forEach((r) => els.armorResults.appendChild(renderSlotCard(r, enrichment)));
+}
+
+const STATE_META = {
+  bis: { badge: "BiS", cls: "state-bis" },
+  upgrade: { badge: "Upgrade", cls: "state-upgrade" },
+  unknown: { badge: "Unable to Check", cls: "state-unknown" },
+};
+
 function renderSlotCard(result, enrichment) {
   const meta = STATE_META[result.state];
   const card = document.createElement("div");
@@ -645,8 +616,8 @@ function renderSlotCard(result, enrichment) {
       <span class="slot-state-badge"><span class="dot"></span>${meta.badge}</span>
     </div>
     <div class="result-icon-flow">
-      ${renderItemChip(result.equippedId, result.equippedSource, enrichment)}
-      ${showArrow ? `<span class="flow-arrow">→</span>${renderItemChip(result.recommendedId, result.recommendedSource, enrichment)}` : ""}
+      ${renderItemChip(result.equippedId, result.state === "bis" ? "Equipped — matches BiS" : "Currently equipped", enrichment)}
+      ${showArrow ? `<span class="flow-arrow">→</span>${renderItemChip(result.recommendedId, "Recommended", enrichment)}` : ""}
     </div>
     ${result.state === "unknown" ? `<div class="slot-note">${escapeHtml(result.note || "Not enough reliable data to evaluate this slot yet.")}</div>` : ""}
   `;
@@ -687,11 +658,13 @@ function renderItemChip(itemId, sourceLabel, enrichment) {
 function setFetchLoading(loading) {
   els.fetchBtn.disabled = loading;
   els.fetchBtn.querySelector(".btn-label").textContent = loading ? "Summoning…" : "Fetch Character";
+  els.fetchBtn.querySelector(".btn-spinner").hidden = !loading;
 }
 
 function setLoadReportLoading(loading) {
   els.loadReportBtn.disabled = loading;
   els.loadReportBtn.querySelector(".btn-label").textContent = loading ? "Loading…" : "Load Report";
+  els.loadReportBtn.querySelector(".btn-spinner").hidden = !loading;
 }
 
 function showError(msg) {
