@@ -1,38 +1,38 @@
 /**
  * WoW Gear Check — Cloudflare Worker
  * ============================================================
- * Secure server-side layer between the GitHub Pages frontend and:
- *   - Warcraft Logs API v2 (GraphQL, OAuth 2.0 client credentials)
- *   - Blizzard Game Data API (item enrichment)
+ * Secure server-side layer between the GitHub Pages frontend and
+ * the Blizzard Game Data / Profile API. Handles:
+ *   - Character equipment lookup (which slots into which items)
+ *   - Item enrichment (name, icon, quality)
  *
- * Required secrets (set with `wrangler secret put NAME`):
- *   WARCRAFTLOGS_CLIENT_ID
- *   WARCRAFTLOGS_CLIENT_SECRET
+ * Warcraft Logs is no longer used — its gear/armory data doesn't
+ * reliably cover Classic/Fresh realms. Blizzard's own Armory API
+ * (the same source tools like wowaudit use) is the gear source now.
+ *
+ * Required secrets (set as Cloudflare Worker secrets, never in code):
  *   BLIZZARD_CLIENT_ID
  *   BLIZZARD_CLIENT_SECRET
  *
- * Set your deployed GitHub Pages origin below (or as an
- * ALLOWED_ORIGIN environment variable) to lock down CORS in
- * production — see spec section 38.
- *
- * IMPORTANT — verify before shipping:
- * The exact Warcraft Logs OAuth token endpoint, GraphQL schema
- * fields, and Blizzard OAuth/namespace details below are written
- * to the documented v2 API shape as of this writing, but WoW APIs
- * change. Confirm each endpoint/query against current docs:
- *   https://www.warcraftlogs.com/api/docs
- *   https://develop.battle.net/documentation
+ * IMPORTANT — verify before relying on this long-term:
+ * The Classic namespace below (profile-classic-{region}) is a
+ * strong best guess based on Blizzard's namespace conventions
+ * (it mirrors static-classic-{region}, which is already confirmed
+ * working for item data). If character/equipment lookups 404,
+ * the first thing to try is swapping it for profile-classic1x-{region}
+ * — Blizzard splits "Classic Era"-style realms and "Classic
+ * progression" (through TBC/Wrath/etc.) realms into different
+ * namespaces, and which one Dreamscythe/Nightslayer use hasn't
+ * been confirmed against a live response yet.
  * ============================================================
  */
 
 const ALLOWED_ORIGIN = "https://kalium2.github.io"; // GitHub Pages origin (path-free, per CORS rules)
 
-const WCL_TOKEN_URL = "https://fresh.warcraftlogs.com/oauth/token";
-const WCL_GRAPHQL_URL = "https://fresh.warcraftlogs.com/api/v2/client";
-
-const BLIZZARD_TOKEN_URL_TEMPLATE = "https://oauth.battle.net/token"; // region-agnostic OAuth host
+const BLIZZARD_TOKEN_URL = "https://oauth.battle.net/token";
 const BLIZZARD_API_HOST = { us: "https://us.api.blizzard.com", eu: "https://eu.api.blizzard.com" };
-const BLIZZARD_NAMESPACE = { us: "static-classic-us", eu: "static-classic-eu" };
+const BLIZZARD_STATIC_NAMESPACE = { us: "static-classic-us", eu: "static-classic-eu" };
+const BLIZZARD_PROFILE_NAMESPACE = { us: "profile-classic-us", eu: "profile-classic-eu" };
 
 export default {
   async fetch(request, env, ctx) {
@@ -60,6 +60,9 @@ export default {
 
 /* ================================================================
    /api/character?name=&realm=&region=
+   ================================================================
+   Pulls the character's equipped gear straight from Blizzard's
+   Armory (Profile API) — the same source tools like wowaudit use.
    ================================================================ */
 async function handleCharacter(url, env) {
   const name = url.searchParams.get("name");
@@ -68,85 +71,76 @@ async function handleCharacter(url, env) {
 
   if (!name || !realm) return jsonError("Missing character name or realm.", 400);
 
-  const token = await getWclToken(env);
+  const token = await getBlizzardToken(env);
+  const host = BLIZZARD_API_HOST[region] || BLIZZARD_API_HOST.us;
+  const namespace = BLIZZARD_PROFILE_NAMESPACE[region] || BLIZZARD_PROFILE_NAMESPACE.us;
+  const realmSlug = slugifyRealm(realm);
+  const characterSlug = name.trim().toLowerCase(); // Blizzard requires lowercase in the URL path
 
-  // NOTE: verify exact field names/casing against the current WCL v2 schema.
-  const query = `
-    query CharacterGear($name: String!, $serverSlug: String!, $serverRegion: String!) {
-      characterData {
-        character(name: $name, serverSlug: $serverSlug, serverRegion: $serverRegion) {
-          name
-          classID
-          gameData
-        }
-      }
-    }
-  `;
+  const headers = { Authorization: `Bearer ${token}` };
 
-  const gqlRes = await fetch(WCL_GRAPHQL_URL, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      query,
-      variables: { name, serverSlug: slugifyRealm(realm), serverRegion: region },
-    }),
-  });
+  const [summaryRes, equipmentRes] = await Promise.all([
+    fetch(`${host}/profile/wow/character/${realmSlug}/${characterSlug}?namespace=${namespace}&locale=en_US`, { headers }),
+    fetch(`${host}/profile/wow/character/${realmSlug}/${characterSlug}/equipment?namespace=${namespace}&locale=en_US`, { headers }),
+  ]);
 
-  if (!gqlRes.ok) return jsonError("We couldn't retrieve this character. Please try again.", 502);
+  if (summaryRes.status === 404 || equipmentRes.status === 404) {
+    return jsonError("Character not found. Check the character name, realm, and region.", 404);
+  }
+  if (!summaryRes.ok || !equipmentRes.ok) {
+    return jsonError("We couldn't retrieve this character. Please try again.", 502);
+  }
 
-  const gqlJson = await gqlRes.json();
-  const character = gqlJson?.data?.characterData?.character;
+  const summary = await summaryRes.json();
+  const equipmentData = await equipmentRes.json();
 
-  if (!character) return jsonError("Character not found. Check the character name, realm, and region.", 404);
+  // TEMPORARY DIAGNOSTIC — remove once the equipment mapping is confirmed working.
+  console.log("RAW EQUIPMENT PAYLOAD:", JSON.stringify(equipmentData));
 
-  // TEMPORARY DIAGNOSTIC — remove once gear mapping is confirmed working.
-  console.log("RAW CHARACTER PAYLOAD:", JSON.stringify(character));
-
-  // gameData shape depends on what WCL returns for equipped gear — adapt
-  // this mapping once you've inspected a real response during Phase 2.
-  const gear = mapWclGearToSlots(character.gameData);
+  const gear = mapBlizzardEquipmentToGear(equipmentData);
 
   if (!gear || Object.keys(gear).length === 0) {
-    return jsonError("No Warcraft Logs gear data is available for this character.", 200);
+    return jsonError("No gear data is available for this character.", 200);
   }
 
   return jsonOk({
-    name: character.name,
-    class: mapClassIdToName(character.classID),
-    spec: character.gameData?.spec || null,
+    name: summary.name,
+    class: summary.character_class?.name ?? "Unknown",
+    spec: null, // Classic's talent trees aren't exposed as a "specialization" the way retail is
     gear,
   });
 }
 
-/** Placeholder mapper — WCL's `gameData` payload structure should be
- *  confirmed against a live response and translated into:
- *  { head: [itemId], trinket: [itemId, itemId], weaponConfig, ... } */
-function mapWclGearToSlots(gameData) {
-  if (!gameData || !Array.isArray(gameData.gear)) return null;
+/** Blizzard equipment slot type -> our internal slot key. */
+const SLOT_TYPE_MAP = {
+  HEAD: "head", NECK: "neck", SHOULDER: "shoulder", BACK: "back", CHEST: "chest",
+  WRIST: "wrist", HANDS: "hands", WAIST: "waist", LEGS: "legs", FEET: "feet",
+  FINGER_1: "finger", FINGER_2: "finger", TRINKET_1: "trinket", TRINKET_2: "trinket",
+  MAIN_HAND: "mainhand", OFF_HAND: "offhand", RANGED: "ranged", RANGEDRIGHT: "ranged",
+};
 
-  const SLOT_ID_MAP = {
-    0: "head", 1: "neck", 2: "shoulder", 14: "back", 4: "chest",
-    8: "wrist", 9: "hands", 5: "waist", 6: "legs", 7: "feet",
-    10: "finger", 11: "finger", 12: "trinket", 13: "trinket",
-    15: "mainhand", 16: "offhand", 17: "ranged",
-  };
-
+/** Maps Blizzard's equipped_items array into { slot: [itemId, ...], weaponConfig }. */
+function mapBlizzardEquipmentToGear(equipmentData) {
   const gear = {};
-  for (const piece of gameData.gear) {
-    const slot = SLOT_ID_MAP[piece.slot];
-    if (!slot) continue;
-    if (!gear[slot]) gear[slot] = [];
-    gear[slot].push(piece.id);
-  }
-  return gear;
-}
+  const items = Array.isArray(equipmentData?.equipped_items) ? equipmentData.equipped_items : [];
 
-function mapClassIdToName(classId) {
-  const CLASS_MAP = { 1: "Warrior", 9: "Warlock", 3: "Hunter" }; // extend as classes are added
-  return CLASS_MAP[classId] || "Unknown";
+  for (const piece of items) {
+    const key = SLOT_TYPE_MAP[piece.slot?.type];
+    if (!key) continue;
+    if (!gear[key]) gear[key] = [];
+    gear[key].push(piece.item?.id);
+  }
+
+  // Infer weapon configuration from what's actually equipped.
+  if (gear.mainhand && gear.offhand) {
+    gear.weaponConfig = "mainhand_offhand";
+  } else if (gear.mainhand) {
+    gear.weaponConfig = "twohand";
+    gear.twohand = gear.mainhand;
+    delete gear.mainhand;
+  }
+
+  return gear;
 }
 
 function slugifyRealm(realm) {
@@ -167,7 +161,7 @@ async function handleItems(request, env) {
 
   const token = await getBlizzardToken(env);
   const host = BLIZZARD_API_HOST[region] || BLIZZARD_API_HOST.us;
-  const namespace = BLIZZARD_NAMESPACE[region] || BLIZZARD_NAMESPACE.us;
+  const namespace = BLIZZARD_STATIC_NAMESPACE[region] || BLIZZARD_STATIC_NAMESPACE.us;
 
   const results = {};
   await Promise.all(
@@ -196,37 +190,16 @@ async function handleItems(request, env) {
 }
 
 /* ================================================================
-   OAUTH — client credentials flow, both APIs
+   OAUTH — Blizzard client credentials flow
    ================================================================
-   Tokens are cached in memory for the life of the Worker isolate.
-   For production traffic, consider caching in KV with the token's
-   expires_in to avoid repeated auth calls across isolates.
+   Token is cached in memory for the life of the Worker isolate.
    ================================================================ */
-let wclTokenCache = null; // { token, expiresAt }
-let blizzardTokenCache = null;
-
-async function getWclToken(env) {
-  if (wclTokenCache && wclTokenCache.expiresAt > Date.now()) return wclTokenCache.token;
-
-  const res = await fetch(WCL_TOKEN_URL, {
-    method: "POST",
-    headers: {
-      Authorization: "Basic " + btoa(`${env.WARCRAFTLOGS_CLIENT_ID}:${env.WARCRAFTLOGS_CLIENT_SECRET}`),
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
-    body: "grant_type=client_credentials",
-  });
-  if (!res.ok) throw new Error("Warcraft Logs authentication failed.");
-
-  const data = await res.json();
-  wclTokenCache = { token: data.access_token, expiresAt: Date.now() + (data.expires_in - 60) * 1000 };
-  return wclTokenCache.token;
-}
+let blizzardTokenCache = null; // { token, expiresAt }
 
 async function getBlizzardToken(env) {
   if (blizzardTokenCache && blizzardTokenCache.expiresAt > Date.now()) return blizzardTokenCache.token;
 
-  const res = await fetch(BLIZZARD_TOKEN_URL_TEMPLATE, {
+  const res = await fetch(BLIZZARD_TOKEN_URL, {
     method: "POST",
     headers: {
       Authorization: "Basic " + btoa(`${env.BLIZZARD_CLIENT_ID}:${env.BLIZZARD_CLIENT_SECRET}`),
