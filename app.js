@@ -181,7 +181,7 @@ function normalizeRealm(raw) {
  *  never exposes client credentials to this frontend (spec section 10). */
 async function fetchCharacterFromWorker(name, realm, region) {
   const url = `${WORKER_URL}/api/character?name=${encodeURIComponent(name)}&realm=${encodeURIComponent(realm)}&region=${encodeURIComponent(region)}`;
-  const res = await fetch(url);
+  const res = await fetch(url, { cache: "no-store" });
 
   if (res.status === 404) {
     throw new Error("Character not found. Check the character name, realm, and region.");
