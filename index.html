@@ -33,25 +33,33 @@
 
 <main class="page">
 
-  <!-- ============ STEP 1 — FETCH CHARACTER ============ -->
+  <!-- ============ STEP 1 — LOAD REPORT + PICK CHARACTER ============ -->
   <section class="panel step-panel" id="fetchPanel" aria-labelledby="fetchHeading">
     <div class="step-label"><span class="step-num">I</span><span>Summon Character</span></div>
     <h1 id="fetchHeading" class="panel-title">Find your character</h1>
-    <p class="panel-hint">Paste a Warcraft Logs report link and we'll read the gear that character logged with.</p>
+    <p class="panel-hint">Paste a Warcraft Logs report link, then pick your character from the roster.</p>
 
-    <form id="fetchForm" class="fetch-form" autocomplete="off">
-      <div class="field">
-        <label for="charName">Character name</label>
-        <input type="text" id="charName" name="charName" placeholder="Thrall" required maxlength="24">
-      </div>
+    <form id="reportForm" class="fetch-form" autocomplete="off">
       <div class="field field-report-url">
         <label for="reportUrl">Warcraft Logs report URL</label>
         <input type="text" id="reportUrl" name="reportUrl" placeholder="https://fresh.warcraftlogs.com/reports/AbC123XyZ" required>
+      </div>
+      <button type="submit" class="btn btn-primary btn-fetch" id="loadReportBtn">
+        <span class="btn-label">Load Report</span>
+        <span class="btn-spinner" hidden></span>
+      </button>
+    </form>
+
+    <form id="charSelectForm" class="fetch-form" autocomplete="off" hidden>
+      <div class="field field-report-url">
+        <label for="charSelect">Character</label>
+        <select id="charSelect" name="charSelect"></select>
       </div>
       <button type="submit" class="btn btn-primary btn-fetch" id="fetchBtn">
         <span class="btn-label">Fetch Character</span>
         <span class="btn-spinner" hidden></span>
       </button>
+      <button type="button" class="btn btn-ghost" id="changeReportBtn">Use a different report</button>
     </form>
 
     <p class="form-error" id="fetchError" role="alert" hidden></p>
