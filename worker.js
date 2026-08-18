@@ -102,6 +102,9 @@ async function handleCharacter(url, env) {
 
   if (!character) return jsonError("Character not found. Check the character name, realm, and region.", 404);
 
+  // TEMPORARY DIAGNOSTIC — remove once gear mapping is confirmed working.
+  console.log("RAW CHARACTER PAYLOAD:", JSON.stringify(character));
+
   // gameData shape depends on what WCL returns for equipped gear — adapt
   // this mapping once you've inspected a real response during Phase 2.
   const gear = mapWclGearToSlots(character.gameData);
