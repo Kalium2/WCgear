@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WoW Gear Check — TBC BiS Comparison</title>
+<meta name="description" content="Fetch your character from Warcraft Logs and check your gear against a curated Burning Crusade Best-in-Slot list.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="rune-noise" aria-hidden="true"></div>
+
+<header class="site-header">
+  <div class="header-inner">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 32 32" width="28" height="28">
+          <polygon points="16,2 29,9 29,23 16,30 3,23 3,9" fill="none" stroke="currentColor" stroke-width="1.4"/>
+          <polygon points="16,9 22.5,12.7 22.5,19.3 16,23 9.5,19.3 9.5,12.7" fill="currentColor" opacity="0.85"/>
+        </svg>
+      </span>
+      <div class="brand-text">
+        <span class="brand-title">Gear Check</span>
+        <span class="brand-sub">Burning Crusade · BiS Comparison</span>
+      </div>
+    </div>
+    <div class="header-phase-tag" id="scopeTag">Phase 3 · Phase 4</div>
+  </div>
+</header>
+
+<main class="page">
+
+  <!-- ============ STEP 1 — FETCH CHARACTER ============ -->
+  <section class="panel step-panel" id="fetchPanel" aria-labelledby="fetchHeading">
+    <div class="step-label"><span class="step-num">I</span><span>Summon Character</span></div>
+    <h1 id="fetchHeading" class="panel-title">Find your character</h1>
+    <p class="panel-hint">Pulled from Warcraft Logs. This reads your currently equipped gear only.</p>
+
+    <form id="fetchForm" class="fetch-form" autocomplete="off">
+      <div class="field">
+        <label for="charName">Character name</label>
+        <input type="text" id="charName" name="charName" placeholder="Thrall" required maxlength="24">
+      </div>
+      <div class="field">
+        <label for="charRealm">Realm</label>
+        <input type="text" id="charRealm" name="charRealm" placeholder="Illidan" required maxlength="32">
+      </div>
+      <div class="field field-region">
+        <label for="charRegion">Region</label>
+        <select id="charRegion" name="charRegion">
+          <option value="US" selected>US</option>
+          <option value="EU">EU</option>
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary btn-fetch" id="fetchBtn">
+        <span class="btn-label">Fetch Character</span>
+        <span class="btn-spinner" hidden></span>
+      </button>
+    </form>
+
+    <p class="form-error" id="fetchError" role="alert" hidden></p>
+
+    <div class="demo-note" id="demoNote" hidden>
+      <strong>Demo mode.</strong> No live Worker endpoint is configured yet, so this is showing sample gear so you can try the flow. Point <code>WORKER_URL</code> in <code>app.js</code> at your deployed Cloudflare Worker to go live.
+    </div>
+  </section>
+
+  <!-- ============ CHARACTER CARD (hidden until loaded) ============ -->
+  <section class="panel char-panel" id="charPanel" hidden aria-labelledby="charHeading">
+    <div class="char-panel-inner">
+      <div class="char-id">
+        <div class="char-name-row">
+          <h2 id="charHeading" class="char-name"></h2>
+          <span class="char-class-pill" id="charClassPill"></span>
+        </div>
+        <dl class="char-meta">
+          <div><dt>Warcraft Logs Spec</dt><dd id="charSpec">—</dd></div>
+          <div><dt>Realm</dt><dd id="charRealmOut">—</dd></div>
+          <div><dt>Region</dt><dd id="charRegionOut">—</dd></div>
+          <div><dt>Gear</dt><dd id="charGearStatus">—</dd></div>
+        </dl>
+      </div>
+      <button type="button" class="btn btn-ghost" id="refetchBtn">Fetch a different character</button>
+    </div>
+  </section>
+
+  <!-- ============ STEP 2 — COMPARE GEAR ============ -->
+  <section class="panel step-panel" id="comparePanel" hidden aria-labelledby="compareHeading">
+    <div class="step-label"><span class="step-num">II</span><span>Compare Gear</span></div>
+    <h2 id="compareHeading" class="panel-title">Check against Best-in-Slot</h2>
+    <p class="panel-hint">Same loaded gear, any phase or spec combination — no refetch needed.</p>
+
+    <form id="compareForm" class="compare-form" autocomplete="off">
+      <div class="field">
+        <label for="phaseSelect">Phase</label>
+        <select id="phaseSelect" name="phase">
+          <option value="phase3">Phase 3</option>
+          <option value="phase4" selected>Phase 4</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="specSelect">Specialization</label>
+        <select id="specSelect" name="spec">
+          <option value="arms_warrior">Arms Warrior</option>
+          <option value="destruction_warlock">Destruction Warlock</option>
+          <option value="beast_mastery_hunter">Beast Mastery Hunter</option>
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary" id="checkBtn">Check Gear</button>
+    </form>
+
+    <p class="spec-warning" id="specWarning" hidden></p>
+  </section>
+
+  <!-- ============ RESULTS ============ -->
+  <section class="panel results-panel" id="resultsPanel" hidden aria-labelledby="resultsHeading">
+    <div class="results-header">
+      <h2 id="resultsHeading" class="panel-title">Results</h2>
+      <div class="results-summary" id="resultsSummary"></div>
+    </div>
+
+    <div class="results-grid" id="weaponResults" aria-label="Weapons"></div>
+    <div class="results-grid" id="armorResults" aria-label="Armor"></div>
+  </section>
+
+  <div class="empty-state" id="loadedEmptyState" hidden>
+    <p>Gear loaded. Choose a phase and specialization above, then check your gear.</p>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <p>Item data enriched via the Blizzard Game Data API where available. BiS lists are manually curated and may lag behind live changes.</p>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
