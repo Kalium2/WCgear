@@ -278,7 +278,7 @@ function populateSpecOptions(detectedClass) {
 /* ================================================================
    STEP 2 — CHECK GEAR
    ================================================================ */
-function onCheckGear(evt) {
+async function onCheckGear(evt) {
   evt.preventDefault();
   const phase = els.phaseSelect.value;
   const specValue = els.specSelect.value;
@@ -293,10 +293,43 @@ function onCheckGear(evt) {
   }
 
   const results = runComparison(state.gear, bisSet);
-  renderResults(results, phase, specMeta);
+  const itemIds = collectItemIds(results);
+  const enrichment = await fetchItemEnrichment(itemIds);
+
+  renderResults(results, phase, specMeta, enrichment);
   els.loadedEmptyState.hidden = true;
   els.resultsPanel.hidden = false;
   els.resultsPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+/** Every equipped/recommended item ID referenced across the results, deduped. */
+function collectItemIds(results) {
+  const ids = new Set();
+  [...results.weapons, ...results.armor].forEach((r) => {
+    if (r.equippedId != null) ids.add(r.equippedId);
+    if (r.recommendedId != null) ids.add(r.recommendedId);
+  });
+  return [...ids];
+}
+
+/** Calls the Worker's /api/items endpoint for name/icon/quality. Returns
+ *  {} (safe no-op) in demo mode or if the request fails, so the UI just
+ *  falls back to showing item IDs rather than breaking. */
+async function fetchItemEnrichment(itemIds) {
+  if (!WORKER_URL || itemIds.length === 0) return {};
+  try {
+    const res = await fetch(`${WORKER_URL}/api/items`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ itemIds, region: (state.character?.region || "us").toLowerCase() }),
+    });
+    if (!res.ok) return {};
+    const data = await res.json();
+    return data.items || {};
+  } catch (err) {
+    console.error("Item enrichment failed", err);
+    return {};
+  }
 }
 
 function renderSpecWarning(specMeta) {
@@ -424,7 +457,7 @@ function resolveMultiSlot(equippedIds, bisRanked, slotCount) {
 /* ================================================================
    RENDER — RESULTS
    ================================================================ */
-function renderResults(results, phase, specMeta) {
+function renderResults(results, phase, specMeta, enrichment) {
   const all = [...results.weapons, ...results.armor];
   const tally = { bis: 0, upgrade: 0, unknown: 0 };
   all.forEach((r) => tally[r.state]++);
@@ -436,10 +469,10 @@ function renderResults(results, phase, specMeta) {
   `;
 
   els.weaponResults.innerHTML = "";
-  results.weapons.forEach((r) => els.weaponResults.appendChild(renderSlotCard(r)));
+  results.weapons.forEach((r) => els.weaponResults.appendChild(renderSlotCard(r, enrichment)));
 
   els.armorResults.innerHTML = "";
-  results.armor.forEach((r) => els.armorResults.appendChild(renderSlotCard(r)));
+  results.armor.forEach((r) => els.armorResults.appendChild(renderSlotCard(r, enrichment)));
 }
 
 const STATE_META = {
@@ -448,7 +481,7 @@ const STATE_META = {
   unknown: { badge: "Unable to Check", cls: "state-unknown" },
 };
 
-function renderSlotCard(result) {
+function renderSlotCard(result, enrichment) {
   const meta = STATE_META[result.state];
   const card = document.createElement("div");
   card.className = `slot-card ${meta.cls}`;
@@ -461,15 +494,15 @@ function renderSlotCard(result) {
       <span class="slot-state-badge"><span class="dot"></span>${meta.badge}</span>
     </div>
     <div class="result-icon-flow">
-      ${renderItemChip(result.equippedId, result.state === "bis" ? "Equipped — matches BiS" : "Currently equipped")}
-      ${showArrow ? `<span class="flow-arrow">→</span>${renderItemChip(result.recommendedId, "Recommended")}` : ""}
+      ${renderItemChip(result.equippedId, result.state === "bis" ? "Equipped — matches BiS" : "Currently equipped", enrichment)}
+      ${showArrow ? `<span class="flow-arrow">→</span>${renderItemChip(result.recommendedId, "Recommended", enrichment)}` : ""}
     </div>
     ${result.state === "unknown" ? `<div class="slot-note">Not enough reliable data to evaluate this slot yet.</div>` : ""}
   `;
   return card;
 }
 
-function renderItemChip(itemId, sourceLabel) {
+function renderItemChip(itemId, sourceLabel, enrichment) {
   if (itemId == null) {
     return `
       <div class="item-chip">
@@ -480,14 +513,18 @@ function renderItemChip(itemId, sourceLabel) {
         </div>
       </div>`;
   }
-  // Name/icon/source enrichment comes from the Blizzard API via the
-  // Worker (section 25). Until that's wired up, show the item ID —
-  // the authoritative identifier per section 24.
+
+  const info = enrichment?.[itemId];
+  const iconMarkup = info?.icon
+    ? `<img class="item-icon" src="${escapeHtml(info.icon)}" alt="" loading="lazy">`
+    : `<div class="item-icon placeholder">#</div>`;
+  const nameText = info?.name ? escapeHtml(info.name) : `Item ${itemId}`;
+
   return `
     <div class="item-chip">
-      <div class="item-icon placeholder">#</div>
+      ${iconMarkup}
       <div class="item-text">
-        <div class="item-name">Item ${itemId}</div>
+        <div class="item-name">${nameText}</div>
         <div class="item-source">${escapeHtml(sourceLabel)}</div>
       </div>
     </div>`;
