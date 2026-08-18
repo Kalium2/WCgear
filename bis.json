@@ -1,0 +1,196 @@
+{
+  "_readme": "Sourced August 2026 from tbc-bis-guide.com, which ranks slots by what the top ~230-330 Warcraft Logs parsers per spec actually equip in each phase (usage-based, not theorycraft). Phase boundaries follow the standard TBC Classic split: Phase 3 = Black Temple + Battle for Mount Hyjal (Tier 6), Phase 4 = Zul'Aman + Badge of Justice gear. IMPORTANT: the upstream source's Phase 3 Beast Mastery Hunter list included three Zul'Aman drops (Signet of Primal Wrath, Berserker's Call, Dagger of Bad Mojo) that are not obtainable until Phase 4; those were removed from phase3 here and replaced with phase-legal alternatives (Band of the Eternal Champion, Bloodlust Brooch). Every phase3 entry below was checked against its drop source to confirm it predates Zul'Aman. Rank 2+ entries are next-best alternatives, not independently simmed. The app reads only 'itemId' and 'rank'; 'name' and 'source' are for human reference while auditing.",
+
+  "phase3": {
+    "arms_warrior": {
+      "weaponConfig": "twohand",
+      "twohand": [
+        { "itemId": 30902, "rank": 1, "name": "Cataclysm's Edge", "source": "Archimonde - Hyjal" },
+        { "itemId": 32348, "rank": 2, "name": "Soul Cleaver", "source": "Teron Gorefiend - Black Temple" }
+      ],
+      "mainhand": [
+        { "itemId": 32838, "rank": 1, "name": "Warglaive of Azzinoth", "source": "Illidan Stormrage - Black Temple" }
+      ],
+      "offhand": [
+        { "itemId": 33669, "rank": 1, "name": "Vengeful Gladiator's Cleaver", "source": "Arena Vendor (Season 3)" }
+      ],
+      "ranged": [
+        { "itemId": 32054, "rank": 1, "name": "Merciless Gladiator's War Edge", "source": "Arena Points" }
+      ],
+      "head": [ { "itemId": 32235, "rank": 1, "name": "Cursed Vision of Sargeras", "source": "Illidan Stormrage - Black Temple" } ],
+      "neck": [ { "itemId": 32260, "rank": 1, "name": "Choker of Endless Nightmares", "source": "Supremus - Black Temple" } ],
+      "shoulder": [ { "itemId": 30979, "rank": 1, "name": "Onslaught Shoulderblades", "source": "Mother Shahraz - Black Temple" } ],
+      "back": [ { "itemId": 32323, "rank": 1, "name": "Shadowmoon Destroyer's Drape", "source": "Teron Gorefiend - Black Temple" } ],
+      "chest": [ { "itemId": 30975, "rank": 1, "name": "Onslaught Breastplate", "source": "Illidan Stormrage - Black Temple" } ],
+      "wrist": [ { "itemId": 30863, "rank": 1, "name": "Deadly Cuffs", "source": "Rage Winterchill - Hyjal" } ],
+      "hands": [ { "itemId": 32278, "rank": 1, "name": "Grips of Silent Justice", "source": "Shade of Akama - Black Temple" } ],
+      "waist": [ { "itemId": 30106, "rank": 1, "name": "Belt of One-Hundred Deaths", "source": "Lady Vashj - Serpentshrine Cavern" } ],
+      "legs": [ { "itemId": 32341, "rank": 1, "name": "Leggings of Divine Retribution", "source": "Gurtogg Bloodboil - Black Temple" } ],
+      "feet": [ { "itemId": 32345, "rank": 1, "name": "Dreadboots of the Legion", "source": "Reliquary of Souls - Black Temple" } ],
+      "finger": [
+        { "itemId": 32497, "rank": 1, "name": "Stormrage Signet Ring", "source": "Illidan Stormrage - Black Temple" },
+        { "itemId": 32335, "rank": 2, "name": "Unstoppable Aggressor's Ring", "source": "Gurtogg Bloodboil - Black Temple" }
+      ],
+      "trinket": [
+        { "itemId": 28830, "rank": 1, "name": "Dragonspine Trophy", "source": "Gruul the Dragonkiller - Gruul's Lair" },
+        { "itemId": 32505, "rank": 2, "name": "Madness of the Betrayer", "source": "The Illidari Council - Black Temple" }
+      ]
+    },
+
+    "destruction_warlock": {
+      "weaponConfig": "twohand",
+      "twohand": [ { "itemId": 32374, "rank": 1, "name": "Zhar'doom, Greatstaff of the Devourer", "source": "Illidan Stormrage - Black Temple" } ],
+      "mainhand": [ { "itemId": 30910, "rank": 1, "name": "Tempest of Chaos", "source": "Archimonde - Hyjal" } ],
+      "offhand": [ { "itemId": 30872, "rank": 1, "name": "Chronicle of Dark Secrets", "source": "Rage Winterchill - Hyjal" } ],
+      "ranged": [ { "itemId": 29982, "rank": 1, "name": "Wand of the Forgotten Star", "source": "High Astromancer Solarian - Tempest Keep" } ],
+      "head": [ { "itemId": 31051, "rank": 1, "name": "Hood of the Malefic", "source": "Archimonde - Hyjal" } ],
+      "neck": [ { "itemId": 30015, "rank": 1, "name": "The Sun King's Talisman", "source": "Kael'thas Sunstrider - Tempest Keep" } ],
+      "shoulder": [ { "itemId": 31054, "rank": 1, "name": "Mantle of the Malefic", "source": "Mother Shahraz - Black Temple" } ],
+      "back": [ { "itemId": 32524, "rank": 1, "name": "Shroud of the Highborne", "source": "Illidan Stormrage - Black Temple" } ],
+      "chest": [ { "itemId": 30107, "rank": 1, "name": "Vestments of the Sea-Witch", "source": "Lady Vashj - Serpentshrine Cavern" } ],
+      "wrist": [ { "itemId": 32586, "rank": 1, "name": "Bracers of Nimble Thought", "source": "Tailoring (375)" } ],
+      "hands": [ { "itemId": 31050, "rank": 1, "name": "Gloves of the Malefic", "source": "Azgalor - Hyjal" } ],
+      "waist": [ { "itemId": 30888, "rank": 1, "name": "Anetheron's Noose", "source": "Anetheron - Hyjal" } ],
+      "legs": [ { "itemId": 31053, "rank": 1, "name": "Leggings of the Malefic", "source": "The Illidari Council - Black Temple" } ],
+      "feet": [ { "itemId": 32239, "rank": 1, "name": "Slippers of the Seacaller", "source": "High Warlord Naj'entus - Black Temple" } ],
+      "finger": [
+        { "itemId": 32247, "rank": 1, "name": "Ring of Captured Storms", "source": "High Warlord Naj'entus - Black Temple" },
+        { "itemId": 32527, "rank": 2, "name": "Ring of Ancient Knowledge", "source": "Trash Drop - Black Temple" }
+      ],
+      "trinket": [
+        { "itemId": 32483, "rank": 1, "name": "The Skull of Gul'dan", "source": "Illidan Stormrage - Black Temple" },
+        { "itemId": 27683, "rank": 2, "name": "Quagmirran's Eye", "source": "Quagmirran - The Slave Pens (H)" }
+      ]
+    },
+
+    "beast_mastery_hunter": {
+      "weaponConfig": "twohand",
+      "twohand": [ { "itemId": 29993, "rank": 1, "name": "Twinblade of the Phoenix", "source": "Kael'thas Sunstrider - Tempest Keep" } ],
+      "mainhand": [ { "itemId": 30901, "rank": 1, "name": "Boundless Agony", "source": "Azgalor - Hyjal" } ],
+      "offhand": [ { "itemId": 30881, "rank": 1, "name": "Blade of Infamy", "source": "Anetheron - Hyjal" } ],
+      "ranged": [ { "itemId": 30906, "rank": 1, "name": "Bristleblitz Striker", "source": "Archimonde - Hyjal" } ],
+      "head": [ { "itemId": 32235, "rank": 1, "name": "Cursed Vision of Sargeras", "source": "Illidan Stormrage - Black Temple" } ],
+      "neck": [ { "itemId": 32591, "rank": 1, "name": "Choker of Serrated Blades", "source": "Trash Drop - Black Temple" } ],
+      "shoulder": [ { "itemId": 31006, "rank": 1, "name": "Gronnstalker's Spaulders", "source": "Mother Shahraz - Black Temple" } ],
+      "back": [ { "itemId": 29994, "rank": 1, "name": "Thalassian Wildercloak", "source": "Kael'thas Sunstrider - Tempest Keep" } ],
+      "chest": [ { "itemId": 31004, "rank": 1, "name": "Gronnstalker's Chestguard", "source": "Illidan Stormrage - Black Temple" } ],
+      "wrist": [ { "itemId": 32324, "rank": 1, "name": "Insidious Bands", "source": "Teron Gorefiend - Black Temple" } ],
+      "hands": [ { "itemId": 31001, "rank": 1, "name": "Gronnstalker's Gloves", "source": "Azgalor - Hyjal" } ],
+      "waist": [ { "itemId": 30879, "rank": 1, "name": "Don Alejandro's Money Belt", "source": "Anetheron - Hyjal" } ],
+      "legs": [ { "itemId": 31005, "rank": 1, "name": "Gronnstalker's Leggings", "source": "The Illidari Council - Black Temple" } ],
+      "feet": [ { "itemId": 32366, "rank": 1, "name": "Shadowmaster's Boots", "source": "Mother Shahraz - Black Temple" } ],
+      "finger": [
+        { "itemId": 32497, "rank": 1, "name": "Stormrage Signet Ring", "source": "Illidan Stormrage - Black Temple" },
+        { "itemId": 29301, "rank": 2, "name": "Band of the Eternal Champion", "source": "Scale of the Sands - Exalted (replaces upstream's Zul'Aman ring, which is Phase 4)" }
+      ],
+      "trinket": [
+        { "itemId": 28830, "rank": 1, "name": "Dragonspine Trophy", "source": "Gruul the Dragonkiller - Gruul's Lair" },
+        { "itemId": 29383, "rank": 2, "name": "Bloodlust Brooch", "source": "Badge of Justice (replaces upstream's Berserker's Call, which is Phase 4)" }
+      ]
+    }
+  },
+
+  "phase4": {
+    "arms_warrior": {
+      "weaponConfig": "twohand",
+      "twohand": [
+        { "itemId": 30902, "rank": 1, "name": "Cataclysm's Edge", "source": "Archimonde - Hyjal" },
+        { "itemId": 32348, "rank": 2, "name": "Soul Cleaver", "source": "Teron Gorefiend - Black Temple" }
+      ],
+      "mainhand": [ { "itemId": 32838, "rank": 1, "name": "Warglaive of Azzinoth", "source": "Illidan Stormrage - Black Temple" } ],
+      "offhand": [ { "itemId": 33669, "rank": 1, "name": "Vengeful Gladiator's Cleaver", "source": "Arena Vendor (Season 3)" } ],
+      "ranged": [ { "itemId": 33474, "rank": 1, "name": "Ancient Amani Longbow", "source": "Zul'jin - Zul'Aman" } ],
+      "head": [ { "itemId": 32235, "rank": 1, "name": "Cursed Vision of Sargeras", "source": "Illidan Stormrage - Black Temple" } ],
+      "neck": [ { "itemId": 32260, "rank": 1, "name": "Choker of Endless Nightmares", "source": "Supremus - Black Temple" } ],
+      "shoulder": [ { "itemId": 30979, "rank": 1, "name": "Onslaught Shoulderblades", "source": "Mother Shahraz - Black Temple" } ],
+      "back": [ { "itemId": 32323, "rank": 1, "name": "Shadowmoon Destroyer's Drape", "source": "Teron Gorefiend - Black Temple" } ],
+      "chest": [ { "itemId": 30975, "rank": 1, "name": "Onslaught Breastplate", "source": "Illidan Stormrage - Black Temple" } ],
+      "wrist": [ { "itemId": 30863, "rank": 1, "name": "Deadly Cuffs", "source": "Rage Winterchill - Hyjal" } ],
+      "hands": [ { "itemId": 32278, "rank": 1, "name": "Grips of Silent Justice", "source": "Shade of Akama - Black Temple" } ],
+      "waist": [ { "itemId": 30106, "rank": 1, "name": "Belt of One-Hundred Deaths", "source": "Lady Vashj - Serpentshrine Cavern" } ],
+      "legs": [ { "itemId": 32341, "rank": 1, "name": "Leggings of Divine Retribution", "source": "Gurtogg Bloodboil - Black Temple" } ],
+      "feet": [ { "itemId": 32345, "rank": 1, "name": "Dreadboots of the Legion", "source": "Reliquary of Souls - Black Temple" } ],
+      "finger": [
+        { "itemId": 32497, "rank": 1, "name": "Stormrage Signet Ring", "source": "Illidan Stormrage - Black Temple" },
+        { "itemId": 33496, "rank": 2, "name": "Signet of Primal Wrath", "source": "Timed Event - Zul'Aman" },
+        { "itemId": 32335, "rank": 3, "name": "Unstoppable Aggressor's Ring", "source": "Gurtogg Bloodboil - Black Temple" }
+      ],
+      "trinket": [
+        { "itemId": 28830, "rank": 1, "name": "Dragonspine Trophy", "source": "Gruul the Dragonkiller - Gruul's Lair" },
+        { "itemId": 33831, "rank": 2, "name": "Berserker's Call", "source": "Zul'jin - Zul'Aman" },
+        { "itemId": 32505, "rank": 3, "name": "Madness of the Betrayer", "source": "The Illidari Council - Black Temple" }
+      ]
+    },
+
+    "destruction_warlock": {
+      "weaponConfig": "twohand",
+      "twohand": [ { "itemId": 32374, "rank": 1, "name": "Zhar'doom, Greatstaff of the Devourer", "source": "Illidan Stormrage - Black Temple" } ],
+      "mainhand": [ { "itemId": 30910, "rank": 1, "name": "Tempest of Chaos", "source": "Archimonde - Hyjal" } ],
+      "offhand": [ { "itemId": 30872, "rank": 1, "name": "Chronicle of Dark Secrets", "source": "Rage Winterchill - Hyjal" } ],
+      "ranged": [ { "itemId": 33192, "rank": 1, "name": "Carved Witch Doctor's Stick", "source": "Badge of Justice - G'eras" } ],
+      "head": [ { "itemId": 31051, "rank": 1, "name": "Hood of the Malefic", "source": "Archimonde - Hyjal" } ],
+      "neck": [
+        { "itemId": 32349, "rank": 1, "name": "Translucent Spellthread Necklace", "source": "Reliquary of Souls - Black Temple" },
+        { "itemId": 30015, "rank": 2, "name": "The Sun King's Talisman", "source": "Kael'thas Sunstrider - Tempest Keep" }
+      ],
+      "shoulder": [ { "itemId": 31054, "rank": 1, "name": "Mantle of the Malefic", "source": "Mother Shahraz - Black Temple" } ],
+      "back": [ { "itemId": 32524, "rank": 1, "name": "Shroud of the Highborne", "source": "Illidan Stormrage - Black Temple" } ],
+      "chest": [ { "itemId": 30107, "rank": 1, "name": "Vestments of the Sea-Witch", "source": "Lady Vashj - Serpentshrine Cavern" } ],
+      "wrist": [ { "itemId": 32586, "rank": 1, "name": "Bracers of Nimble Thought", "source": "Tailoring (375)" } ],
+      "hands": [ { "itemId": 31050, "rank": 1, "name": "Gloves of the Malefic", "source": "Azgalor - Hyjal" } ],
+      "waist": [
+        { "itemId": 30038, "rank": 1, "name": "Belt of Blasting", "source": "Tailoring (375)" },
+        { "itemId": 30888, "rank": 2, "name": "Anetheron's Noose", "source": "Anetheron - Hyjal" }
+      ],
+      "legs": [ { "itemId": 31053, "rank": 1, "name": "Leggings of the Malefic", "source": "The Illidari Council - Black Temple" } ],
+      "feet": [ { "itemId": 32239, "rank": 1, "name": "Slippers of the Seacaller", "source": "High Warlord Naj'entus - Black Temple" } ],
+      "finger": [
+        { "itemId": 33497, "rank": 1, "name": "Mana Attuned Band", "source": "Timed Event - Zul'Aman" },
+        { "itemId": 32527, "rank": 2, "name": "Ring of Ancient Knowledge", "source": "Trash Drop - Black Temple" },
+        { "itemId": 32247, "rank": 3, "name": "Ring of Captured Storms", "source": "High Warlord Naj'entus - Black Temple" }
+      ],
+      "trinket": [
+        { "itemId": 32483, "rank": 1, "name": "The Skull of Gul'dan", "source": "Illidan Stormrage - Black Temple" },
+        { "itemId": 33829, "rank": 2, "name": "Hex Shrunken Head", "source": "Hex Lord Malacrass - Zul'Aman" },
+        { "itemId": 27683, "rank": 3, "name": "Quagmirran's Eye", "source": "Quagmirran - The Slave Pens (H)" }
+      ]
+    },
+
+    "beast_mastery_hunter": {
+      "weaponConfig": "twohand",
+      "twohand": [ { "itemId": 29993, "rank": 1, "name": "Twinblade of the Phoenix", "source": "Kael'thas Sunstrider - Tempest Keep" } ],
+      "mainhand": [
+        { "itemId": 30901, "rank": 1, "name": "Boundless Agony", "source": "Azgalor - Hyjal" },
+        { "itemId": 33389, "rank": 2, "name": "Dagger of Bad Mojo", "source": "Hex Lord Malacrass - Zul'Aman" }
+      ],
+      "offhand": [ { "itemId": 30881, "rank": 1, "name": "Blade of Infamy", "source": "Anetheron - Hyjal" } ],
+      "ranged": [ { "itemId": 30906, "rank": 1, "name": "Bristleblitz Striker", "source": "Archimonde - Hyjal" } ],
+      "head": [ { "itemId": 32235, "rank": 1, "name": "Cursed Vision of Sargeras", "source": "Illidan Stormrage - Black Temple" } ],
+      "neck": [
+        { "itemId": 32260, "rank": 1, "name": "Choker of Endless Nightmares", "source": "Supremus - Black Temple" },
+        { "itemId": 32591, "rank": 2, "name": "Choker of Serrated Blades", "source": "Trash Drop - Black Temple" }
+      ],
+      "shoulder": [ { "itemId": 31006, "rank": 1, "name": "Gronnstalker's Spaulders", "source": "Mother Shahraz - Black Temple" } ],
+      "back": [ { "itemId": 32323, "rank": 1, "name": "Shadowmoon Destroyer's Drape", "source": "Teron Gorefiend - Black Temple" } ],
+      "chest": [ { "itemId": 31004, "rank": 1, "name": "Gronnstalker's Chestguard", "source": "Illidan Stormrage - Black Temple" } ],
+      "wrist": [ { "itemId": 32324, "rank": 1, "name": "Insidious Bands", "source": "Teron Gorefiend - Black Temple" } ],
+      "hands": [ { "itemId": 31001, "rank": 1, "name": "Gronnstalker's Gloves", "source": "Azgalor - Hyjal" } ],
+      "waist": [
+        { "itemId": 32346, "rank": 1, "name": "Boneweave Girdle", "source": "Reliquary of Souls - Black Temple" },
+        { "itemId": 30879, "rank": 2, "name": "Don Alejandro's Money Belt", "source": "Anetheron - Hyjal" }
+      ],
+      "legs": [ { "itemId": 31005, "rank": 1, "name": "Gronnstalker's Leggings", "source": "The Illidari Council - Black Temple" } ],
+      "feet": [ { "itemId": 32366, "rank": 1, "name": "Shadowmaster's Boots", "source": "Mother Shahraz - Black Temple" } ],
+      "finger": [
+        { "itemId": 33496, "rank": 1, "name": "Signet of Primal Wrath", "source": "Timed Event - Zul'Aman" },
+        { "itemId": 32497, "rank": 2, "name": "Stormrage Signet Ring", "source": "Illidan Stormrage - Black Temple" },
+        { "itemId": 29301, "rank": 3, "name": "Band of the Eternal Champion", "source": "Scale of the Sands - Exalted" }
+      ],
+      "trinket": [
+        { "itemId": 28830, "rank": 1, "name": "Dragonspine Trophy", "source": "Gruul the Dragonkiller - Gruul's Lair" },
+        { "itemId": 33831, "rank": 2, "name": "Berserker's Call", "source": "Zul'jin - Zul'Aman" },
+        { "itemId": 29383, "rank": 3, "name": "Bloodlust Brooch", "source": "Badge of Justice" }
+      ]
+    }
+  }
+}
