@@ -245,10 +245,15 @@ async function handleItems(request, env) {
     BLIZZARD_RETAIL_NAMESPACE[region] || BLIZZARD_RETAIL_NAMESPACE.us,
   ];
 
+  // Cloudflare caps total subrequests per Worker invocation. Track a
+  // budget so a large batch degrades gracefully (names without icons,
+  // rather than whole items silently vanishing from the results).
+  const budget = { remaining: 40 };
+
   const results = {};
   await Promise.all(
     itemIds.map(async (id) => {
-      const item = await fetchItemAcrossNamespaces(host, namespaces, headers, id);
+      const item = await fetchItemAcrossNamespaces(host, namespaces, headers, id, budget);
       if (item) results[id] = item;
     })
   );
@@ -257,27 +262,27 @@ async function handleItems(request, env) {
 }
 
 /** Tries each namespace in order (Classic, then retail as fallback)
- *  and returns the first successful result. No retries here — Cloudflare
- *  Workers cap total subrequests per invocation, and with ~2 requests
- *  per item (data + icon) across a full ~18-item gear set, retrying
- *  pushed us straight past that ceiling and caused every remaining
- *  item in the batch to fail. One attempt per namespace is the budget. */
-async function fetchItemAcrossNamespaces(host, namespaces, headers, id) {
+ *  and returns the first successful result. No retries — Cloudflare
+ *  Workers cap total subrequests per invocation, so the budget is
+ *  spent on covering more items rather than re-attempting failures. */
+async function fetchItemAcrossNamespaces(host, namespaces, headers, id, budget) {
   for (const namespace of namespaces) {
-    const item = await fetchItemFromNamespace(host, namespace, headers, id);
+    const item = await fetchItemFromNamespace(host, namespace, headers, id, budget);
     if (item) return item;
   }
   return null;
 }
 
-/** Fetches a single item's data + icon from one namespace. Logs the
- *  real failure reason so it's visible if it keeps happening. */
-async function fetchItemFromNamespace(host, namespace, headers, id) {
+/** Fetches a single item's name (and its icon, budget permitting) from
+ *  one namespace. The name request is always prioritized over the icon
+ *  request, so if we're running low on subrequest budget we still show
+ *  a real item name instead of a bare ID. */
+async function fetchItemFromNamespace(host, namespace, headers, id, budget) {
+  if (budget.remaining <= 0) return null;
+
   try {
-    const [itemRes, mediaRes] = await Promise.all([
-      fetch(`${host}/data/wow/item/${id}?namespace=${namespace}&locale=en_US`, { headers }),
-      fetch(`${host}/data/wow/media/item/${id}?namespace=${namespace}&locale=en_US`, { headers }),
-    ]);
+    budget.remaining--;
+    const itemRes = await fetch(`${host}/data/wow/item/${id}?namespace=${namespace}&locale=en_US`, { headers });
 
     if (!itemRes.ok) {
       console.error(`Item ${id} [${namespace}] fetch failed: status ${itemRes.status}`);
@@ -286,11 +291,17 @@ async function fetchItemFromNamespace(host, namespace, headers, id) {
     const item = await itemRes.json();
 
     let icon = null;
-    if (mediaRes.ok) {
-      const media = await mediaRes.json();
-      icon = media.assets?.find((a) => a.key === "icon")?.value || null;
-    } else {
-      console.error(`Item ${id} [${namespace}] media fetch failed: status ${mediaRes.status}`);
+    if (budget.remaining > 0) {
+      budget.remaining--;
+      try {
+        const mediaRes = await fetch(`${host}/data/wow/media/item/${id}?namespace=${namespace}&locale=en_US`, { headers });
+        if (mediaRes.ok) {
+          const media = await mediaRes.json();
+          icon = media.assets?.find((a) => a.key === "icon")?.value || null;
+        }
+      } catch {
+        // Icon is optional — a missing icon still leaves a usable named item.
+      }
     }
 
     return {
