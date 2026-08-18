@@ -1670,14 +1670,6 @@
           "name": "Hex Shrunken Head",
           "source": "Hex Lord Malacrass - Zul'Aman"
         },
-        {
-          "itemId": 27683,
-          "rank": 3,
-          "name": "Quagmirran's Eye",
-          "source": "Quagmirran - Heroic The Slave Pens"
-        }
-      ]
-    },
     "beast_mastery_hunter": {
       "weaponConfig": "twohand",
       "twohand": [
