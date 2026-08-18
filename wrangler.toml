@@ -1,0 +1,8 @@
+name = "wow-gear-check"
+main = "worker.js"
+compatibility_date = "2026-08-01"
+
+# ALLOWED_ORIGIN can also be set here instead of hardcoding it in worker.js.
+# Uncomment and fill in once your GitHub Pages site is live:
+# [vars]
+# ALLOWED_ORIGIN = "https://yourusername.github.io"
