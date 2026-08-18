@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>WoW Gear Check — TBC BiS Comparison</title>
-<meta name="description" content="Fetch your character from Warcraft Logs and check your gear against a curated Burning Crusade Best-in-Slot list.">
+<meta name="description" content="Fetch your character from Warcraft Logs and check your gear against Wowhead's curated Burning Crusade Best-in-Slot list.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -46,6 +46,7 @@
       </div>
       <button type="submit" class="btn btn-primary btn-fetch" id="loadReportBtn">
         <span class="btn-label">Load Report</span>
+        <span class="btn-spinner" hidden></span>
       </button>
     </form>
 
@@ -56,6 +57,7 @@
       </div>
       <button type="submit" class="btn btn-primary btn-fetch" id="fetchBtn">
         <span class="btn-label">Fetch Character</span>
+        <span class="btn-spinner" hidden></span>
       </button>
       <button type="button" class="btn btn-ghost" id="changeReportBtn">Use a different report</button>
     </form>
