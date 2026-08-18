@@ -473,7 +473,11 @@ function runComparison(gear, bisSet) {
   const results = { weapons: [], armor: [] };
 
   // --- weapons: simple display categories, section 22 ---
-  const weaponConfig = bisSet.weaponConfig || gear.weaponConfig;
+  // The character's actual equipped layout drives which rows we show —
+  // a player running main hand + off hand shouldn't see a Two-Hand row
+  // just because the BiS list happens to recommend a staff (and vice
+  // versa). The BiS config is only a fallback when gear is ambiguous.
+  const weaponConfig = gear.weaponConfig || bisSet.weaponConfig;
   if (weaponConfig === "twohand") {
     results.weapons.push(compareSingleSlot("Two-Hand", gear.twohand, bisSet.twohand));
   } else {
@@ -506,7 +510,13 @@ function runComparison(gear, bisSet) {
  *  ranked BiS list for that slot (rank 1 = best). */
 function compareSingleSlot(label, equippedIds, bisRanked) {
   if (!bisRanked || bisRanked.length === 0) {
-    return { label, state: "unknown", equippedId: equippedIds?.[0] ?? null, recommendedId: null, note: "No BiS entry configured for this slot." };
+    return {
+      label,
+      state: "unknown",
+      equippedId: equippedIds?.[0] ?? null,
+      recommendedId: null,
+      note: `The BiS list for this phase and spec doesn't include a ${label.toLowerCase()} recommendation yet.`,
+    };
   }
   const equippedId = equippedIds?.[0] ?? null;
   const best = bisRanked[0];
@@ -610,7 +620,7 @@ function renderSlotCard(result, enrichment) {
       ${renderItemChip(result.equippedId, result.state === "bis" ? "Equipped — matches BiS" : "Currently equipped", enrichment)}
       ${showArrow ? `<span class="flow-arrow">→</span>${renderItemChip(result.recommendedId, "Recommended", enrichment)}` : ""}
     </div>
-    ${result.state === "unknown" ? `<div class="slot-note">Not enough reliable data to evaluate this slot yet.</div>` : ""}
+    ${result.state === "unknown" ? `<div class="slot-note">${escapeHtml(result.note || "Not enough reliable data to evaluate this slot yet.")}</div>` : ""}
   `;
   return card;
 }
