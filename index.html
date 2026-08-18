@@ -37,26 +37,16 @@
   <section class="panel step-panel" id="fetchPanel" aria-labelledby="fetchHeading">
     <div class="step-label"><span class="step-num">I</span><span>Summon Character</span></div>
     <h1 id="fetchHeading" class="panel-title">Find your character</h1>
-    <p class="panel-hint">Pulled from Warcraft Logs. This reads your currently equipped gear only.</p>
+    <p class="panel-hint">Paste a Warcraft Logs report link and we'll read the gear that character logged with.</p>
 
     <form id="fetchForm" class="fetch-form" autocomplete="off">
       <div class="field">
         <label for="charName">Character name</label>
         <input type="text" id="charName" name="charName" placeholder="Thrall" required maxlength="24">
       </div>
-      <div class="field">
-        <label for="charRealm">Realm</label>
-        <select id="charRealm" name="charRealm">
-          <option value="Dreamscythe" selected>Dreamscythe</option>
-          <option value="Nightslayer">Nightslayer</option>
-        </select>
-      </div>
-      <div class="field field-region">
-        <label for="charRegion">Region</label>
-        <select id="charRegion" name="charRegion">
-          <option value="US" selected>US</option>
-          <option value="EU">EU</option>
-        </select>
+      <div class="field field-report-url">
+        <label for="reportUrl">Warcraft Logs report URL</label>
+        <input type="text" id="reportUrl" name="reportUrl" placeholder="https://fresh.warcraftlogs.com/reports/AbC123XyZ" required>
       </div>
       <button type="submit" class="btn btn-primary btn-fetch" id="fetchBtn">
         <span class="btn-label">Fetch Character</span>
@@ -81,8 +71,7 @@
         </div>
         <dl class="char-meta">
           <div><dt>Warcraft Logs Spec</dt><dd id="charSpec">—</dd></div>
-          <div><dt>Realm</dt><dd id="charRealmOut">—</dd></div>
-          <div><dt>Region</dt><dd id="charRegionOut">—</dd></div>
+          <div><dt>Source Report</dt><dd id="charReportOut">—</dd></div>
           <div><dt>Gear</dt><dd id="charGearStatus">—</dd></div>
         </dl>
       </div>
