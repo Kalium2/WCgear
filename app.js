@@ -1,776 +1,141 @@
-"use strict";
-
-/* ================================================================
-   CONFIGURATION
-   ================================================================
-   Point this at your deployed Cloudflare Worker once it exists.
-   Until then the app runs in demo mode using sample data so the
-   full flow (fetch -> compare -> results) can be exercised.
-   Expected Worker endpoints (see cloudflare-worker/worker.js):
-     GET  {WORKER_URL}/api/character?name=&reportCode=&fightId=
-     POST {WORKER_URL}/api/items   (body: { itemIds: [...] })
-   ================================================================ */
-const WORKER_URL = "https://wcgear.lambertdaniel26.workers.dev";
-
-/* Class -> allowed specs. Config-driven per section 44 of the spec,
-   so post-MVP class-aware filtering only needs this table extended. */
-const CLASS_SPEC_MAP = {
-  Warrior: [
-    { value: "arms_warrior", label: "Arms Warrior" },
-    { value: "fury_warrior", label: "Fury Warrior" },
-    { value: "protection_warrior", label: "Protection Warrior" },
-  ],
-
-  Warlock: [
-    { value: "affliction_warlock", label: "Affliction Warlock" },
-    { value: "demonology_warlock", label: "Demonology Warlock" },
-    { value: "destruction_warlock", label: "Destruction Warlock" },
-  ],
-
-  Hunter: [
-    { value: "beast_mastery_hunter", label: "Beast Mastery Hunter" },
-    { value: "marksmanship_hunter", label: "Marksmanship Hunter" },
-    { value: "survival_hunter", label: "Survival Hunter" },
-  ],
-
-  Mage: [
-    { value: "arcane_mage", label: "Arcane Mage" },
-    { value: "fire_mage", label: "Fire Mage" },
-    { value: "frost_mage", label: "Frost Mage" },
-  ],
-
-  Paladin: [
-    { value: "holy_paladin", label: "Holy Paladin" },
-    { value: "protection_paladin", label: "Protection Paladin" },
-    { value: "retribution_paladin", label: "Retribution Paladin" },
-  ],
-
-  Priest: [
-    { value: "discipline_priest", label: "Discipline Priest" },
-    { value: "holy_priest", label: "Holy Priest" },
-    { value: "shadow_priest", label: "Shadow Priest" },
-  ],
-
-  Shaman: [
-    { value: "elemental_shaman", label: "Elemental Shaman" },
-    { value: "enhancement_shaman", label: "Enhancement Shaman" },
-    { value: "restoration_shaman", label: "Restoration Shaman" },
-  ],
-
-  Rogue: [
-    { value: "assassination_rogue", label: "Assassination Rogue" },
-    { value: "combat_rogue", label: "Combat Rogue" },
-    { value: "subtlety_rogue", label: "Subtlety Rogue" },
-  ],
-
-  Druid: [
-    { value: "balance_druid", label: "Balance Druid" },
-    { value: "feral_dps_druid", label: "Feral DPS (Cat)" },
-    { value: "feral_tank_druid", label: "Feral Tank (Bear)" },
-    { value: "restoration_druid", label: "Restoration Druid" },
-  ],
-};
-/* Every spec option available in the MVP, independent of detected class.
-   The user's selection always drives comparison — see spec section 7. */
-const ALL_SPECS = [
-  // Warrior
-  { value: "arms_warrior", label: "Arms Warrior", cls: "Warrior" },
-  { value: "fury_warrior", label: "Fury Warrior", cls: "Warrior" },
-  { value: "protection_warrior", label: "Protection Warrior", cls: "Warrior" },
-
-  // Warlock
-  { value: "affliction_warlock", label: "Affliction Warlock", cls: "Warlock" },
-  { value: "demonology_warlock", label: "Demonology Warlock", cls: "Warlock" },
-  { value: "destruction_warlock", label: "Destruction Warlock", cls: "Warlock" },
-
-  // Hunter
-  { value: "beast_mastery_hunter", label: "Beast Mastery Hunter", cls: "Hunter" },
-  { value: "marksmanship_hunter", label: "Marksmanship Hunter", cls: "Hunter" },
-  { value: "survival_hunter", label: "Survival Hunter", cls: "Hunter" },
-
-  // Mage
-  { value: "arcane_mage", label: "Arcane Mage", cls: "Mage" },
-  { value: "fire_mage", label: "Fire Mage", cls: "Mage" },
-  { value: "frost_mage", label: "Frost Mage", cls: "Mage" },
-
-  // Paladin
-  { value: "holy_paladin", label: "Holy Paladin", cls: "Paladin" },
-  { value: "protection_paladin", label: "Protection Paladin", cls: "Paladin" },
-  { value: "retribution_paladin", label: "Retribution Paladin", cls: "Paladin" },
-
-  // Priest
-  { value: "discipline_priest", label: "Discipline Priest", cls: "Priest" },
-  { value: "holy_priest", label: "Holy Priest", cls: "Priest" },
-  { value: "shadow_priest", label: "Shadow Priest", cls: "Priest" },
-
-  // Shaman
-  { value: "elemental_shaman", label: "Elemental Shaman", cls: "Shaman" },
-  { value: "enhancement_shaman", label: "Enhancement Shaman", cls: "Shaman" },
-  { value: "restoration_shaman", label: "Restoration Shaman", cls: "Shaman" },
-
-  // Rogue
-  { value: "assassination_rogue", label: "Assassination Rogue", cls: "Rogue" },
-  { value: "combat_rogue", label: "Combat Rogue", cls: "Rogue" },
-  { value: "subtlety_rogue", label: "Subtlety Rogue", cls: "Rogue" },
-
-  // Druid
-  { value: "balance_druid", label: "Balance Druid", cls: "Druid" },
-  { value: "feral_dps_druid", label: "Feral DPS (Cat)", cls: "Druid" },
-  { value: "feral_tank_druid", label: "Feral Tank (Bear)", cls: "Druid" },
-  { value: "restoration_druid", label: "Restoration Druid", cls: "Druid" },
-];
-
-const CLASS_COLOR_VAR = {
-  Warrior: "--class-warrior",
-  Warlock: "--class-warlock",
-  Hunter: "--class-hunter",
-  Mage: "--class-mage",
-  Paladin: "--class-paladin",
-  Priest: "--class-priest",
-  Shaman: "--class-shaman",
-  Rogue: "--class-rogue",
-  Druid: "--class-druid",
-};
-
-/* Slots that only ever hold one item. */
-const SINGLE_SLOTS = [
-  ["head", "Head"], ["neck", "Neck"], ["shoulder", "Shoulder"], ["back", "Back"],
-  ["chest", "Chest"], ["wrist", "Wrist"], ["hands", "Hands"], ["waist", "Waist"],
-  ["legs", "Legs"], ["feet", "Feet"], ["ranged", "Ranged"],
-];
-
-/* Slots that can hold more than one identical item — handled by the
-   reusable multi-slot ranking system (section 19). */
-const MULTI_SLOTS = [
-  ["trinket", "Trinket", 2],
-  ["finger", "Finger", 2],
-];
-
-/* ================================================================
-   STATE
-   ================================================================ */
-const state = {
-  reportCode: null,   // resolved from the pasted report URL
-  fightId: null,       // resolved fight (either from URL or "most recent")
-  roster: null,         // [{ name, class, spec }, ...] from /api/roster
-  character: null,       // { name, class, realmSpec, reportCode }
-  gear: null,              // { slot: [itemId, ...], weaponConfig: "..." }
-  bisData: null,            // loaded once from data/bis.json
-};
-
-/* ================================================================
-   DOM
-   ================================================================ */
-const $ = (id) => document.getElementById(id);
-
-const els = {
-  reportForm: $("reportForm"),
-  reportUrlInput: $("reportUrl"),
-  loadReportBtn: $("loadReportBtn"),
-  charSelectForm: $("charSelectForm"),
-  charSelect: $("charSelect"),
-  fetchBtn: $("fetchBtn"),
-  changeReportBtn: $("changeReportBtn"),
-  fetchError: $("fetchError"),
-  demoNote: $("demoNote"),
-
-  charPanel: $("charPanel"),
-  charHeading: $("charHeading"),
-  charClassPill: $("charClassPill"),
-  charSpec: $("charSpec"),
-  charReportOut: $("charReportOut"),
-  charGearStatus: $("charGearStatus"),
-  refetchBtn: $("refetchBtn"),
-
-  comparePanel: $("comparePanel"),
-  compareForm: $("compareForm"),
-  phaseSelect: $("phaseSelect"),
-  specSelect: $("specSelect"),
-  specWarning: $("specWarning"),
-  checkBtn: $("checkBtn"),
-
-  resultsPanel: $("resultsPanel"),
-  resultsSummary: $("resultsSummary"),
-  weaponResults: $("weaponResults"),
-  armorResults: $("armorResults"),
-
-  loadedEmptyState: $("loadedEmptyState"),
-};
-
-/* ================================================================
-   INIT
-   ================================================================ */
-async function init() {
-  if (!WORKER_URL) els.demoNote.hidden = false;
-
-  try {
-    const res = await fetch("bis.json");
-    state.bisData = await res.json();
-  } catch (err) {
-    console.error("Failed to load BiS data", err);
-  }
-
-  els.reportForm.addEventListener("submit", onLoadReport);
-  els.charSelectForm.addEventListener("submit", onFetchCharacter);
-  els.changeReportBtn.addEventListener("click", resetToReportEntry);
-  els.refetchBtn.addEventListener("click", resetToFetch);
-  els.compareForm.addEventListener("submit", onCheckGear);
-}
-
-/* ================================================================
-   STEP 1a — LOAD REPORT ROSTER
-   ================================================================ */
-async function onLoadReport(evt) {
-  evt.preventDefault();
-  hideError();
-
-  const reportUrlRaw = els.reportUrlInput.value.trim();
-  if (!reportUrlRaw) return;
-
-  const parsed = parseReportUrl(reportUrlRaw);
-  if (!parsed) {
-    showError("That doesn't look like a Warcraft Logs report URL. It should look like https://fresh.warcraftlogs.com/reports/AbC123XyZ");
-    return;
-  }
-
-  setLoadReportLoading(true);
-  try {
-    const { fightId, roster } = WORKER_URL
-      ? await fetchRosterFromWorker(parsed)
-      : await fetchRosterDemo(parsed);
-
-    if (roster.length === 0) {
-      showError("No characters were found in that report.");
-      return;
-    }
-
-    state.reportCode = parsed.reportCode;
-    state.fightId = fightId;
-    state.roster = roster;
-
-    populateCharSelect(roster);
-    els.reportForm.hidden = true;
-    els.charSelectForm.hidden = false;
-  } catch (err) {
-    showError(err.message || "We couldn't load that report. Please try again.");
-  } finally {
-    setLoadReportLoading(false);
-  }
-}
-
-function populateCharSelect(roster) {
-  els.charSelect.innerHTML = "";
-  roster.forEach((p) => {
-    const opt = document.createElement("option");
-    opt.value = p.name;
-    opt.textContent = p.spec ? `${p.name} — ${p.spec} ${p.class}` : `${p.name} — ${p.class}`;
-    els.charSelect.appendChild(opt);
-  });
-}
-
-function resetToReportEntry() {
-  els.charSelectForm.hidden = true;
-  els.reportForm.hidden = false;
-  hideError();
-}
-
-/* ================================================================
-   STEP 1b — FETCH SELECTED CHARACTER'S GEAR
-   ================================================================ */
-async function onFetchCharacter(evt) {
-  evt.preventDefault();
-  hideError();
-
-  const name = els.charSelect.value;
-  if (!name) return;
-
-  setFetchLoading(true);
-  try {
-    const { character, gear } = WORKER_URL
-      ? await fetchCharacterFromWorker(name, { reportCode: state.reportCode, fightId: state.fightId })
-      : await fetchCharacterDemo(name, { reportCode: state.reportCode, fightId: state.fightId });
-
-    state.character = character;
-    state.gear = gear;
-    renderCharacter();
-    els.comparePanel.hidden = false;
-    els.loadedEmptyState.hidden = false;
-    els.resultsPanel.hidden = true;
-    els.comparePanel.scrollIntoView({ behavior: "smooth", block: "start" });
-  } catch (err) {
-    showError(err.message || "We couldn't retrieve this character. Please try again.");
-  } finally {
-    setFetchLoading(false);
-  }
-}
-
-function resetToFetch() {
-  state.reportCode = null;
-  state.fightId = null;
-  state.roster = null;
-  state.character = null;
-  state.gear = null;
-  els.charPanel.hidden = true;
-  els.comparePanel.hidden = true;
-  els.resultsPanel.hidden = true;
-  els.loadedEmptyState.hidden = true;
-  els.charSelectForm.hidden = true;
-  els.reportForm.hidden = false;
-  $("reportForm").reset();
-  els.reportForm.scrollIntoView({ behavior: "smooth", block: "start" });
-}
-
-/** Pulls the report code and, if present, the specific fight ID out of
- *  a pasted Warcraft Logs URL. Works with or without a fight= param —
- *  if no fight is specified, the Worker defaults to the most recent
- *  fight in the report. */
-function parseReportUrl(raw) {
-  const codeMatch = raw.match(/\/reports\/([a-zA-Z0-9]+)/);
-  if (!codeMatch) return null;
-  const fightMatch = raw.match(/[?#&]fight=(\d+)/);
-  return {
-    reportCode: codeMatch[1],
-    fightId: fightMatch ? fightMatch[1] : null,
-  };
-}
-
-/** Calls the Worker's /api/roster endpoint to list every character
- *  logged in the report/fight. */
-async function fetchRosterFromWorker(parsed) {
-  const params = new URLSearchParams({ reportCode: parsed.reportCode });
-  if (parsed.fightId) params.set("fightId", parsed.fightId);
-  const url = `${WORKER_URL}/api/roster?${params.toString()}`;
-  const res = await fetch(url, { cache: "no-store" });
-
-  if (res.status === 404) {
-    throw new Error("That report doesn't have any readable fights. Check the URL and try again.");
-  }
-  if (!res.ok) {
-    throw new Error("We couldn't load that report. Please try again.");
-  }
-
-  const data = await res.json();
-  return { fightId: data.fightId, roster: data.roster || [] };
-}
-
-/** Demo-mode roster so the UI can be exercised end to end before a
- *  Worker is deployed. Swap WORKER_URL above to go live. */
-async function fetchRosterDemo(parsed) {
-  await sleep(500);
-  return {
-    fightId: parsed.fightId || "12",
-    roster: [
-      { name: "Kalium", class: "Warrior", spec: "Arms" },
-      { name: "Thrall", class: "Shaman", spec: "Enhancement" },
-      { name: "Drexion", class: "Warlock", spec: "Destruction" },
-    ],
-  };
-}
-
-/** Calls the Cloudflare Worker, which owns Warcraft Logs OAuth and
- *  never exposes client credentials to this frontend (spec section 10). */
-async function fetchCharacterFromWorker(name, resolved) {
-  const params = new URLSearchParams({ name, reportCode: resolved.reportCode, fightId: resolved.fightId });
-  const url = `${WORKER_URL}/api/character?${params.toString()}`;
-  const res = await fetch(url, { cache: "no-store" });
-
-  if (res.status === 404) {
-    throw new Error("Character not found in that report. Check the character name and report URL.");
-  }
-  if (!res.ok) {
-    throw new Error("We couldn't retrieve this character. Please try again.");
-  }
-
-  const data = await res.json();
-  if (!data.gear || Object.keys(data.gear).length === 0) {
-    throw new Error("No gear data is available for this character in that report.");
-  }
-
-  return {
-    character: {
-      name: data.name,
-      class: data.class,
-      realmSpec: data.spec || "Unknown",
-      reportCode: resolved.reportCode,
-    },
-    gear: data.gear, // expected shape: { slot: [itemId,...], weaponConfig }
-  };
-}
-
-/** Demo-mode sample response so the UI can be exercised end to end
- *  before a Worker is deployed. Swap WORKER_URL above to go live. */
-async function fetchCharacterDemo(name, resolved) {
-  await sleep(650);
-
-  if (name.trim().toLowerCase() === "notfound") {
-    throw new Error("Character not found in that report. Check the character name and report URL.");
-  }
-
-  return {
-    character: {
-      name,
-      class: "Warrior",
-      realmSpec: "Arms",
-      reportCode: resolved.reportCode,
-    },
-    gear: {
-      weaponConfig: "twohand",
-      twohand: [30318],          // Sample: Sulfuras-tier placeholder ID
-      head: [29757],
-      neck: [28753],
-      shoulder: [30096],
-      back: [28770],
-      chest: [30180],
-      wrist: [28829],
-      hands: [30186],
-      waist: [29774],
-      legs: [30183],
-      feet: [28727],
-      ranged: [28772],
-      trinket: [28830, 29383],   // one BiS-ranked, one off-list, per sample data
-      finger: [29283, 28753],
-    },
-  };
-}
-
-/* ================================================================
-   RENDER — CHARACTER
-   ================================================================ */
-function renderCharacter() {
-  const c = state.character;
-  els.charHeading.textContent = c.name;
-  els.charClassPill.textContent = c.class;
-  const colorVar = CLASS_COLOR_VAR[c.class];
-  els.charClassPill.style.color = colorVar ? `var(${colorVar})` : "var(--text-parchment)";
-  els.charSpec.textContent = c.realmSpec;
-  els.charReportOut.innerHTML = `<a href="https://fresh.warcraftlogs.com/reports/${escapeHtml(c.reportCode)}" target="_blank" rel="noopener">${escapeHtml(c.reportCode)}</a>`;
-  els.charGearStatus.textContent = "Successfully loaded";
-  els.charPanel.hidden = false;
-
-  populateSpecOptions(c.class);
-}
-
-/** Show every MVP spec, but mark the ones matching the detected class —
- *  the dropdown itself isn't filtered yet (that's post-MVP, section 44),
- *  it just gives a visual hint. */
-function populateSpecOptions(detectedClass) {
-  els.specSelect.innerHTML = "";
-  ALL_SPECS.forEach((spec) => {
-    const opt = document.createElement("option");
-    opt.value = spec.value;
-    opt.textContent = spec.cls === detectedClass ? `${spec.label} ✓` : spec.label;
-    els.specSelect.appendChild(opt);
-  });
-}
-
-/* ================================================================
-   STEP 2 — CHECK GEAR
-   ================================================================ */
-async function onCheckGear(evt) {
-  evt.preventDefault();
-  const phase = els.phaseSelect.value;
-  const specValue = els.specSelect.value;
-  const specMeta = ALL_SPECS.find((s) => s.value === specValue);
-
-  renderSpecWarning(specMeta);
-
-  const bisSet = state.bisData?.[phase]?.[specValue];
-  if (!bisSet) {
-    showError(`No BiS data is available yet for ${specMeta.label} in ${phaseLabel(phase)}.`);
-    return;
-  }
-
-  const results = runComparison(state.gear, bisSet);
-  const itemIds = collectItemIds(results);
-  const enrichment = await fetchItemEnrichment(itemIds);
-
-  renderResults(results, phase, specMeta, enrichment);
-  els.loadedEmptyState.hidden = true;
-  els.resultsPanel.hidden = false;
-  els.resultsPanel.scrollIntoView({ behavior: "smooth", block: "start" });
-}
-
-/** Every equipped/recommended item ID referenced across the results, deduped. */
-function collectItemIds(results) {
-  const ids = new Set();
-  [...results.weapons, ...results.armor].forEach((r) => {
-    if (r.equippedId != null) ids.add(r.equippedId);
-    if (r.recommendedId != null) ids.add(r.recommendedId);
-  });
-  return [...ids];
-}
-
-/** Calls the Worker's /api/items endpoint for name/icon/quality.
- *  Sent in small batches: Cloudflare Workers cap total subrequests per
- *  invocation, and a full comparison can reference 30+ unique items
- *  (equipped + every recommended BiS piece), which blew past that
- *  ceiling as one request. Returns {} (safe no-op) in demo mode or on
- *  failure, so the UI just falls back to showing item IDs. */
-async function fetchItemEnrichment(itemIds) {
-  if (!WORKER_URL || itemIds.length === 0) return {};
-
-  const BATCH_SIZE = 12;
-  const batches = [];
-  for (let i = 0; i < itemIds.length; i += BATCH_SIZE) {
-    batches.push(itemIds.slice(i, i + BATCH_SIZE));
-  }
-
-  const merged = {};
-  await Promise.all(
-    batches.map(async (batch) => {
-      try {
-        const res = await fetch(`${WORKER_URL}/api/items`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ itemIds: batch, region: "us" }), // item static data barely varies by region
-        });
-        if (!res.ok) return;
-        const data = await res.json();
-        Object.assign(merged, data.items || {});
-      } catch (err) {
-        console.error("Item enrichment batch failed", err);
-      }
-    })
-  );
-
-  return merged;
-}
-
-function renderSpecWarning(specMeta) {
-  const detected = state.character.realmSpec;
-  const detectedFullName = `${detected} ${state.character.class}`;
-  if (detected && detected !== "Unknown" && !specMeta.label.toLowerCase().includes(detected.toLowerCase())) {
-    els.specWarning.textContent = `Warcraft Logs reports this character as ${detectedFullName}. You selected ${specMeta.label}. The comparison below still uses your selection.`;
-    els.specWarning.hidden = false;
-  } else {
-    els.specWarning.hidden = true;
-  }
-}
-
-function phaseLabel(phaseKey) {
-  return phaseKey === "phase3" ? "Phase 3" : phaseKey === "phase4" ? "Phase 4" : phaseKey;
-}
-
-/* ================================================================
-   COMPARISON ENGINE
-   ================================================================
-   Operates entirely on gear already retrieved during Fetch Character
-   (section 17) and on the BiS dataset for the selected phase+spec.
-   Single-slot and multi-slot categories both flow through the same
-   reusable ranking function — section 19 requires this not be
-   hardcoded per-category logic.
-   ================================================================ */
-function runComparison(gear, bisSet) {
-  const results = { weapons: [], armor: [] };
-
-  // --- weapons: simple display categories, section 22 ---
-  // The character's actual equipped layout drives which rows we show —
-  // a player running main hand + off hand shouldn't see a Two-Hand row
-  // just because the BiS list happens to recommend a staff (and vice
-  // versa). The BiS config is only a fallback when gear is ambiguous.
-  const weaponConfig = gear.weaponConfig || bisSet.weaponConfig;
-  if (weaponConfig === "twohand") {
-    results.weapons.push(compareSingleSlot("Two-Hand", gear.twohand, bisSet.twohand));
-  } else {
-    results.weapons.push(compareSingleSlot("Main Hand", gear.mainhand, bisSet.mainhand));
-    results.weapons.push(compareSingleSlot("Off Hand", gear.offhand, bisSet.offhand));
-  }
-
-  // --- single-item armor/accessory slots ---
-  SINGLE_SLOTS.forEach(([key, label]) => {
-    if (!bisSet[key]) return; // slot not tracked for this spec
-    results.armor.push(compareSingleSlot(label, gear[key], bisSet[key]));
-  });
-
-  // --- multi-slot categories (trinket, finger) via reusable ranking ---
-  MULTI_SLOTS.forEach(([key, label, count]) => {
-    if (!bisSet[key]) return;
-    const positions = resolveMultiSlot(gear[key] || [], bisSet[key], count);
-    positions.forEach((pos, i) => {
-      results.armor.push({
-        label: `${label} ${i + 1}`,
-        ...pos,
-      });
-    });
-  });
-
-  return results;
-}
-
-/** Compares a single-item slot (0 or 1 equipped item) against a
- *  ranked BiS list for that slot (rank 1 = best). */
-function compareSingleSlot(label, equippedIds, bisRanked) {
-  if (!bisRanked || bisRanked.length === 0) {
-    return {
-      label,
-      state: "unknown",
-      equippedId: equippedIds?.[0] ?? null,
-      recommendedId: null,
-      note: `The BiS list for this phase and spec doesn't include a ${label.toLowerCase()} recommendation yet.`,
-    };
-  }
-  const equippedId = equippedIds?.[0] ?? null;
-  const best = bisRanked[0];
-
-  if (equippedId != null && bisRanked.some((b) => b.itemId === equippedId)) {
-    return { label, state: "bis", equippedId, recommendedId: equippedId };
-  }
-  return { label, state: "upgrade", equippedId, recommendedId: best.itemId };
-}
-
-/**
- * Generic multi-slot ranking system (section 19).
- * Given the items currently equipped in a category and a ranked BiS
- * list, assigns each equipped BiS item to its own position (best rank
- * first), then fills any remaining positions with the next-highest
- * ranked BiS items the character doesn't already own — never
- * recommending a duplicate of something already equipped.
- *
- * @param {number[]} equippedIds   items currently in the slot category
- * @param {{itemId:number, rank:number}[]} bisRanked   sorted ascending by rank
- * @param {number} slotCount   number of identical slots (e.g. 2 for trinkets)
- * @returns {{state:string, equippedId:number|null, recommendedId:number|null}[]}
- */
-function resolveMultiSlot(equippedIds, bisRanked, slotCount) {
-  const ranked = [...bisRanked].sort((a, b) => a.rank - b.rank);
-  const rankOf = new Map(ranked.map((b) => [b.itemId, b.rank]));
-  const ownedSet = new Set(equippedIds);
-
-  // Which equipped items are themselves on the BiS list, best rank first —
-  // each seats its own position and can never be displaced by a duplicate
-  // recommendation (section 19's duplicate-prevention requirement).
-  const equippedBis = equippedIds
-    .filter((id) => rankOf.has(id))
-    .sort((a, b) => rankOf.get(a) - rankOf.get(b));
-
-  // Non-BiS equipped items — shown paired with an upgrade suggestion
-  // where a remaining position needs to display "what's worn now".
-  const equippedNonBis = [...equippedIds.filter((id) => !rankOf.has(id))];
-
-  // Candidates for remaining positions: ranked BiS items not already owned.
-  const availableCandidates = ranked.filter((b) => !ownedSet.has(b.itemId));
-
-  const positions = equippedBis.map((id) => ({ state: "bis", equippedId: id, recommendedId: id }));
-
-  const remainingSlots = slotCount - positions.length;
-  let candidateIndex = 0;
-  for (let i = 0; i < remainingSlots; i++) {
-    const equippedForThis = equippedNonBis.shift() ?? null;
-    const candidate = availableCandidates[candidateIndex];
-    if (candidate) {
-      candidateIndex++;
-      positions.push({ state: "upgrade", equippedId: equippedForThis, recommendedId: candidate.itemId });
-    } else {
-      positions.push({ state: "unknown", equippedId: equippedForThis, recommendedId: null });
-    }
-  }
-
-  return positions;
-}
-
-/* ================================================================
-   RENDER — RESULTS
-   ================================================================ */
-function renderResults(results, phase, specMeta, enrichment) {
-  const all = [...results.weapons, ...results.armor];
-  const tally = { bis: 0, upgrade: 0, unknown: 0 };
-  all.forEach((r) => tally[r.state]++);
-
-  els.resultsSummary.innerHTML = `
-    <span class="tally-bis">${tally.bis} BiS</span>
-    <span class="tally-upgrade">${tally.upgrade} Upgrade</span>
-    <span class="tally-unknown">${tally.unknown} Unable to Check</span>
-  `;
-
-  els.weaponResults.innerHTML = "";
-  results.weapons.forEach((r) => els.weaponResults.appendChild(renderSlotCard(r, enrichment)));
-
-  els.armorResults.innerHTML = "";
-  results.armor.forEach((r) => els.armorResults.appendChild(renderSlotCard(r, enrichment)));
-}
-
-const STATE_META = {
-  bis: { badge: "BiS", cls: "state-bis" },
-  upgrade: { badge: "Upgrade", cls: "state-upgrade" },
-  unknown: { badge: "Unable to Check", cls: "state-unknown" },
-};
-
-function renderSlotCard(result, enrichment) {
-  const meta = STATE_META[result.state];
-  const card = document.createElement("div");
-  card.className = `slot-card ${meta.cls}`;
-
-  const showArrow = result.state === "upgrade" && result.recommendedId;
-
-  card.innerHTML = `
-    <div class="slot-card-head">
-      <span class="slot-name">${escapeHtml(result.label)}</span>
-      <span class="slot-state-badge"><span class="dot"></span>${meta.badge}</span>
-    </div>
-    <div class="result-icon-flow">
-      ${renderItemChip(result.equippedId, result.state === "bis" ? "Equipped — matches BiS" : "Currently equipped", enrichment)}
-      ${showArrow ? `<span class="flow-arrow">→</span>${renderItemChip(result.recommendedId, "Recommended", enrichment)}` : ""}
-    </div>
-    ${result.state === "unknown" ? `<div class="slot-note">${escapeHtml(result.note || "Not enough reliable data to evaluate this slot yet.")}</div>` : ""}
-  `;
-  return card;
-}
-
-function renderItemChip(itemId, sourceLabel, enrichment) {
-  if (itemId == null) {
-    return `
-      <div class="item-chip">
-        <div class="item-icon placeholder">—</div>
-        <div class="item-text">
-          <div class="item-name">Empty</div>
-          <div class="item-source">${escapeHtml(sourceLabel)}</div>
-        </div>
-      </div>`;
-  }
-
-  const info = enrichment?.[itemId];
-  const iconMarkup = info?.icon
-    ? `<img class="item-icon" src="${escapeHtml(info.icon)}" alt="" loading="lazy">`
-    : `<div class="item-icon placeholder">#</div>`;
-  const nameText = info?.name ? escapeHtml(info.name) : `Item ${itemId}`;
-
-  return `
-    <div class="item-chip">
-      ${iconMarkup}
-      <div class="item-text">
-        <div class="item-name">${nameText}</div>
-        <div class="item-source">${escapeHtml(sourceLabel)}</div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WoW Gear Check — TBC BiS Comparison</title>
+<meta name="description" content="Fetch your character from Warcraft Logs and check your gear against a curated Burning Crusade Best-in-Slot list.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="rune-noise" aria-hidden="true"></div>
+
+<header class="site-header">
+  <div class="header-inner">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 32 32" width="28" height="28">
+          <polygon points="16,2 29,9 29,23 16,30 3,23 3,9" fill="none" stroke="currentColor" stroke-width="1.4"/>
+          <polygon points="16,9 22.5,12.7 22.5,19.3 16,23 9.5,19.3 9.5,12.7" fill="currentColor" opacity="0.85"/>
+        </svg>
+      </span>
+      <div class="brand-text">
+        <span class="brand-title">Gear Check</span>
+        <span class="brand-sub">Burning Crusade · BiS Comparison</span>
       </div>
-    </div>`;
-}
+    </div>
+  </div>
+</header>
 
-/* ================================================================
-   HELPERS
-   ================================================================ */
-function setFetchLoading(loading) {
-  els.fetchBtn.disabled = loading;
-  els.fetchBtn.querySelector(".btn-label").textContent = loading ? "Summoning…" : "Fetch Character";
-}
+<main class="page">
 
-function setLoadReportLoading(loading) {
-  els.loadReportBtn.disabled = loading;
-  els.loadReportBtn.querySelector(".btn-label").textContent = loading ? "Loading…" : "Load Report";
-}
+  <!-- ============ STEP 1 — LOAD REPORT + PICK CHARACTER ============ -->
+  <section class="panel step-panel" id="fetchPanel" aria-labelledby="fetchHeading">
+    <div class="step-label"><span class="step-num">I</span><span>Summon Character</span></div>
+    <h1 id="fetchHeading" class="panel-title">Find your character</h1>
+    <p class="panel-hint">Paste a Warcraft Logs report link, then pick your character from the roster.</p>
 
-function showError(msg) {
-  els.fetchError.textContent = msg;
-  els.fetchError.hidden = false;
-}
-function hideError() {
-  els.fetchError.hidden = true;
-}
+    <form id="reportForm" class="fetch-form" autocomplete="off">
+      <div class="field field-report-url">
+        <label for="reportUrl">Warcraft Logs report URL</label>
+        <input type="text" id="reportUrl" name="reportUrl" placeholder="https://fresh.warcraftlogs.com/reports/AbC123XyZ" required>
+      </div>
+      <button type="submit" class="btn btn-primary btn-fetch" id="loadReportBtn">
+        <span class="btn-label">Load Report</span>
+        <span class="btn-spinner" hidden></span>
+      </button>
+    </form>
 
-function escapeHtml(str) {
-  return String(str).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
-}
+    <form id="charSelectForm" class="fetch-form" autocomplete="off" hidden>
+      <div class="field field-report-url">
+        <label for="charSelect">Character</label>
+        <select id="charSelect" name="charSelect"></select>
+      </div>
+      <button type="submit" class="btn btn-primary btn-fetch" id="fetchBtn">
+        <span class="btn-label">Fetch Character</span>
+        <span class="btn-spinner" hidden></span>
+      </button>
+      <button type="button" class="btn btn-ghost" id="changeReportBtn">Use a different report</button>
+    </form>
 
-function sleep(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
+    <p class="form-error" id="fetchError" role="alert" hidden></p>
 
-document.addEventListener("DOMContentLoaded", init);
+    <div class="demo-note" id="demoNote" hidden>
+      <strong>Demo mode.</strong> No live Worker endpoint is configured yet, so this is showing sample gear so you can try the flow. Point <code>WORKER_URL</code> in <code>app.js</code> at your deployed Cloudflare Worker to go live.
+    </div>
+  </section>
+
+  <!-- ============ CHARACTER CARD (hidden until loaded) ============ -->
+  <section class="panel char-panel" id="charPanel" hidden aria-labelledby="charHeading">
+    <div class="char-panel-inner">
+      <div class="char-id">
+        <div class="char-name-row">
+          <h2 id="charHeading" class="char-name"></h2>
+          <span class="char-class-pill" id="charClassPill"></span>
+        </div>
+        <dl class="char-meta">
+          <div><dt>Warcraft Logs Spec</dt><dd id="charSpec">—</dd></div>
+          <div><dt>Source Report</dt><dd id="charReportOut">—</dd></div>
+          <div><dt>Gear</dt><dd id="charGearStatus">—</dd></div>
+        </dl>
+      </div>
+      <button type="button" class="btn btn-ghost" id="refetchBtn">Fetch a different character</button>
+    </div>
+  </section>
+
+  <!-- ============ STEP 2 — COMPARE GEAR ============ -->
+  <section class="panel step-panel" id="comparePanel" hidden aria-labelledby="compareHeading">
+    <div class="step-label"><span class="step-num">II</span><span>Compare Gear</span></div>
+    <h2 id="compareHeading" class="panel-title">Check against Best-in-Slot</h2>
+    <p class="panel-hint">Same loaded gear, any phase or spec combination — no refetch needed.</p>
+
+    <form id="compareForm" class="compare-form" autocomplete="off">
+      <div class="field">
+        <label for="phaseSelect">Phase</label>
+        <select id="phaseSelect" name="phase">
+          <option value="phase3">Phase 3</option>
+          <option value="phase4" selected>Phase 4</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="specSelect">Specialization</label>
+        <select id="specSelect" name="spec">
+          <option value="arms_warrior">Arms Warrior</option>
+          <option value="destruction_warlock">Destruction Warlock</option>
+          <option value="beast_mastery_hunter">Beast Mastery Hunter</option>
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary" id="checkBtn">Check Gear</button>
+    </form>
+
+    <p class="spec-warning" id="specWarning" hidden></p>
+  </section>
+
+  <!-- ============ RESULTS ============ -->
+  <section class="panel results-panel" id="resultsPanel" hidden aria-labelledby="resultsHeading">
+    <div class="results-header">
+      <h2 id="resultsHeading" class="panel-title">Results</h2>
+      <div class="results-summary" id="resultsSummary"></div>
+    </div>
+
+    <div class="results-grid" id="weaponResults" aria-label="Weapons"></div>
+    <div class="results-grid" id="armorResults" aria-label="Armor"></div>
+  </section>
+
+  <div class="empty-state" id="loadedEmptyState" hidden>
+    <p>Gear loaded. Choose a phase and specialization above, then check your gear.</p>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <p>Item data enriched via the Blizzard Game Data API where available. BiS lists are manually curated and may lag behind live changes.</p>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
