@@ -59,9 +59,12 @@ const MULTI_SLOTS = [
    STATE
    ================================================================ */
 const state = {
-  character: null,   // { name, class, realmSpec, realm, region }
-  gear: null,         // { slot: [itemId, ...], weaponConfig: "..." }
-  bisData: null,       // loaded once from data/bis.json
+  reportCode: null,   // resolved from the pasted report URL
+  fightId: null,       // resolved fight (either from URL or "most recent")
+  roster: null,         // [{ name, class, spec }, ...] from /api/roster
+  character: null,       // { name, class, realmSpec, reportCode }
+  gear: null,              // { slot: [itemId, ...], weaponConfig: "..." }
+  bisData: null,            // loaded once from data/bis.json
 };
 
 /* ================================================================
@@ -70,8 +73,13 @@ const state = {
 const $ = (id) => document.getElementById(id);
 
 const els = {
-  fetchForm: $("fetchForm"),
+  reportForm: $("reportForm"),
+  reportUrlInput: $("reportUrl"),
+  loadReportBtn: $("loadReportBtn"),
+  charSelectForm: $("charSelectForm"),
+  charSelect: $("charSelect"),
   fetchBtn: $("fetchBtn"),
+  changeReportBtn: $("changeReportBtn"),
   fetchError: $("fetchError"),
   demoNote: $("demoNote"),
 
@@ -111,22 +119,22 @@ async function init() {
     console.error("Failed to load BiS data", err);
   }
 
-  els.fetchForm.addEventListener("submit", onFetchCharacter);
+  els.reportForm.addEventListener("submit", onLoadReport);
+  els.charSelectForm.addEventListener("submit", onFetchCharacter);
+  els.changeReportBtn.addEventListener("click", resetToReportEntry);
   els.refetchBtn.addEventListener("click", resetToFetch);
   els.compareForm.addEventListener("submit", onCheckGear);
 }
 
 /* ================================================================
-   STEP 1 — FETCH CHARACTER
+   STEP 1a — LOAD REPORT ROSTER
    ================================================================ */
-async function onFetchCharacter(evt) {
+async function onLoadReport(evt) {
   evt.preventDefault();
   hideError();
 
-  const name = $("charName").value.trim();
-  const reportUrlRaw = $("reportUrl").value.trim();
-
-  if (!name || !reportUrlRaw) return;
+  const reportUrlRaw = els.reportUrlInput.value.trim();
+  if (!reportUrlRaw) return;
 
   const parsed = parseReportUrl(reportUrlRaw);
   if (!parsed) {
@@ -134,11 +142,62 @@ async function onFetchCharacter(evt) {
     return;
   }
 
+  setLoadReportLoading(true);
+  try {
+    const { fightId, roster } = WORKER_URL
+      ? await fetchRosterFromWorker(parsed)
+      : await fetchRosterDemo(parsed);
+
+    if (roster.length === 0) {
+      showError("No characters were found in that report.");
+      return;
+    }
+
+    state.reportCode = parsed.reportCode;
+    state.fightId = fightId;
+    state.roster = roster;
+
+    populateCharSelect(roster);
+    els.reportForm.hidden = true;
+    els.charSelectForm.hidden = false;
+  } catch (err) {
+    showError(err.message || "We couldn't load that report. Please try again.");
+  } finally {
+    setLoadReportLoading(false);
+  }
+}
+
+function populateCharSelect(roster) {
+  els.charSelect.innerHTML = "";
+  roster.forEach((p) => {
+    const opt = document.createElement("option");
+    opt.value = p.name;
+    opt.textContent = p.spec ? `${p.name} — ${p.spec} ${p.class}` : `${p.name} — ${p.class}`;
+    els.charSelect.appendChild(opt);
+  });
+}
+
+function resetToReportEntry() {
+  els.charSelectForm.hidden = true;
+  els.reportForm.hidden = false;
+  hideError();
+}
+
+/* ================================================================
+   STEP 1b — FETCH SELECTED CHARACTER'S GEAR
+   ================================================================ */
+async function onFetchCharacter(evt) {
+  evt.preventDefault();
+  hideError();
+
+  const name = els.charSelect.value;
+  if (!name) return;
+
   setFetchLoading(true);
   try {
     const { character, gear } = WORKER_URL
-      ? await fetchCharacterFromWorker(name, parsed)
-      : await fetchCharacterDemo(name, parsed);
+      ? await fetchCharacterFromWorker(name, { reportCode: state.reportCode, fightId: state.fightId })
+      : await fetchCharacterDemo(name, { reportCode: state.reportCode, fightId: state.fightId });
 
     state.character = character;
     state.gear = gear;
@@ -155,18 +214,23 @@ async function onFetchCharacter(evt) {
 }
 
 function resetToFetch() {
+  state.reportCode = null;
+  state.fightId = null;
+  state.roster = null;
   state.character = null;
   state.gear = null;
   els.charPanel.hidden = true;
   els.comparePanel.hidden = true;
   els.resultsPanel.hidden = true;
   els.loadedEmptyState.hidden = true;
-  $("fetchForm").reset();
-  els.fetchForm.scrollIntoView({ behavior: "smooth", block: "start" });
+  els.charSelectForm.hidden = true;
+  els.reportForm.hidden = false;
+  $("reportForm").reset();
+  els.reportForm.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
 /** Pulls the report code and, if present, the specific fight ID out of
- *  a pasted Warcraft Logs URL. Works with or without a #fight= hash —
+ *  a pasted Warcraft Logs URL. Works with or without a fight= param —
  *  if no fight is specified, the Worker defaults to the most recent
  *  fight in the report. */
 function parseReportUrl(raw) {
@@ -179,11 +243,43 @@ function parseReportUrl(raw) {
   };
 }
 
+/** Calls the Worker's /api/roster endpoint to list every character
+ *  logged in the report/fight. */
+async function fetchRosterFromWorker(parsed) {
+  const params = new URLSearchParams({ reportCode: parsed.reportCode });
+  if (parsed.fightId) params.set("fightId", parsed.fightId);
+  const url = `${WORKER_URL}/api/roster?${params.toString()}`;
+  const res = await fetch(url, { cache: "no-store" });
+
+  if (res.status === 404) {
+    throw new Error("That report doesn't have any readable fights. Check the URL and try again.");
+  }
+  if (!res.ok) {
+    throw new Error("We couldn't load that report. Please try again.");
+  }
+
+  const data = await res.json();
+  return { fightId: data.fightId, roster: data.roster || [] };
+}
+
+/** Demo-mode roster so the UI can be exercised end to end before a
+ *  Worker is deployed. Swap WORKER_URL above to go live. */
+async function fetchRosterDemo(parsed) {
+  await sleep(500);
+  return {
+    fightId: parsed.fightId || "12",
+    roster: [
+      { name: "Kalium", class: "Warrior", spec: "Arms" },
+      { name: "Thrall", class: "Shaman", spec: "Enhancement" },
+      { name: "Drexion", class: "Warlock", spec: "Destruction" },
+    ],
+  };
+}
+
 /** Calls the Cloudflare Worker, which owns Warcraft Logs OAuth and
  *  never exposes client credentials to this frontend (spec section 10). */
-async function fetchCharacterFromWorker(name, parsed) {
-  const params = new URLSearchParams({ name, reportCode: parsed.reportCode });
-  if (parsed.fightId) params.set("fightId", parsed.fightId);
+async function fetchCharacterFromWorker(name, resolved) {
+  const params = new URLSearchParams({ name, reportCode: resolved.reportCode, fightId: resolved.fightId });
   const url = `${WORKER_URL}/api/character?${params.toString()}`;
   const res = await fetch(url, { cache: "no-store" });
 
@@ -204,7 +300,7 @@ async function fetchCharacterFromWorker(name, parsed) {
       name: data.name,
       class: data.class,
       realmSpec: data.spec || "Unknown",
-      reportCode: parsed.reportCode,
+      reportCode: resolved.reportCode,
     },
     gear: data.gear, // expected shape: { slot: [itemId,...], weaponConfig }
   };
@@ -212,7 +308,7 @@ async function fetchCharacterFromWorker(name, parsed) {
 
 /** Demo-mode sample response so the UI can be exercised end to end
  *  before a Worker is deployed. Swap WORKER_URL above to go live. */
-async function fetchCharacterDemo(name, parsed) {
+async function fetchCharacterDemo(name, resolved) {
   await sleep(650);
 
   if (name.trim().toLowerCase() === "notfound") {
@@ -224,7 +320,7 @@ async function fetchCharacterDemo(name, parsed) {
       name,
       class: "Warrior",
       realmSpec: "Arms",
-      reportCode: parsed.reportCode,
+      reportCode: resolved.reportCode,
     },
     gear: {
       weaponConfig: "twohand",
@@ -538,6 +634,12 @@ function setFetchLoading(loading) {
   els.fetchBtn.disabled = loading;
   els.fetchBtn.querySelector(".btn-label").textContent = loading ? "Summoning…" : "Fetch Character";
   els.fetchBtn.querySelector(".btn-spinner").hidden = !loading;
+}
+
+function setLoadReportLoading(loading) {
+  els.loadReportBtn.disabled = loading;
+  els.loadReportBtn.querySelector(".btn-label").textContent = loading ? "Loading…" : "Load Report";
+  els.loadReportBtn.querySelector(".btn-spinner").hidden = !loading;
 }
 
 function showError(msg) {
