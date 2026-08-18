@@ -27,8 +27,8 @@
 
 const ALLOWED_ORIGIN = "https://kalium2.github.io"; // GitHub Pages origin (path-free, per CORS rules)
 
-const WCL_TOKEN_URL = "https://www.warcraftlogs.com/oauth/token";
-const WCL_GRAPHQL_URL = "https://www.warcraftlogs.com/api/v2/client";
+const WCL_TOKEN_URL = "https://fresh.warcraftlogs.com/oauth/token";
+const WCL_GRAPHQL_URL = "https://fresh.warcraftlogs.com/api/v2/client";
 
 const BLIZZARD_TOKEN_URL_TEMPLATE = "https://oauth.battle.net/token"; // region-agnostic OAuth host
 const BLIZZARD_API_HOST = { us: "https://us.api.blizzard.com", eu: "https://eu.api.blizzard.com" };
