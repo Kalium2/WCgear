@@ -207,7 +207,12 @@ async function getBlizzardToken(env) {
     },
     body: "grant_type=client_credentials",
   });
-  if (!res.ok) throw new Error("Blizzard authentication failed.");
+  if (!res.ok) {
+    // TEMPORARY DIAGNOSTIC — remove once auth is confirmed working.
+    const bodyText = await res.text();
+    console.error(`Blizzard token request failed: status ${res.status}, body: ${bodyText}`);
+    throw new Error(`Blizzard authentication failed (status ${res.status}).`);
+  }
 
   const data = await res.json();
   blizzardTokenCache = { token: data.access_token, expiresAt: Date.now() + (data.expires_in - 60) * 1000 };
