@@ -7,7 +7,7 @@
    Until then the app runs in demo mode using sample data so the
    full flow (fetch -> compare -> results) can be exercised.
    Expected Worker endpoints (see cloudflare-worker/worker.js):
-     GET  {WORKER_URL}/api/character?name=&realm=&region=
+     GET  {WORKER_URL}/api/character?name=&reportCode=&fightId=
      POST {WORKER_URL}/api/items   (body: { itemIds: [...] })
    ================================================================ */
 const WORKER_URL = "https://wcgear.lambertdaniel26.workers.dev";
@@ -79,8 +79,7 @@ const els = {
   charHeading: $("charHeading"),
   charClassPill: $("charClassPill"),
   charSpec: $("charSpec"),
-  charRealmOut: $("charRealmOut"),
-  charRegionOut: $("charRegionOut"),
+  charReportOut: $("charReportOut"),
   charGearStatus: $("charGearStatus"),
   refetchBtn: $("refetchBtn"),
 
@@ -125,17 +124,21 @@ async function onFetchCharacter(evt) {
   hideError();
 
   const name = $("charName").value.trim();
-  const realmRaw = $("charRealm").value.trim();
-  const region = $("charRegion").value;
-  const realm = normalizeRealm(realmRaw);
+  const reportUrlRaw = $("reportUrl").value.trim();
 
-  if (!name || !realm) return;
+  if (!name || !reportUrlRaw) return;
+
+  const parsed = parseReportUrl(reportUrlRaw);
+  if (!parsed) {
+    showError("That doesn't look like a Warcraft Logs report URL. It should look like https://fresh.warcraftlogs.com/reports/AbC123XyZ");
+    return;
+  }
 
   setFetchLoading(true);
   try {
     const { character, gear } = WORKER_URL
-      ? await fetchCharacterFromWorker(name, realm, region)
-      : await fetchCharacterDemo(name, realm, region);
+      ? await fetchCharacterFromWorker(name, parsed)
+      : await fetchCharacterDemo(name, parsed);
 
     state.character = character;
     state.gear = gear;
@@ -162,29 +165,30 @@ function resetToFetch() {
   els.fetchForm.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
-/** Realm normalization per section 31: trim, collapse whitespace,
- *  standardize apostrophes/hyphens, title-case each word. */
-function normalizeRealm(raw) {
-  return raw
-    .trim()
-    .replace(/\s+/g, " ")
-    .replace(/[\u2018\u2019]/g, "'")
-    .split(/(\s|-|')/)
-    .map((piece) => {
-      if (/^\s|-|'$/.test(piece) || piece === " " || piece === "-" || piece === "'") return piece;
-      return piece.charAt(0).toUpperCase() + piece.slice(1).toLowerCase();
-    })
-    .join("");
+/** Pulls the report code and, if present, the specific fight ID out of
+ *  a pasted Warcraft Logs URL. Works with or without a #fight= hash —
+ *  if no fight is specified, the Worker defaults to the most recent
+ *  fight in the report. */
+function parseReportUrl(raw) {
+  const codeMatch = raw.match(/\/reports\/([a-zA-Z0-9]+)/);
+  if (!codeMatch) return null;
+  const fightMatch = raw.match(/[?#&]fight=(\d+)/);
+  return {
+    reportCode: codeMatch[1],
+    fightId: fightMatch ? fightMatch[1] : null,
+  };
 }
 
 /** Calls the Cloudflare Worker, which owns Warcraft Logs OAuth and
  *  never exposes client credentials to this frontend (spec section 10). */
-async function fetchCharacterFromWorker(name, realm, region) {
-  const url = `${WORKER_URL}/api/character?name=${encodeURIComponent(name)}&realm=${encodeURIComponent(realm)}&region=${encodeURIComponent(region)}`;
+async function fetchCharacterFromWorker(name, parsed) {
+  const params = new URLSearchParams({ name, reportCode: parsed.reportCode });
+  if (parsed.fightId) params.set("fightId", parsed.fightId);
+  const url = `${WORKER_URL}/api/character?${params.toString()}`;
   const res = await fetch(url, { cache: "no-store" });
 
   if (res.status === 404) {
-    throw new Error("Character not found. Check the character name, realm, and region.");
+    throw new Error("Character not found in that report. Check the character name and report URL.");
   }
   if (!res.ok) {
     throw new Error("We couldn't retrieve this character. Please try again.");
@@ -192,7 +196,7 @@ async function fetchCharacterFromWorker(name, realm, region) {
 
   const data = await res.json();
   if (!data.gear || Object.keys(data.gear).length === 0) {
-    throw new Error("No Warcraft Logs gear data is available for this character.");
+    throw new Error("No gear data is available for this character in that report.");
   }
 
   return {
@@ -200,8 +204,7 @@ async function fetchCharacterFromWorker(name, realm, region) {
       name: data.name,
       class: data.class,
       realmSpec: data.spec || "Unknown",
-      realm,
-      region,
+      reportCode: parsed.reportCode,
     },
     gear: data.gear, // expected shape: { slot: [itemId,...], weaponConfig }
   };
@@ -209,11 +212,11 @@ async function fetchCharacterFromWorker(name, realm, region) {
 
 /** Demo-mode sample response so the UI can be exercised end to end
  *  before a Worker is deployed. Swap WORKER_URL above to go live. */
-async function fetchCharacterDemo(name, realm, region) {
+async function fetchCharacterDemo(name, parsed) {
   await sleep(650);
 
   if (name.trim().toLowerCase() === "notfound") {
-    throw new Error("Character not found. Check the character name, realm, and region.");
+    throw new Error("Character not found in that report. Check the character name and report URL.");
   }
 
   return {
@@ -221,8 +224,7 @@ async function fetchCharacterDemo(name, realm, region) {
       name,
       class: "Warrior",
       realmSpec: "Arms",
-      realm,
-      region,
+      reportCode: parsed.reportCode,
     },
     gear: {
       weaponConfig: "twohand",
@@ -254,8 +256,7 @@ function renderCharacter() {
   const colorVar = CLASS_COLOR_VAR[c.class];
   els.charClassPill.style.color = colorVar ? `var(${colorVar})` : "var(--text-parchment)";
   els.charSpec.textContent = c.realmSpec;
-  els.charRealmOut.textContent = c.realm;
-  els.charRegionOut.textContent = c.region;
+  els.charReportOut.innerHTML = `<a href="https://fresh.warcraftlogs.com/reports/${escapeHtml(c.reportCode)}" target="_blank" rel="noopener">${escapeHtml(c.reportCode)}</a>`;
   els.charGearStatus.textContent = "Successfully loaded";
   els.charPanel.hidden = false;
 
@@ -321,7 +322,7 @@ async function fetchItemEnrichment(itemIds) {
     const res = await fetch(`${WORKER_URL}/api/items`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ itemIds, region: (state.character?.region || "us").toLowerCase() }),
+      body: JSON.stringify({ itemIds, region: "us" }), // item static data barely varies by region; US default is fine for name/icon lookups
     });
     if (!res.ok) return {};
     const data = await res.json();
