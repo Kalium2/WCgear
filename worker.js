@@ -134,7 +134,11 @@ async function resolveFightAndPlayers(reportCode, fightIdParam, env) {
       headers,
       body: JSON.stringify({ query: fightsQuery, variables: { code: reportCode } }),
     });
-    if (!fightsRes.ok) throw new Error("Warcraft Logs request failed while listing fights.");
+    if (!fightsRes.ok) {
+      const bodyText = await fightsRes.text();
+      console.error(`WCL fights request failed: status ${fightsRes.status}, body: ${bodyText}`);
+      throw new Error("Warcraft Logs request failed while listing fights.");
+    }
     const fightsJson = await fightsRes.json();
     const fights = fightsJson?.data?.reportData?.report?.fights;
     if (!fights || fights.length === 0) {
@@ -159,9 +163,16 @@ async function resolveFightAndPlayers(reportCode, fightIdParam, env) {
     headers,
     body: JSON.stringify({ query: detailsQuery, variables: { code: reportCode, fightIDs: [Number(fightId)] } }),
   });
-  if (!detailsRes.ok) throw new Error("Warcraft Logs request failed while reading player details.");
+  if (!detailsRes.ok) {
+    const bodyText = await detailsRes.text();
+    console.error(`WCL playerDetails request failed: status ${detailsRes.status}, body: ${bodyText}`);
+    throw new Error("Warcraft Logs request failed while reading player details.");
+  }
 
   const detailsJson = await detailsRes.json();
+  if (detailsJson.errors) {
+    console.error(`WCL playerDetails GraphQL errors: ${JSON.stringify(detailsJson.errors)}`);
+  }
   const playerDetails = detailsJson?.data?.reportData?.report?.playerDetails?.data?.playerDetails
     ?? detailsJson?.data?.reportData?.report?.playerDetails; // handle either wrapped or unwrapped shape
 
@@ -245,63 +256,53 @@ async function handleItems(request, env) {
   return jsonOk({ items: results });
 }
 
-/** Tries each namespace in order (Classic, then retail as fallback),
- *  each with its own single retry, and returns the first successful
- *  result. */
+/** Tries each namespace in order (Classic, then retail as fallback)
+ *  and returns the first successful result. No retries here — Cloudflare
+ *  Workers cap total subrequests per invocation, and with ~2 requests
+ *  per item (data + icon) across a full ~18-item gear set, retrying
+ *  pushed us straight past that ceiling and caused every remaining
+ *  item in the batch to fail. One attempt per namespace is the budget. */
 async function fetchItemAcrossNamespaces(host, namespaces, headers, id) {
   for (const namespace of namespaces) {
-    const item = await fetchItemWithRetry(host, namespace, headers, id);
+    const item = await fetchItemFromNamespace(host, namespace, headers, id);
     if (item) return item;
   }
   return null;
 }
 
-/** Fetches a single item's data + icon from one namespace, retrying
- *  once after a short delay if the first attempt fails. Blizzard's API
- *  occasionally rate-limits bursts of parallel requests, which was
- *  silently dropping a handful of items per request before this was
- *  added. Logs the real failure reason so it's visible if it keeps
- *  happening. */
-async function fetchItemWithRetry(host, namespace, headers, id) {
-  for (let attempt = 1; attempt <= 2; attempt++) {
-    try {
-      const [itemRes, mediaRes] = await Promise.all([
-        fetch(`${host}/data/wow/item/${id}?namespace=${namespace}&locale=en_US`, { headers }),
-        fetch(`${host}/data/wow/media/item/${id}?namespace=${namespace}&locale=en_US`, { headers }),
-      ]);
+/** Fetches a single item's data + icon from one namespace. Logs the
+ *  real failure reason so it's visible if it keeps happening. */
+async function fetchItemFromNamespace(host, namespace, headers, id) {
+  try {
+    const [itemRes, mediaRes] = await Promise.all([
+      fetch(`${host}/data/wow/item/${id}?namespace=${namespace}&locale=en_US`, { headers }),
+      fetch(`${host}/data/wow/media/item/${id}?namespace=${namespace}&locale=en_US`, { headers }),
+    ]);
 
-      if (!itemRes.ok) {
-        console.error(`Item ${id} [${namespace}] fetch failed (attempt ${attempt}): status ${itemRes.status}`);
-        if (attempt === 1) { await sleep(300); continue; }
-        return null;
-      }
-      const item = await itemRes.json();
-
-      let icon = null;
-      if (mediaRes.ok) {
-        const media = await mediaRes.json();
-        icon = media.assets?.find((a) => a.key === "icon")?.value || null;
-      } else {
-        console.error(`Item ${id} [${namespace}] media fetch failed: status ${mediaRes.status}`);
-      }
-
-      return {
-        name: item.name,
-        icon,
-        quality: item.quality?.type || null,
-        itemLevel: item.level || null,
-      };
-    } catch (err) {
-      console.error(`Item ${id} [${namespace}] fetch threw (attempt ${attempt}):`, err.message);
-      if (attempt === 1) { await sleep(300); continue; }
+    if (!itemRes.ok) {
+      console.error(`Item ${id} [${namespace}] fetch failed: status ${itemRes.status}`);
       return null;
     }
-  }
-  return null;
-}
+    const item = await itemRes.json();
 
-function sleep(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+    let icon = null;
+    if (mediaRes.ok) {
+      const media = await mediaRes.json();
+      icon = media.assets?.find((a) => a.key === "icon")?.value || null;
+    } else {
+      console.error(`Item ${id} [${namespace}] media fetch failed: status ${mediaRes.status}`);
+    }
+
+    return {
+      name: item.name,
+      icon,
+      quality: item.quality?.type || null,
+      itemLevel: item.level || null,
+    };
+  } catch (err) {
+    console.error(`Item ${id} [${namespace}] fetch threw:`, err.message);
+    return null;
+  }
 }
 
 /* ================================================================
