@@ -478,8 +478,9 @@ function runComparison(gear, bisSet) {
   // just because the BiS list happens to recommend a staff (and vice
   // versa). The BiS config is only a fallback when gear is ambiguous.
   const weaponConfig = gear.weaponConfig || bisSet.weaponConfig;
-   (weaponConfig === "twohand") {
+  if (weaponConfig === "twohand") {
     results.weapons.push(compareSingleSlot("Two-Hand", gear.twohand, bisSet.twohand));
+  } else {
     results.weapons.push(compareSingleSlot("Main Hand", gear.mainhand, bisSet.mainhand));
     results.weapons.push(compareSingleSlot("Off Hand", gear.offhand, bisSet.offhand));
   }
