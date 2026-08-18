@@ -1,0 +1,1269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Loot Ledger — TBC Classic BiS Advisor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --void:#100c08;
+    --panel:#1a140d;
+    --panel-2:#211a11;
+    --bronze:#4a3a22;
+    --bronze-soft:#332818;
+    --parchment:#e9dcc1;
+    --sepia:#a9987b;
+    --gold:#d4af5a;
+    --gold-bright:#f0cd7e;
+    --orange:#ff8c1a;
+    --purple:#a335ee;
+    --green:#3fae3f;
+    --red:#c0392b;
+    --blue:#4a9eff;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(ellipse 1200px 600px at 15% -10%, rgba(212,175,90,0.08), transparent 60%),
+      radial-gradient(ellipse 900px 500px at 100% 10%, rgba(163,53,238,0.06), transparent 55%),
+      var(--void);
+    color:var(--parchment);
+    font-family:'Inter',sans-serif;
+    min-height:100vh;
+    line-height:1.5;
+  }
+  a{color:var(--gold-bright);}
+
+  .wrap{max-width:1180px;margin:0 auto;padding:0 24px 80px;}
+
+  header.top{
+    padding:52px 24px 34px;
+    text-align:center;
+    border-bottom:1px solid var(--bronze-soft);
+    margin-bottom:36px;
+  }
+  .eyebrow{
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;
+    letter-spacing:.22em;
+    text-transform:uppercase;
+    color:var(--gold);
+    margin:0 0 14px;
+  }
+  h1{
+    font-family:'Cinzel',serif;
+    font-weight:700;
+    font-size:clamp(32px,5vw,54px);
+    margin:0 0 12px;
+    letter-spacing:.02em;
+    background:linear-gradient(180deg,var(--gold-bright),var(--gold) 60%,#a9843e);
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+  }
+  .sub{color:var(--sepia);font-size:15.5px;max-width:560px;margin:0 auto;}
+  .sub a{color:var(--sepia);text-decoration-color:var(--bronze);}
+
+  .grid{
+    display:grid;
+    grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);
+    gap:28px;
+    align-items:start;
+  }
+  @media (max-width:920px){ .grid{grid-template-columns:1fr;} }
+
+  .panel{
+    background:linear-gradient(180deg,var(--panel),var(--panel-2));
+    border:1px solid var(--bronze);
+    border-radius:10px;
+    box-shadow:0 1px 0 rgba(255,255,255,.03) inset, 0 20px 40px -20px rgba(0,0,0,.6);
+    overflow:hidden;
+  }
+  .panel-head{
+    padding:18px 22px;
+    border-bottom:1px solid var(--bronze-soft);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    flex-wrap:wrap;
+  }
+  .panel-head h2{
+    font-family:'Cinzel',serif;
+    font-size:17px;
+    letter-spacing:.04em;
+    margin:0;
+    color:var(--gold-bright);
+    font-weight:500;
+    text-transform:uppercase;
+  }
+  .panel-body{padding:22px;}
+
+  /* ---------- WCL import box ---------- */
+  .wcl-box{
+    background:var(--void);
+    border:1px solid var(--bronze-soft);
+    border-radius:8px;
+    padding:16px;
+    margin-bottom:22px;
+  }
+  .wcl-box h3{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    color:var(--gold);
+    margin:0 0 12px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .wcl-box h3::before{content:"◆";font-size:9px;color:var(--bronze);}
+  .field-row{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;}
+  .field-row input[type=text],
+  .field-row input[type=password]{
+    flex:1;
+    min-width:200px;
+    background:var(--panel);
+    border:1px solid var(--bronze);
+    color:var(--parchment);
+    font-family:'JetBrains Mono',monospace;
+    font-size:12.5px;
+    padding:10px 12px;
+    border-radius:6px;
+  }
+  .field-row input:focus{outline:none;border-color:var(--gold);}
+  .field-row button{
+    background:var(--bronze-soft);
+    border:1px solid var(--bronze);
+    color:var(--parchment);
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;
+    padding:10px 16px;
+    border-radius:6px;
+    cursor:pointer;
+    white-space:nowrap;
+  }
+  .field-row button:hover{border-color:var(--gold);color:var(--gold-bright);}
+  .field-row button:disabled{opacity:.45;cursor:not-allowed;}
+  .field-hint{font-size:11.5px;color:var(--sepia);margin:-4px 0 12px;line-height:1.5;}
+  .field-hint a{color:var(--sepia);}
+
+  details.creds{margin-bottom:12px;}
+  details.creds summary{
+    cursor:pointer;
+    font-family:'JetBrains Mono',monospace;
+    font-size:11.5px;
+    color:var(--sepia);
+    letter-spacing:.04em;
+    padding:2px 0;
+  }
+  details.creds summary:hover{color:var(--parchment);}
+  details.creds .field-row{margin-top:10px;}
+
+  .wcl-status{
+    font-size:12.5px;
+    padding:9px 12px;
+    border-radius:6px;
+    margin-top:8px;
+    display:none;
+    line-height:1.5;
+  }
+  .wcl-status.show{display:block;}
+  .wcl-status.info{background:rgba(74,158,255,.1);border:1px solid rgba(74,158,255,.35);color:#8cbfff;}
+  .wcl-status.error{background:rgba(192,57,43,.12);border:1px solid rgba(192,57,43,.4);color:#e0736a;}
+  .wcl-status.success{background:rgba(63,174,63,.12);border:1px solid rgba(63,174,63,.4);color:#7fd67f;}
+
+  select#wclCharacterSelect{
+    width:100%;
+    margin-top:10px;
+    background:var(--panel);
+    border:1px solid var(--bronze);
+    color:var(--parchment);
+    font-family:'JetBrains Mono',monospace;
+    font-size:12.5px;
+    padding:10px 12px;
+    border-radius:6px;
+    display:none;
+  }
+  select#wclCharacterSelect.show{display:block;}
+
+  /* ---------- spec selector ---------- */
+  .spec-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px;}
+  select{
+    appearance:none;
+    background:var(--void);
+    border:1px solid var(--bronze);
+    color:var(--parchment);
+    font-family:'JetBrains Mono',monospace;
+    font-size:13.5px;
+    padding:10px 14px;
+    border-radius:6px;
+    flex:1;
+    min-width:200px;
+    cursor:pointer;
+  }
+  select:focus-visible, input:focus-visible, button:focus-visible{
+    outline:2px solid var(--gold-bright);
+    outline-offset:2px;
+  }
+  .spec-note{
+    font-size:12.5px;
+    color:var(--sepia);
+    margin:0 0 20px;
+    padding:10px 12px;
+    background:var(--bronze-soft);
+    border-radius:6px;
+    border:1px solid var(--bronze);
+  }
+
+  /* ---------- gear slot grid ---------- */
+  .slots{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  @media (max-width:520px){ .slots{grid-template-columns:1fr;} }
+  .slot{
+    background:var(--void);
+    border:1px solid var(--bronze-soft);
+    border-radius:7px;
+    padding:10px 12px;
+    transition:border-color .15s ease;
+  }
+  .slot:focus-within{border-color:var(--gold);}
+  .slot.imported{border-color:rgba(74,158,255,.5);}
+  .slot-label-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
+  .slot label{
+    font-family:'JetBrains Mono',monospace;
+    font-size:10.5px;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    color:var(--sepia);
+  }
+  .slot .imported-tag{
+    font-family:'JetBrains Mono',monospace;
+    font-size:9px;
+    color:var(--blue);
+    letter-spacing:.06em;
+  }
+  .slot input{
+    width:100%;
+    background:transparent;
+    border:none;
+    color:var(--parchment);
+    font-family:'Inter',sans-serif;
+    font-size:13.5px;
+    padding:0;
+  }
+  .slot input::placeholder{color:#5d5442;}
+  .slot input:focus{outline:none;}
+  .slot .id-link{font-size:10.5px;margin-top:4px;display:inline-block;}
+
+  .actions{display:flex;gap:12px;margin-top:22px;flex-wrap:wrap;}
+  button.primary{
+    flex:1;
+    min-width:180px;
+    background:linear-gradient(180deg,var(--gold-bright),var(--gold));
+    color:#241a08;
+    border:none;
+    font-family:'Cinzel',serif;
+    font-weight:700;
+    font-size:14.5px;
+    letter-spacing:.04em;
+    text-transform:uppercase;
+    padding:14px 20px;
+    border-radius:7px;
+    cursor:pointer;
+    box-shadow:0 8px 20px -8px rgba(212,175,90,.55);
+    transition:transform .12s ease, box-shadow .12s ease;
+  }
+  button.primary:hover{transform:translateY(-1px);box-shadow:0 10px 24px -8px rgba(212,175,90,.7);}
+  button.primary:active{transform:translateY(0);}
+  button.ghost{
+    background:transparent;
+    border:1px solid var(--bronze);
+    color:var(--sepia);
+    font-family:'JetBrains Mono',monospace;
+    font-size:12.5px;
+    padding:14px 16px;
+    border-radius:7px;
+    cursor:pointer;
+  }
+  button.ghost:hover{color:var(--parchment);border-color:var(--gold);}
+
+  /* ---------- results ---------- */
+  .empty-state{padding:60px 30px;text-align:center;color:var(--sepia);}
+  .empty-state .glyph{font-family:'Cinzel',serif;font-size:38px;color:var(--bronze);margin-bottom:14px;}
+  .empty-state p{font-size:13.5px;max-width:340px;margin:0 auto;}
+
+  .score-row{display:flex;align-items:baseline;gap:10px;margin-bottom:6px;}
+  .score-row .big{font-family:'Cinzel',serif;font-size:34px;font-weight:700;color:var(--gold-bright);}
+  .score-row .of{color:var(--sepia);font-size:14px;}
+  .bar{
+    height:6px;background:var(--void);border-radius:99px;overflow:hidden;
+    margin-bottom:22px;border:1px solid var(--bronze-soft);
+  }
+  .bar > div{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold-bright));}
+
+  .legend{
+    display:flex;gap:16px;flex-wrap:wrap;
+    font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--sepia);margin-bottom:20px;
+  }
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .dot{width:8px;height:8px;border-radius:50%;display:inline-block;}
+
+  .cards{display:flex;flex-direction:column;gap:10px;}
+  .card{
+    position:relative;background:var(--void);border:1px solid var(--bronze-soft);
+    border-left:3px solid var(--bronze);border-radius:7px;padding:14px 16px;
+    transition:box-shadow .15s ease, border-color .15s ease;
+  }
+  .card:hover{box-shadow:0 0 0 1px rgba(255,255,255,.03) inset, 0 8px 22px -12px rgba(0,0,0,.7);}
+  .card.status-bis{border-left-color:var(--green);}
+  .card.status-alt{border-left-color:var(--purple);}
+  .card.status-upgrade{border-left-color:var(--orange);}
+  .card.status-missing{border-left-color:var(--red);}
+
+  .card-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px;}
+  .card-slot{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--sepia);}
+  .status-pill{
+    font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.06em;text-transform:uppercase;
+    padding:3px 9px;border-radius:99px;white-space:nowrap;
+  }
+  .status-bis .status-pill{background:rgba(63,174,63,.15);color:#7fd67f;}
+  .status-alt .status-pill{background:rgba(163,53,238,.15);color:#c98bfa;}
+  .status-upgrade .status-pill{background:rgba(255,140,26,.15);color:var(--orange);}
+  .status-missing .status-pill{background:rgba(192,57,43,.15);color:#e0736a;}
+
+  .card-line{font-size:13.5px;margin:3px 0;}
+  .card-line .k{color:var(--sepia);font-family:'JetBrains Mono',monospace;font-size:11px;text-transform:uppercase;letter-spacing:.06em;margin-right:8px;}
+  .card-line .v{color:var(--parchment);}
+  .card-line .v.bis-name{color:var(--gold-bright);font-weight:500;}
+  .card-line .v a{color:inherit;text-decoration-color:var(--bronze);}
+  .card-alts{font-size:12px;color:var(--sepia);margin-top:6px;}
+
+  .bis-block{margin-top:18px;padding-top:16px;border-top:1px solid var(--bronze-soft);}
+  .bis-block h3{
+    font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--sepia);margin:0 0 10px;
+  }
+  .bis-list{display:flex;flex-wrap:wrap;gap:8px;}
+  .bis-list span{
+    font-size:12px;background:var(--bronze-soft);border:1px solid var(--bronze);
+    color:var(--parchment);padding:4px 10px;border-radius:99px;
+  }
+
+  footer{
+    text-align:center;color:var(--sepia);font-size:12.5px;margin-top:48px;
+    padding-top:24px;border-top:1px solid var(--bronze-soft);
+  }
+  footer a{color:var(--sepia);}
+  .source-link{display:inline-block;margin-top:6px;font-family:'JetBrains Mono',monospace;font-size:11.5px;}
+
+  @media (prefers-reduced-motion: reduce){ *{transition:none !important;} }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <p class="eyebrow">Burning Crusade Classic · Phase 5 · Sunwell Plateau</p>
+  <h1>Loot Ledger</h1>
+  <p class="sub">Paste a Warcraft Logs report, pick your character, and get a slot-by-slot read against Wowhead's current Best-in-Slot guides.</p>
+</header>
+
+<div class="wrap">
+  <div class="grid">
+
+    <!-- LEFT: input -->
+    <div class="panel">
+      <div class="panel-head"><h2>Your Character</h2></div>
+      <div class="panel-body">
+
+        <div class="wcl-box">
+          <h3>Import from Warcraft Logs</h3>
+          <div class="field-row">
+            <input type="text" id="wclUrl" placeholder="https://www.warcraftlogs.com/reports/XXXXXXXX?fight=12">
+            <button id="wclParseBtn">Parse</button>
+          </div>
+          <div class="field-hint">Paste the URL from your browser while viewing a specific fight (it needs a <code>?fight=</code> number in it — "latest" links won't work).</div>
+
+          <details class="creds">
+            <summary>API credentials (required to fetch — click to expand)</summary>
+            <div class="field-row">
+              <input type="text" id="wclClientId" placeholder="Client ID">
+              <input type="password" id="wclClientSecret" placeholder="Client Secret">
+            </div>
+            <div class="field-hint">
+              Free, takes a minute: create one at
+              <a href="https://www.warcraftlogs.com/api/clients/" target="_blank" rel="noopener">warcraftlogs.com/api/clients ↗</a>.
+              These are sent directly from your browser to Warcraft Logs' own servers to fetch a temporary access token — this page has no backend of its own, so nothing passes through anyone else's server. They're kept only in this tab (session storage) and cleared when you close it.
+            </div>
+          </details>
+
+          <div class="field-row">
+            <button id="wclFetchBtn">Fetch Characters</button>
+          </div>
+
+          <select id="wclCharacterSelect"></select>
+          <div class="wcl-status" id="wclStatus"></div>
+        </div>
+
+        <div class="spec-row">
+          <select id="specSelect"></select>
+        </div>
+        <p class="spec-note" id="specNote"></p>
+
+        <div class="slots" id="slotGrid"></div>
+
+        <div class="actions">
+          <button class="primary" id="analyzeBtn">Analyze Gear</button>
+          <button class="ghost" id="clearBtn">Clear</button>
+          <button class="ghost" id="sampleBtn">Load Example</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: results -->
+    <div class="panel">
+      <div class="panel-head"><h2>Loot Report</h2></div>
+      <div class="panel-body" id="resultsBody">
+        <div class="empty-state">
+          <div class="glyph">⚔</div>
+          <p>Import a log or fill in your gear on the left, then hit <strong>Analyze Gear</strong> to see what's worth chasing this phase.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <footer>
+    Item data sourced from Wowhead's Phase 5 (Sunwell Plateau) Best-in-Slot guides.
+    Two specs are freshly verified against the live guides; everything else is unpopulated on purpose rather than guessed.
+    <br>
+    <span id="footerLink"></span>
+  </footer>
+</div>
+
+<script>
+/* =======================================================================
+   BIS DATA — item ids come from the Wowhead item URLs on each guide, so
+   gear imported from Warcraft Logs can be matched by exact item ID rather
+   than fuzzy name matching. Manual text entry still falls back to names.
+   ======================================================================= */
+const BIS_DATA = {
+  warrior_fury: {
+    class: "Warrior", spec: "Fury", role: "DPS",
+    wowhead_url: "https://www.wowhead.com/tbc/guide/fury-warrior-dps-swp-phase-5-best-in-slot-gear-burning-crusade",
+    slots: {
+      head:     { best:{name:"Coif of Alleria",id:34333}, alternatives:[{name:"Crown of Anasterian",id:34345}] },
+      neck:     { best:{name:"Hard Khorium Choker",id:34358}, alternatives:[{name:"Clutch of Demise",id:34177}] },
+      shoulder: { best:{name:"Pauldrons of Berserking",id:34388}, alternatives:[{name:"Demontooth Shoulderpads",id:34392},{name:"Mantle of the Golden Forest",id:34194},{name:"Onslaught Shoulderblades",id:30979}] },
+      back:     { best:{name:"Cloak of Unforgivable Sin",id:34241}, alternatives:[{name:"Cloak of Darkness (crafted)",id:33122}] },
+      chest:    { best:{name:"Bladed Chaos Tunic",id:34397}, alternatives:[{name:"Hard Khorium Battleplate",id:34377}] },
+      wrist:    { best:{name:"Onslaught Bracers",id:34441}, alternatives:[{name:"Bindings of Lightning Reflexes (crafted)",id:32574}] },
+      hands:    { best:{name:"Thalassian Ranger Gauntlets",id:34343}, alternatives:[{name:"Gloves of Immortal Dusk (crafted)",id:34370},{name:"Borderland Paingrips",id:34341}] },
+      waist:    { best:{name:"Onslaught Belt",id:34546}, alternatives:[{name:"Belt of One-Hundred Deaths",id:30106}] },
+      legs:     { best:{name:"Felfury Legplates",id:34180}, alternatives:[{name:"Leggings of the Immortal Night",id:34188}] },
+      feet:     { best:{name:"Onslaught Treads",id:34569}, alternatives:[] },
+      ring1:    { best:{name:"Band of Ruinous Delight",id:34189}, alternatives:[{name:"Hard Khorium Band",id:34361},{name:"Stormrage Signet Ring",id:32497}] },
+      ring2:    { best:{name:"Hard Khorium Band",id:34361}, alternatives:[{name:"Stormrage Signet Ring",id:32497}] },
+      trinket1: { best:{name:"Blackened Naaru Sliver",id:34427}, alternatives:[{name:"Shard of Contempt",id:34472},{name:"Dragonspine Trophy",id:28830}] },
+      trinket2: { best:{name:"Shard of Contempt",id:34472}, alternatives:[{name:"Dragonspine Trophy",id:28830}] },
+      main_hand:{ best:{name:"Warglaive of Azzinoth",id:32837}, alternatives:[{name:"Dragonstrike",id:28439},{name:"Muramasa",id:34214}] },
+      off_hand: { best:{name:"Warglaive of Azzinoth",id:32838}, alternatives:[{name:"Muramasa",id:34214}] },
+      ranged:   { best:{name:"Golden Bow of Quel'Thalas",id:34196}, alternatives:[{name:"Crossbow of Relentless Strikes",id:34892}] }
+    }
+  },
+  mage_frost: {
+    class: "Mage", spec: "Frost", role: "DPS",
+    wowhead_url: "https://www.wowhead.com/tbc/guide/frost-mage-dps-swp-phase-5-best-in-slot-gear-burning-crusade",
+    slots: {
+      head:     { best:{name:"Dark Conjuror's Collar",id:34340}, alternatives:[{name:"Annihilator Holo-Gogs (engineering)",id:34847},{name:"Cowl of the Illidari High Lord",id:32525}] },
+      neck:     { best:{name:"Amulet of Unfettered Magics",id:34204}, alternatives:[{name:"Pendant of Sunfire (crafted)",id:34359},{name:"Eye of the Night",id:24116}] },
+      shoulder: { best:{name:"Mantle of the Tempest",id:31059}, alternatives:[{name:"Amice of the Convoker",id:34210}] },
+      back:     { best:{name:"Tattered Cape of Antonidas",id:34242}, alternatives:[{name:"Shroud of the Highborne",id:32524},{name:"Shadowcaster's Drape",id:33591}] },
+      chest:    { best:{name:"Sunfire Robe (crafted)",id:34364}, alternatives:[{name:"Fel Conquerer Raiments",id:34232},{name:"Robes of Ghostly Hatred",id:34399}] },
+      wrist:    { best:{name:"Bracers of the Tempest",id:34447}, alternatives:[{name:"Bracers of Nimble Thought (crafted)",id:32586}] },
+      hands:    { best:{name:"Handguards of Defiled Worlds",id:34344}, alternatives:[{name:"Gloves of the Tempest",id:31055},{name:"Sunfire Handwraps (crafted)",id:34366}] },
+      waist:    { best:{name:"Belt of the Tempest",id:34557}, alternatives:[{name:"Anetheron's Noose",id:30888}] },
+      legs:     { best:{name:"Leggings of Calamity",id:34181}, alternatives:[{name:"Pantaloons of Growing Strife",id:34386},{name:"Leggings of the Tempest",id:31058}] },
+      feet:     { best:{name:"Boots of the Tempest",id:34574}, alternatives:[{name:"Slippers of the Seacaller",id:32239}] },
+      ring1:    { best:{name:"Loop of Forged Power (crafted)",id:34362}, alternatives:[{name:"Ring of Omnipotence",id:34230},{name:"Mana Attuned Band",id:33497}] },
+      ring2:    { best:{name:"Ring of Omnipotence",id:34230}, alternatives:[{name:"Mana Attuned Band",id:33497}] },
+      trinket1: { best:{name:"Shifting Naaru Sliver",id:34429}, alternatives:[{name:"The Skull of Gul'dan",id:32483},{name:"Hex Shrunken Head",id:33829}] },
+      trinket2: { best:{name:"The Skull of Gul'dan",id:32483}, alternatives:[{name:"Hex Shrunken Head",id:33829},{name:"Serpent-Coil Braid",id:30720}] },
+      main_hand:{ best:{name:"Sunflare",id:34336}, alternatives:[{name:"Grand Magister's Staff of Torrents",id:34182},{name:"Zhar'doom, Greatstaff of the Devourer",id:32374}] },
+      off_hand: { best:{name:"Heart of the Pit",id:34179}, alternatives:[{name:"Chronicle of Dark Secrets",id:30872}] },
+      wand:     { best:{name:"Wand of the Demonsoul",id:34347}, alternatives:[{name:"Wand of the Forgotten Star",id:29982}] }
+    }
+  },
+  warrior_protection: {
+    class: "Warrior", spec: "Protection", role: "Tank",
+    wowhead_url: "https://www.wowhead.com/tbc/guide/protection-warrior-tank-swp-phase-5-best-in-slot-gear-burning-crusade",
+    slots: {
+      head:     { best:{name:"Crown of Dath'Remar",id:34400}, alternatives:[{name:"Hard Khorium Goggles",id:34357},{name:"Brutal Gladiator's Plate Helm",id:35068},{name:"Crown of Anasterian",id:34345}] },
+      neck:     { best:{name:"Collar of the Pit Lord",id:34178}, alternatives:[{name:"Brooch of Deftness",id:33296},{name:"Pendant of Titans",id:32362},{name:"Shattered Sun Pendant of Resolve",id:34680}] },
+      shoulder: { best:{name:"Brutal Gladiator's Plate Shoulders",id:35070}, alternatives:[{name:"Pauldrons of Berserking",id:34388},{name:"Pauldrons of Perseverance",id:34192},{name:"Onslaught Shoulderguards",id:30980}] },
+      back:     { best:{name:"Crimson Paragon's Cover",id:34190}, alternatives:[{name:"Pepe's Shroud of Pacification",id:34010},{name:"Slikk's Cloak of Placation",id:33593}] },
+      chest:    { best:{name:"Brutal Gladiator's Plate Chestpiece",id:35066}, alternatives:[{name:"Hard Khorium Battleplate",id:34377},{name:"Warharness of Reckless Fury",id:34215},{name:"Onslaught Chestguard",id:30976}] },
+      wrist:    { best:{name:"Onslaught Wristguards",id:34442}, alternatives:[{name:"Bracers of the Ancient Phalanx",id:33516},{name:"Eternium Shell Bracers",id:32232}] },
+      hands:    { best:{name:"Gauntlets of Enforcement",id:32280}, alternatives:[{name:"Hard Khorium Battlefists",id:34378},{name:"Borderland Paingrips",id:34341},{name:"Borderland Fortress Grips",id:34352}] },
+      waist:    { best:{name:"Onslaught Waistguard",id:34547}, alternatives:[{name:"Girdle of the Fearless",id:34941}] },
+      legs:     { best:{name:"Felstrength Legplates",id:34381}, alternatives:[{name:"Sunguard Legplates",id:34940},{name:"Brutal Gladiator's Plate Legguards",id:35069},{name:"Judicator's Legguards",id:34382}] },
+      feet:     { best:{name:"Onslaught Boots",id:34568}, alternatives:[] },
+      ring1:    { best:{name:"Ring of Hardened Resolve",id:34213}, alternatives:[{name:"Ring of the Stalwart Protector",id:34888},{name:"Band of the Abyssal Lord",id:32261}] },
+      ring2:    { best:{name:"Hard Khorium Band",id:34361}, alternatives:[{name:"Angelista's Revenge",id:34887},{name:"Signet of Primal Wrath",id:33496},{name:"Ring of Deceitful Intent",id:32266}] },
+      trinket1: { best:{name:"Commendation of Kael'thas",id:34473}, alternatives:[{name:"Darkmoon Card: Vengeance",id:31858},{name:"Ancient Aqir Artifact",id:33830}] },
+      trinket2: { best:{name:"Shard of Contempt",id:34472}, alternatives:[{name:"Steely Naaru Sliver",id:34428},{name:"Icon of Unyielding Courage",id:28121}] },
+      main_hand:{ best:{name:"Dragonscale-Encrusted Longblade",id:34164}, alternatives:[{name:"The Brutalizer",id:32254},{name:"Blade of Savagery",id:32369},{name:"Swiftsteel Bludgeon",id:32943}] },
+      off_hand: { best:{name:"Sword Breaker's Bulwark",id:34185}, alternatives:[{name:"Bulwark of Azzinoth",id:32375},{name:"Brutal Gladiator's Shield Wall",id:35094}] },
+      ranged:   { best:{name:"Legionkiller",id:32253}, alternatives:[{name:"Blade of Life's Inevitability",id:34349},{name:"Arcanite Steam-Pistol",id:29949}] }
+    }
+  },
+  warrior_arms: {
+    class: "Warrior", spec: "Arms", role: "DPS",
+    wowhead_url: "https://www.wowhead.com/tbc/guide/arms-warrior-dps-swp-phase-5-best-in-slot-gear-burning-crusade",
+    slots: {
+      head:     { best:{name:"Coif of Alleria",id:34333}, alternatives:[{name:"Crown of Anasterian",id:34345}] },
+      neck:     { best:{name:"Hard Khorium Choker",id:34358}, alternatives:[{name:"Clutch of Demise",id:34177}] },
+      shoulder: { best:{name:"Pauldrons of Berserking",id:34388}, alternatives:[{name:"Demontooth Shoulderpads",id:34392},{name:"Mantle of the Golden Forest",id:34194},{name:"Onslaught Shoulderblades",id:30979}] },
+      back:     { best:{name:"Cloak of Unforgivable Sin",id:34241}, alternatives:[{name:"Cloak of Darkness (crafted)",id:33122}] },
+      chest:    { best:{name:"Bladed Chaos Tunic",id:34397}, alternatives:[{name:"Hard Khorium Battleplate",id:34377}] },
+      wrist:    { best:{name:"Onslaught Bracers",id:34441}, alternatives:[{name:"Bindings of Lightning Reflexes (crafted)",id:32574}] },
+      hands:    { best:{name:"Thalassian Ranger Gauntlets",id:34343}, alternatives:[{name:"Gloves of Immortal Dusk (crafted)",id:34370},{name:"Borderland Paingrips",id:34341}] },
+      waist:    { best:{name:"Onslaught Belt",id:34546}, alternatives:[{name:"Belt of One-Hundred Deaths",id:30106}] },
+      legs:     { best:{name:"Felfury Legplates",id:34180}, alternatives:[{name:"Leggings of the Immortal Night",id:34188}] },
+      feet:     { best:{name:"Onslaught Treads",id:34569}, alternatives:[] },
+      ring1:    { best:{name:"Band of Ruinous Delight",id:34189}, alternatives:[{name:"Hard Khorium Band",id:34361},{name:"Stormrage Signet Ring",id:32497}] },
+      ring2:    { best:{name:"Hard Khorium Band",id:34361}, alternatives:[{name:"Stormrage Signet Ring",id:32497}] },
+      trinket1: { best:{name:"Blackened Naaru Sliver",id:34427}, alternatives:[{name:"Shard of Contempt",id:34472},{name:"Dragonspine Trophy",id:28830}] },
+      trinket2: { best:{name:"Shard of Contempt",id:34472}, alternatives:[{name:"Dragonspine Trophy",id:28830}] },
+      main_hand:{ best:{name:"Apolyon, the Soul-Render",id:34247}, alternatives:[{name:"Cataclysm's Edge",id:30902},{name:"Soul Cleaver",id:32348},{name:"Twinblade of the Phoenix",id:29993},{name:"Warglaive of Azzinoth (dual-wield build)",id:32837}] },
+      ranged:   { best:{name:"Golden Bow of Quel'Thalas",id:34196}, alternatives:[{name:"Crossbow of Relentless Strikes",id:34892}] }
+    }
+  },
+  paladin_protection: {
+    class: "Paladin", spec: "Protection", role: "Tank",
+    wowhead_url: "https://www.wowhead.com/tbc/guide/paladin-tank-swp-phase-5-best-in-slot-gear-burning-crusade",
+    slots: {
+      head:     { best:{name:"Helm of Uther's Resolve",id:34401}, alternatives:[{name:"Crown of Dath'Remar",id:34400},{name:"Faceplate of the Impenetrable",id:32521},{name:"Lightbringer Faceguard",id:30987}] },
+      neck:     { best:{name:"Collar of the Pit Lord",id:34178}, alternatives:[{name:"The Darkener's Grasp",id:30007},{name:"Pendant of Titans",id:32362}] },
+      shoulder: { best:{name:"Spaulders of the Thalassian Defender",id:34389}, alternatives:[{name:"Pauldrons of Perseverance",id:34192},{name:"Lightbringer Shoulderguards",id:30998}] },
+      back:     { best:{name:"Crimson Paragon's Cover",id:34190}, alternatives:[{name:"Slikk's Cloak of Placation",id:33593},{name:"Ruby Drape of the Mysticant",id:28766}] },
+      chest:    { best:{name:"Heroic Judicator's Chestguard",id:34216}, alternatives:[{name:"Lightbringer Chestguard",id:30991},{name:"Shattrath Protectorate's Breastplate",id:34945}] },
+      wrist:    { best:{name:"Lightbringer Wristguards",id:34433}, alternatives:[{name:"Eternium Shell Bracers",id:32232}] },
+      hands:    { best:{name:"Borderland Fortress Grips",id:34352}, alternatives:[{name:"Lightbringer Handguards",id:30985},{name:"Royal Gauntlets of Silvermoon",id:29998}] },
+      waist:    { best:{name:"Lightbringer Waistguard",id:34488}, alternatives:[{name:"Girdle of Mighty Resolve",id:32342},{name:"Girdle of the Protector",id:33524}] },
+      legs:     { best:{name:"Judicator's Legguards",id:34382}, alternatives:[{name:"Lightbringer Legguards",id:30995},{name:"Praetorian's Legguards",id:32263}] },
+      feet:     { best:{name:"Lightbringer Stompers",id:34560}, alternatives:[{name:"Tide-stomper's Greaves",id:32245},{name:"Blue's Greaves of the Righteous Guardian",id:34947}] },
+      ring1:    { best:{name:"Ring of Hardened Resolve",id:34213}, alternatives:[{name:"Ring of the Stalwart Protector",id:34888}] },
+      ring2:    { best:{name:"Fused Nethergon Band",id:34889}, alternatives:[{name:"Loop of Forged Power",id:34362},{name:"Band of the Eternal Sage",id:29305}] },
+      trinket1: { best:{name:"Commendation of Kael'thas",id:34473}, alternatives:[{name:"Darkmoon Card: Vengeance",id:31858}] },
+      trinket2: { best:{name:"Shadowmoon Insignia",id:32501}, alternatives:[{name:"Moroes' Lucky Pocket Watch",id:28528},{name:"Steely Naaru Sliver",id:34428}] },
+      main_hand:{ best:{name:"Tempest of Chaos",id:30910}, alternatives:[{name:"Brutal Gladiator's Gavel",id:35014},{name:"Reign of Misery",id:34176}] },
+      off_hand: { best:{name:"Sword Breaker's Bulwark",id:34185}, alternatives:[{name:"Bulwark of Azzinoth",id:32375}] },
+      libram:   { best:{name:"Tome of the Lightbringer",id:32368}, alternatives:[{name:"Libram of Repentance",id:29388},{name:"Libram of Divine Purpose",id:33504}] }
+    }
+  },
+  paladin_retribution: {
+    class: "Paladin", spec: "Retribution", role: "DPS",
+    wowhead_url: "https://www.wowhead.com/tbc/guide/retribution-paladin-dps-swp-phase-5-best-in-slot-gear-burning-crusade",
+    slots: {
+      head:     { best:{name:"Duplicitous Guise",id:34244}, alternatives:[{name:"Coif of Alleria",id:34333},{name:"Mayhem Projection Goggles",id:34354},{name:"Crown of Anasterian",id:34345}] },
+      neck:     { best:{name:"Clutch of Demise",id:34177}, alternatives:[{name:"Hard Khorium Choker",id:34358},{name:"Shattered Sun Pendant of Might",id:34679}] },
+      shoulder: { best:{name:"Pauldrons of Berserking",id:34388}, alternatives:[{name:"Demontooth Shoulderpads",id:34392},{name:"Shoulderpads of Vehemence",id:34195}] },
+      back:     { best:{name:"Cloak of Unforgivable Sin",id:34241}, alternatives:[{name:"Cloak of Fiends",id:33590},{name:"Cloak of Darkness (crafted)",id:33122}] },
+      chest:    { best:{name:"Bladed Chaos Tunic",id:34397}, alternatives:[{name:"Warharness of Reckless Fury",id:34215},{name:"Carapace of Sun and Shadow (crafted)",id:34369}] },
+      wrist:    { best:{name:"Lightbringer Bands",id:34431}, alternatives:[{name:"Bindings of Lightning Reflexes (crafted)",id:32574}] },
+      hands:    { best:{name:"Thalassian Ranger Gauntlets",id:34343}, alternatives:[{name:"Gloves of Immortal Dusk (crafted)",id:34370}] },
+      waist:    { best:{name:"Lightbringer Girdle",id:34485}, alternatives:[{name:"Belt of One-Hundred Deaths",id:30106}] },
+      legs:     { best:{name:"Felfury Legplates",id:34180}, alternatives:[{name:"Leggings of the Immortal Night",id:34188}] },
+      feet:     { best:{name:"Lightbringer Boots",id:34561}, alternatives:[] },
+      ring1:    { best:{name:"Hard Khorium Band",id:34361}, alternatives:[{name:"Band of Ruinous Delight",id:34189}] },
+      ring2:    { best:{name:"Band of Ruinous Delight",id:34189}, alternatives:[{name:"Shapeshifter's Signet",id:30834}] },
+      trinket1: { best:{name:"Shard of Contempt",id:34472}, alternatives:[{name:"Blackened Naaru Sliver",id:34427}] },
+      trinket2: { best:{name:"Blackened Naaru Sliver",id:34427}, alternatives:[{name:"Dragonspine Trophy",id:28830}] },
+      main_hand:{ best:{name:"Apolyon, the Soul-Render",id:34247}, alternatives:[{name:"Shivering Felspine",id:34183},{name:"Torch of the Damned",id:32332},{name:"The Blade of Harbingers",id:34891}] },
+      libram:   { best:{name:"Libram of Avengement",id:27484}, alternatives:[{name:"Libram of Hope",id:22401},{name:"Libram of Divine Judgement",id:33503}] }
+    }
+  },
+  paladin_holy: {
+    class: "Paladin", spec: "Holy", role: "Healer",
+    wowhead_url: "https://www.wowhead.com/tbc/guide/holy-paladin-healer-swp-phase-5-best-in-slot-gear-burning-crusade",
+    slots: {
+      head:     { best:{name:"Helm of Burning Righteousness",id:34243}, alternatives:[{name:"Shroud of Chieftain Ner'zhul",id:34402},{name:"Justicebringer 3000 Specs (crafted)",id:35185},{name:"Lightbringer Greathelm",id:30988}] },
+      neck:     { best:{name:"Nadina's Pendant of Purity",id:32370}, alternatives:[{name:"Amulet of Flowing Life (crafted)",id:34360},{name:"Brooch of the Highborne",id:34184}] },
+      shoulder: { best:{name:"Spaulders of the Thalassian Savior",id:34193}, alternatives:[{name:"Equilibrium Epaulets",id:34208},{name:"Lightbringer Pauldrons",id:30996}] },
+      back:     { best:{name:"Shroud of Redeemed Souls",id:34205}, alternatives:[{name:"Shroud of the Highborne",id:32524},{name:"Shroud of the Final Stand",id:34012}] },
+      chest:    { best:{name:"Garments of Serene Shores",id:34229}, alternatives:[{name:"Sunblessed Breastplate (crafted)",id:34379},{name:"Noble Judicator's Chestguard",id:34395}] },
+      wrist:    { best:{name:"Lightbringer Bracers",id:34432}, alternatives:[{name:"Blessed Adamantite Bracers",id:30862},{name:"Howling Wind Bracers",id:30869}] },
+      hands:    { best:{name:"Sunblessed Gauntlets (crafted)",id:34380}, alternatives:[{name:"Gauntlets of the Soothed Soul",id:34240},{name:"Glorious Gauntlets of Crestfall",id:30112}] },
+      waist:    { best:{name:"Lightbringer Belt",id:34487}, alternatives:[{name:"Girdle of Stromgarde's Hope",id:33446}] },
+      legs:     { best:{name:"Legplates of the Holy Juggernaut",id:34167}, alternatives:[{name:"Kilt of Spiritual Reconstruction",id:34383},{name:"Lightbringer Leggings",id:30994}] },
+      feet:     { best:{name:"Lightbringer Treads",id:34559}, alternatives:[{name:"Pearl Inlaid Boots",id:32243},{name:"Boots of Courage Unending",id:30027}] },
+      ring1:    { best:{name:"Ring of Flowing Life (crafted)",id:34363}, alternatives:[{name:"Blessed Band of Karabor",id:32528}] },
+      ring2:    { best:{name:"Blessed Band of Karabor",id:32528}, alternatives:[{name:"Band of Lucent Beams",id:34166},{name:"Ring of Calming Waves",id:32238}] },
+      trinket1: { best:{name:"Glimmering Naaru Sliver",id:34430}, alternatives:[{name:"Redeemer's Alchemist Stone (crafted)",id:35750}] },
+      trinket2: { best:{name:"Memento of Tyrande",id:32496}, alternatives:[{name:"Essence of the Martyr",id:29376}] },
+      main_hand:{ best:{name:"Hammer of Sanctification",id:34335}, alternatives:[{name:"Archon's Gavel",id:34199},{name:"Crystal Spire of Karabor",id:32500},{name:"Hammer of Atonement",id:30918}] },
+      off_hand: { best:{name:"Aegis of Angelic Fortune",id:34231}, alternatives:[{name:"Book of Highborne Hymns",id:34206},{name:"Felstone Bulwark",id:32255}] },
+      libram:   { best:{name:"Libram of Souls Redeemed",id:28592}, alternatives:[{name:"Libram of Light",id:23006},{name:"Libram of Absolute Truth",id:30063}] }
+    }
+  },
+  priest_shadow: {
+    class: "Priest", spec: "Shadow", role: "DPS",
+    wowhead_url: "https://www.wowhead.com/tbc/guide/shadow-priest-dps-swp-phase-5-best-in-slot-gear-burning-crusade",
+    slots: {
+      head:     { best:{name:"Dark Conjuror's Collar",id:34340}, alternatives:[{name:"Annihilator Holo-Gogs (engineering)",id:34847},{name:"Hood of Absolution",id:31064}] },
+      neck:     { best:{name:"Amulet of Unfettered Magics",id:34204}, alternatives:[{name:"Chain of the Twilight Owl",id:24121},{name:"Pendant of Sunfire (crafted)",id:34359}] },
+      shoulder: { best:{name:"Shoulderpads of Absolution",id:31070}, alternatives:[{name:"Amice of the Convoker",id:34210},{name:"Shoulderpads of Knowledge's Pursuit",id:34393}] },
+      back:     { best:{name:"Tattered Cape of Antonidas",id:34242}, alternatives:[{name:"Nethervoid Cloak",id:32590},{name:"Shadowcaster's Drape",id:33591}] },
+      chest:    { best:{name:"Sunfire Robe (crafted)",id:34364}, alternatives:[{name:"Fel Conquerer Raiments",id:34232},{name:"Robes of Ghostly Hatred",id:34399}] },
+      wrist:    { best:{name:"Bracers of Absolution",id:34434}, alternatives:[{name:"Bracers of Nimble Thought (crafted)",id:32586}] },
+      hands:    { best:{name:"Handguards of Defiled Worlds",id:34344}, alternatives:[{name:"Handguards of Absolution",id:31061},{name:"Sunfire Handwraps (crafted)",id:34366}] },
+      waist:    { best:{name:"Cord of Absolution",id:34528}, alternatives:[{name:"Waistwrap of Infinity",id:32256},{name:"Belt of Blasting (crafted)",id:30038}] },
+      legs:     { best:{name:"Leggings of Calamity",id:34181}, alternatives:[{name:"Pantaloons of Growing Strife",id:34386}] },
+      feet:     { best:{name:"Treads of Absolution",id:34563}, alternatives:[{name:"Slippers of the Seacaller",id:32239}] },
+      ring1:    { best:{name:"Ring of Omnipotence",id:34230}, alternatives:[{name:"Ring of Ancient Knowledge",id:32527}] },
+      ring2:    { best:{name:"Loop of Forged Power (crafted)",id:34362}, alternatives:[{name:"Mana Attuned Band",id:33497}] },
+      trinket1: { best:{name:"Shifting Naaru Sliver",id:34429}, alternatives:[{name:"Hex Shrunken Head",id:33829}] },
+      trinket2: { best:{name:"Hex Shrunken Head",id:33829}, alternatives:[{name:"The Skull of Gul'dan",id:32483}] },
+      main_hand:{ best:{name:"Sunflare",id:34336}, alternatives:[{name:"Reign of Misery",id:34176},{name:"Zhar'doom, Greatstaff of the Devourer",id:32374}] },
+      off_hand: { best:{name:"Heart of the Pit",id:34179}, alternatives:[{name:"Fetish of the Primal Gods",id:33334}] },
+      wand:     { best:{name:"Wand of the Demonsoul",id:34347}, alternatives:[{name:"Carved Witch Doctor's Stick",id:33192}] }
+    }
+  },
+  rogue_combat: {
+    class: "Rogue", spec: "Combat", role: "DPS",
+    wowhead_url: "https://www.wowhead.com/tbc/guide/rogue-dps-swp-phase-5-best-in-slot-gear-burning-crusade",
+    slots: {
+      head:     { best:{name:"Duplicitous Guise",id:34244}, alternatives:[{name:"Cursed Vision of Sargeras",id:32235},{name:"Quad Deathblow X44 Goggles (engineering)",id:34353}] },
+      neck:     { best:{name:"Hard Khorium Choker (crafted)",id:34358}, alternatives:[{name:"Clutch of Demise",id:34177}] },
+      shoulder: { best:{name:"Slayer's Shoulderpads",id:31030}, alternatives:[{name:"Shoulderpads of Vehemence",id:34195}] },
+      back:     { best:{name:"Cloak of Unforgivable Sin",id:34241}, alternatives:[{name:"Shadowmoon Destroyer's Drape",id:32323}] },
+      chest:    { best:{name:"Bladed Chaos Tunic",id:34397}, alternatives:[{name:"Carapace of Sun and Shadow (crafted)",id:34369}] },
+      wrist:    { best:{name:"Slayer's Bracers",id:34448}, alternatives:[{name:"Insidious Bands",id:32324}] },
+      hands:    { best:{name:"Gloves of Immortal Dusk (crafted)",id:34370}, alternatives:[{name:"Shadowed Gauntlets of Paroxysm",id:34234}] },
+      waist:    { best:{name:"Slayer's Belt",id:34558}, alternatives:[{name:"Belt of One-Hundred Deaths",id:30106}] },
+      legs:     { best:{name:"Leggings of the Immortal Night",id:34188}, alternatives:[{name:"Slayer's Legguards",id:31029}] },
+      feet:     { best:{name:"Slayer's Boots",id:34575}, alternatives:[{name:"Shadowmaster's Boots",id:32366}] },
+      ring1:    { best:{name:"Stormrage Signet Ring",id:32497}, alternatives:[{name:"Band of Ruinous Delight",id:34189}] },
+      ring2:    { best:{name:"Band of Ruinous Delight",id:34189}, alternatives:[{name:"Hard Khorium Band",id:34361}] },
+      trinket1: { best:{name:"Blackened Naaru Sliver",id:34427}, alternatives:[{name:"Dragonspine Trophy",id:28830}] },
+      trinket2: { best:{name:"Dragonspine Trophy",id:28830}, alternatives:[{name:"Warp-Spring Coil",id:30450}] },
+      main_hand:{ best:{name:"Warglaive of Azzinoth",id:32837}, alternatives:[{name:"Hand of the Deceiver",id:34331},{name:"Muramasa",id:34214}] },
+      off_hand: { best:{name:"Warglaive of Azzinoth",id:32838}, alternatives:[{name:"Blade of Savagery",id:32369},{name:"Dragonscale-Encrusted Longblade",id:34164}] },
+      ranged:   { best:{name:"Golden Bow of Quel'Thalas",id:34196}, alternatives:[{name:"Thori'dal, the Stars' Fury",id:34334}] }
+    }
+  },
+  hunter_beastmastery: {
+    class: "Hunter", spec: "Beast Mastery", role: "DPS",
+    wowhead_url: "https://www.wowhead.com/tbc/guide/beast-mastery-hunter-dps-swp-phase-5-best-in-slot-gear-burning-crusade",
+    slots: {
+      head:     { best:{name:"Coif of Alleria",id:34333}, alternatives:[{name:"Duplicitous Guise",id:34244},{name:"Cursed Vision of Sargeras",id:32235}] },
+      neck:     { best:{name:"Hard Khorium Choker (crafted)",id:34358}, alternatives:[{name:"Clutch of Demise",id:34177}] },
+      shoulder: { best:{name:"Gronnstalker's Spaulders",id:31006}, alternatives:[{name:"Mantle of the Golden Forest",id:34194},{name:"Shoulderpads of Vehemence",id:34195}] },
+      back:     { best:{name:"Cloak of Unforgivable Sin",id:34241}, alternatives:[{name:"Shadowmoon Destroyer's Drape",id:32323}] },
+      chest:    { best:{name:"Bladed Chaos Tunic",id:34397}, alternatives:[{name:"Vicious Hawkstrider Hauberk",id:34228},{name:"Embrace of the Phoenix (crafted)",id:34373}] },
+      wrist:    { best:{name:"Gronnstalker's Bracers",id:34443}, alternatives:[{name:"Insidious Bands",id:32324}] },
+      hands:    { best:{name:"Gloves of Immortal Dusk (crafted)",id:34370}, alternatives:[{name:"Thalassian Ranger Gauntlets",id:34343}] },
+      waist:    { best:{name:"Gronnstalker's Belt",id:34549}, alternatives:[{name:"Boneweave Girdle",id:32346}] },
+      legs:     { best:{name:"Leggings of the Immortal Night",id:34188}, alternatives:[{name:"Starstalker Legguards",id:34168}] },
+      feet:     { best:{name:"Gronnstalker's Boots",id:34570}, alternatives:[{name:"Shadowmaster's Boots",id:32366}] },
+      ring1:    { best:{name:"Band of Ruinous Delight",id:34189}, alternatives:[{name:"Hard Khorium Band",id:34361}] },
+      ring2:    { best:{name:"Hard Khorium Band",id:34361}, alternatives:[{name:"Angelista's Revenge",id:34887}] },
+      trinket1: { best:{name:"Blackened Naaru Sliver",id:34427}, alternatives:[{name:"Dragonspine Trophy",id:28830}] },
+      trinket2: { best:{name:"Berserker's Call",id:33831}, alternatives:[{name:"Dragonspine Trophy",id:28830}] },
+      main_hand:{ best:{name:"Hand of the Deceiver",id:34331}, alternatives:[{name:"Crux of the Apocalypse",id:34329},{name:"Shivering Felspine (2H)",id:34183}] },
+      ranged:   { best:{name:"Thori'dal, the Stars' Fury",id:34334}, alternatives:[{name:"Golden Bow of Quel'Thalas",id:34196}] }
+    }
+  },
+  shaman_enhancement: {
+    class: "Shaman", spec: "Enhancement", role: "DPS",
+    wowhead_url: "https://www.wowhead.com/tbc/guide/enhancement-shaman-dps-swp-phase-5-best-in-slot-gear-burning-crusade",
+    slots: {
+      head:     { best:{name:"Duplicitous Guise",id:34244}, alternatives:[{name:"Coif of Alleria",id:34333},{name:"Cursed Vision of Sargeras",id:32235}] },
+      neck:     { best:{name:"Hard Khorium Choker (crafted)",id:34358}, alternatives:[{name:"Clutch of Demise",id:34177}] },
+      shoulder: { best:{name:"Demontooth Shoulderpads",id:34392}, alternatives:[{name:"Mantle of the Golden Forest",id:34194},{name:"Skyshatter Pauldrons",id:31024}] },
+      back:     { best:{name:"Cloak of Unforgivable Sin",id:34241}, alternatives:[{name:"Shadowmoon Destroyer's Drape",id:32323}] },
+      chest:    { best:{name:"Bladed Chaos Tunic",id:34397}, alternatives:[{name:"Carapace of Sun and Shadow (crafted)",id:34369}] },
+      wrist:    { best:{name:"Skyshatter Wristguards",id:34439}, alternatives:[{name:"Deadly Cuffs",id:30863}] },
+      hands:    { best:{name:"Thalassian Ranger Gauntlets",id:34343}, alternatives:[{name:"Gloves of Immortal Dusk (crafted)",id:34370}] },
+      waist:    { best:{name:"Skyshatter Girdle",id:34545}, alternatives:[{name:"Belt of One-Hundred Deaths",id:30106}] },
+      legs:     { best:{name:"Leggings of the Immortal Night",id:34188}, alternatives:[{name:"Bow-stitched Leggings",id:30900}] },
+      feet:     { best:{name:"Skyshatter Greaves",id:34567}, alternatives:[{name:"Softstep Boots of Tracking",id:32510}] },
+      ring1:    { best:{name:"Band of Ruinous Delight",id:34189}, alternatives:[{name:"Stormrage Signet Ring",id:32497}] },
+      ring2:    { best:{name:"Stormrage Signet Ring",id:32497}, alternatives:[{name:"Hard Khorium Band",id:34361}] },
+      trinket1: { best:{name:"Blackened Naaru Sliver",id:34427}, alternatives:[{name:"Dragonspine Trophy",id:28830}] },
+      trinket2: { best:{name:"Shard of Contempt",id:34472}, alternatives:[{name:"Berserker's Call",id:33831}] },
+      main_hand:{ best:{name:"Hand of the Deceiver",id:34331}, alternatives:[{name:"Brutal Gladiator's Cleaver",id:34996}] },
+      off_hand: { best:{name:"Mounting Vengeance",id:34346}, alternatives:[{name:"Vengeful Gladiator's Cleaver",id:33669}] }
+    }
+  },
+  warlock_destruction: {
+    class: "Warlock", spec: "Destruction", role: "DPS",
+    wowhead_url: "https://www.wowhead.com/tbc/guide/destruction-warlock-dps-swp-phase-5-best-in-slot-gear-burning-crusade",
+    slots: {
+      head:     { best:{name:"Dark Conjuror's Collar",id:34340}, alternatives:[{name:"Cowl of the Illidari High Lord",id:32525},{name:"Annihilator Holo-Gogs (engineering)",id:34847},{name:"Hood of the Malefic",id:31051}] },
+      neck:     { best:{name:"Pendant of Sunfire (crafted)",id:34359}, alternatives:[{name:"Amulet of Unfettered Magics",id:34204}] },
+      shoulder: { best:{name:"Amice of the Convoker",id:34210}, alternatives:[{name:"Mantle of the Malefic",id:31054}] },
+      back:     { best:{name:"Tattered Cape of Antonidas",id:34242}, alternatives:[{name:"Nethervoid Cloak",id:32590},{name:"Cloak of the Illidari Council",id:32331}] },
+      chest:    { best:{name:"Sunfire Robe (crafted)",id:34364}, alternatives:[{name:"Fel Conquerer Raiments",id:34232},{name:"Robes of Ghostly Hatred",id:34399}] },
+      wrist:    { best:{name:"Bracers of the Malefic",id:34436}, alternatives:[{name:"Bracers of Nimble Thought (crafted)",id:32586}] },
+      hands:    { best:{name:"Handguards of Defiled Worlds",id:34344}, alternatives:[{name:"Gloves of Tyri's Power",id:34406},{name:"Sunfire Handwraps (crafted)",id:34366}] },
+      waist:    { best:{name:"Belt of the Malefic",id:34541}, alternatives:[{name:"Belt of Blasting (crafted)",id:30038}] },
+      legs:     { best:{name:"Leggings of Calamity",id:34181}, alternatives:[{name:"Pantaloons of Growing Strife",id:34386}] },
+      feet:     { best:{name:"Boots of the Malefic",id:34564}, alternatives:[{name:"Slippers of the Seacaller",id:32239}] },
+      ring1:    { best:{name:"Ring of Omnipotence",id:34230}, alternatives:[{name:"Loop of Forged Power (crafted)",id:34362}] },
+      ring2:    { best:{name:"Loop of Forged Power (crafted)",id:34362}, alternatives:[{name:"Mana Attuned Band",id:33497}] },
+      trinket1: { best:{name:"Shifting Naaru Sliver",id:34429}, alternatives:[{name:"The Skull of Gul'dan",id:32483}] },
+      trinket2: { best:{name:"The Skull of Gul'dan",id:32483}, alternatives:[{name:"Hex Shrunken Head",id:33829}] },
+      main_hand:{ best:{name:"Sunflare",id:34336}, alternatives:[{name:"Tempest of Chaos",id:30910},{name:"Grand Magister's Staff of Torrents (2H)",id:34182}] },
+      off_hand: { best:{name:"Heart of the Pit",id:34179}, alternatives:[{name:"Chronicle of Dark Secrets",id:30872}] },
+      wand:     { best:{name:"Wand of the Demonsoul",id:34347}, alternatives:[{name:"Wand of the Forgotten Star",id:29982}] }
+    }
+  },
+  druid_balance: {
+    class: "Druid", spec: "Balance", role: "DPS",
+    wowhead_url: "https://www.wowhead.com/tbc/guide/balance-druid-dps-swp-phase-5-best-in-slot-gear-burning-crusade",
+    slots: {
+      head:     { best:{name:"Dark Conjuror's Collar",id:34340}, alternatives:[{name:"Cover of Ursoc the Mighty",id:34403},{name:"Cowl of the Illidari High Lord",id:32525}] },
+      neck:     { best:{name:"Pendant of Sunfire (crafted)",id:34359}, alternatives:[{name:"Amulet of Unfettered Magics",id:34204}] },
+      shoulder: { best:{name:"Amice of the Convoker",id:34210}, alternatives:[{name:"Spaulders of Devastation",id:34391},{name:"Thunderheart Shoulderpads",id:31049}] },
+      back:     { best:{name:"Tattered Cape of Antonidas",id:34242}, alternatives:[{name:"Cloak of the Illidari Council",id:32331}] },
+      chest:    { best:{name:"Sunfire Robe (crafted)",id:34364}, alternatives:[{name:"Fel Conquerer Raiments",id:34232}] },
+      wrist:    { best:{name:"Thunderheart Bands",id:34446}, alternatives:[{name:"Bracers of Nimble Thought (crafted)",id:32586}] },
+      hands:    { best:{name:"Handguards of Defiled Worlds",id:34344}, alternatives:[{name:"Tranquil Moonlight Wraps",id:34407},{name:"Sunfire Handwraps (crafted)",id:34366}] },
+      waist:    { best:{name:"Thunderheart Cord",id:34555}, alternatives:[{name:"Anetheron's Noose",id:30888}] },
+      legs:     { best:{name:"Leggings of Calamity",id:34181}, alternatives:[{name:"Breeches of Natural Aggression",id:34169}] },
+      feet:     { best:{name:"Thunderheart Footwraps",id:34572}, alternatives:[{name:"Slippers of the Seacaller",id:32239}] },
+      ring1:    { best:{name:"Loop of Forged Power (crafted)",id:34362}, alternatives:[{name:"Ring of Omnipotence",id:34230}] },
+      ring2:    { best:{name:"Ring of Omnipotence",id:34230}, alternatives:[{name:"Mana Attuned Band",id:33497}] },
+      trinket1: { best:{name:"Shifting Naaru Sliver",id:34429}, alternatives:[{name:"The Skull of Gul'dan",id:32483}] },
+      trinket2: { best:{name:"The Skull of Gul'dan",id:32483}, alternatives:[{name:"Hex Shrunken Head",id:33829}] },
+      main_hand:{ best:{name:"Sunflare",id:34336}, alternatives:[{name:"Reign of Misery",id:34176},{name:"Grand Magister's Staff of Torrents (2H)",id:34182}] },
+      off_hand: { best:{name:"Heart of the Pit",id:34179}, alternatives:[{name:"Chronicle of Dark Secrets",id:30872}] },
+      idol:     { best:{name:"Idol of the Raven Goddess",id:32387}, alternatives:[{name:"Ivory Idol of the Moongoddess",id:27518}] }
+    }
+  }
+};
+
+// Which BIS keys to try (in order) for a given Warcraft Logs class name
+const CLASS_TO_SPECS = {
+  "Warrior": ["warrior_fury", "warrior_arms", "warrior_protection"],
+  "Paladin": ["paladin_retribution", "paladin_protection", "paladin_holy"],
+  "Mage": ["mage_frost"],
+  "Priest": ["priest_shadow"],
+  "Rogue": ["rogue_combat"],
+  "Hunter": ["hunter_beastmastery"],
+  "Shaman": ["shaman_enhancement"],
+  "Warlock": ["warlock_destruction"],
+  "Druid": ["druid_balance"]
+};
+
+const SAMPLE_GEAR = {
+  warrior_fury: {
+    head:"Onslaught Battle-Helm", neck:"Pendant of the Perilous", shoulder:"Onslaught Shoulderblades",
+    back:"Shadowmoon Destroyer's Drape", chest:"Onslaught Breastplate", wrist:"Bracers of Eradication",
+    hands:"Onslaught Gauntlets", waist:"Belt of One-Hundred Deaths", legs:"Legguards of Endless Rage",
+    feet:"Warboots of Obliteration", ring1:"Stormrage Signet Ring", ring2:"Signet of Primal Wrath",
+    trinket1:"Dragonspine Trophy", trinket2:"Tsunami Talisman", main_hand:"Dragonstrike",
+    off_hand:"Talon of Azshara", ranged:"Sunfury Bow of the Phoenix"
+  },
+  mage_frost: {
+    head:"Cowl of the Illidari High Lord", neck:"Pendant of Sunfire", shoulder:"Amice of the Convoker",
+    back:"Shroud of the Highborne", chest:"Robes of the Tempest", wrist:"Bracers of Nimble Thought",
+    hands:"Gloves of the Tempest", waist:"Anetheron's Noose", legs:"Leggings of the Tempest",
+    feet:"Slippers of the Seacaller", ring1:"Ring of Ancient Knowledge", ring2:"Band of the Eternal Sage",
+    trinket1:"The Skull of Gul'dan", trinket2:"Serpent-Coil Braid", main_hand:"Zhar'doom, Greatstaff of the Devourer",
+    off_hand:"Chronicle of Dark Secrets", wand:"Wand of the Forgotten Star"
+  }
+};
+
+const SLOT_LABELS = {
+  head:"Head", neck:"Neck", shoulder:"Shoulder", back:"Back", chest:"Chest",
+  wrist:"Wrist", hands:"Hands", waist:"Waist", legs:"Legs", feet:"Feet",
+  ring1:"Ring 1", ring2:"Ring 2", trinket1:"Trinket 1", trinket2:"Trinket 2",
+  main_hand:"Main Hand", off_hand:"Off Hand", ranged:"Ranged", wand:"Wand",
+  libram:"Libram", idol:"Idol"
+};
+
+// Standard classic/TBC inventory slot order, as returned in WCL's
+// combatantinfo `gear` array (index 0-16/17).
+const WCL_SLOT_INDEX = {
+  0:"head", 1:"neck", 2:"shoulder", 3:"shirt", 4:"chest", 5:"waist",
+  6:"legs", 7:"feet", 8:"wrist", 9:"hands", 10:"ring1", 11:"ring2",
+  12:"trinket1", 13:"trinket2", 14:"back", 15:"main_hand", 16:"off_hand", 17:"ranged"
+};
+
+const specSelect  = document.getElementById('specSelect');
+const specNote    = document.getElementById('specNote');
+const slotGrid    = document.getElementById('slotGrid');
+const resultsBody = document.getElementById('resultsBody');
+const footerLink  = document.getElementById('footerLink');
+
+const wclUrlInput   = document.getElementById('wclUrl');
+const wclParseBtn   = document.getElementById('wclParseBtn');
+const wclClientId   = document.getElementById('wclClientId');
+const wclClientSecret = document.getElementById('wclClientSecret');
+const wclFetchBtn   = document.getElementById('wclFetchBtn');
+const wclCharSelect = document.getElementById('wclCharacterSelect');
+const wclStatus     = document.getElementById('wclStatus');
+
+let parsedReport = null;      // {code, fightId}
+let wclPlayers = [];           // [{name, className, gearBySlot}]
+let currentImportedGear = null; // {slot: {id, name}} for the selected character
+
+/* ---------- helpers ---------- */
+function normalize(s){
+  return (s||"").trim().toLowerCase().replace("(crafted)","").replace("(engineering)","").trim();
+}
+function escapeHtml(str){
+  const d = document.createElement('div');
+  d.textContent = str;
+  return d.innerHTML;
+}
+function setWclStatus(msg, type){
+  wclStatus.textContent = msg;
+  wclStatus.className = 'wcl-status show ' + (type||'info');
+}
+function clearWclStatus(){
+  wclStatus.className = 'wcl-status';
+  wclStatus.textContent = '';
+}
+
+/* ---------- Warcraft Logs: parse URL ---------- */
+function parseWclUrl(raw){
+  let url;
+  try{ url = new URL(raw.trim()); }
+  catch(e){ throw new Error("That doesn't look like a full URL — include the https:// part."); }
+
+  const match = url.pathname.match(/reports\/([A-Za-z0-9]+)/);
+  if(!match) throw new Error("Couldn't find a report code in that URL (expected .../reports/XXXXXXXX).");
+  const code = match[1];
+
+  const fightParam = url.searchParams.get('fight');
+  if(!fightParam) throw new Error("No ?fight= number in that URL. Open the report, click a specific pull in the fight list, then copy the URL from your address bar.");
+  if(!/^\d+$/.test(fightParam)) throw new Error(`"fight=${fightParam}" isn't a plain number — click an individual fight rather than using a "last"/"latest" link.`);
+
+  return { code, fightId: parseInt(fightParam, 10) };
+}
+
+/* ---------- Warcraft Logs: API calls ---------- */
+async function wclFetchToken(clientId, clientSecret){
+  let resp;
+  try{
+    resp = await fetch('https://www.warcraftlogs.com/oauth/token', {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Basic ' + btoa(clientId + ':' + clientSecret),
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      body: 'grant_type=client_credentials'
+    });
+  }catch(e){
+    throw new Error("Couldn't reach Warcraft Logs from the browser (likely blocked by CORS). This API may not allow direct browser calls — try the Python CLI version of this tool instead.");
+  }
+  if(!resp.ok) throw new Error(`Token request failed (HTTP ${resp.status}). Double-check your Client ID/Secret.`);
+  const json = await resp.json();
+  if(!json.access_token) throw new Error("No access token in the response — check your credentials.");
+  return json.access_token;
+}
+
+async function wclFetchReport(token, code, fightId){
+  const query = `
+    query($code:String!, $fightIds:[Int]!){
+      reportData{
+        report(code:$code){
+          title
+          masterData{ actors(type:"Player"){ id name subType } }
+          events(fightIDs:$fightIds, dataType: CombatantInfo, limit: 100){ data }
+        }
+      }
+    }`;
+  let resp;
+  try{
+    resp = await fetch('https://www.warcraftlogs.com/api/v2/client', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query, variables: { code, fightIds: [fightId] } })
+    });
+  }catch(e){
+    throw new Error("Couldn't reach the Warcraft Logs API (network/CORS error).");
+  }
+  if(!resp.ok) throw new Error(`Warcraft Logs API request failed (HTTP ${resp.status}).`);
+  const json = await resp.json();
+  if(json.errors) throw new Error(json.errors.map(e=>e.message).join('; '));
+  const report = json.data && json.data.reportData && json.data.reportData.report;
+  if(!report) throw new Error("Report not found. Check the URL and make sure the report is public.");
+  return report;
+}
+
+function buildPlayerList(report){
+  const actors = (report.masterData && report.masterData.actors) || [];
+  const actorById = {};
+  actors.forEach(a => actorById[a.id] = a);
+
+  const rawEvents = (report.events && report.events.data) || [];
+  const players = [];
+  rawEvents.forEach(ev => {
+    if(ev.type !== 'combatantinfo') return;
+    const actor = actorById[ev.sourceID];
+    if(!actor) return;
+    const gearBySlot = {};
+    (ev.gear || []).forEach((item, i) => {
+      const slot = WCL_SLOT_INDEX[i];
+      if(!slot || slot === 'shirt' || !item || !item.id) return;
+      gearBySlot[slot] = { id: item.id, name: item.name || null };
+    });
+    players.push({ name: actor.name, className: actor.subType, gearBySlot });
+  });
+  return players;
+}
+
+/* ---------- spec / slot grid ---------- */
+function populateSpecSelect(){
+  Object.keys(BIS_DATA).forEach(key=>{
+    const entry = BIS_DATA[key];
+    const opt = document.createElement('option');
+    opt.value = key;
+    opt.textContent = `${entry.class} — ${entry.spec} (${entry.role})`;
+    specSelect.appendChild(opt);
+  });
+  ["Priest — Holy (Healer)","Rogue — Assassination/Subtlety (DPS)",
+   "Hunter — Marksmanship (DPS)","Hunter — Survival (DPS)",
+   "Shaman — Elemental (DPS)","Shaman — Restoration (Healer)",
+   "Warlock — Affliction (DPS)","Warlock — Demonology (DPS)",
+   "Druid — Feral DPS (Cat)","Druid — Feral Tank (Bear)","Druid — Restoration (Healer)",
+   "Mage — Arcane (DPS)","Mage — Fire (DPS)"]
+   .forEach(label=>{
+      const opt = document.createElement('option');
+      opt.textContent = `${label} — not added yet`;
+      opt.disabled = true;
+      specSelect.appendChild(opt);
+   });
+}
+
+function getSavedGear(specKey){
+  try{
+    const raw = sessionStorage.getItem('gear_'+specKey);
+    return raw ? JSON.parse(raw) : {};
+  }catch(e){ return {}; }
+}
+
+function buildSlotGrid(specKey){
+  slotGrid.innerHTML = "";
+  const entry = BIS_DATA[specKey];
+  const saved = getSavedGear(specKey);
+
+  Object.keys(entry.slots).forEach(slotKey=>{
+    const wrap = document.createElement('div');
+    wrap.className = 'slot';
+
+    const labelRow = document.createElement('div');
+    labelRow.className = 'slot-label-row';
+    const label = document.createElement('label');
+    label.textContent = SLOT_LABELS[slotKey] || slotKey;
+    label.setAttribute('for', `slot-${slotKey}`);
+    labelRow.appendChild(label);
+
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.id = `slot-${slotKey}`;
+    input.placeholder = 'Item name…';
+    input.autocomplete = 'off';
+
+    const imported = currentImportedGear && currentImportedGear[slotKey];
+    if(imported){
+      wrap.classList.add('imported');
+      input.value = imported.name || `Item #${imported.id}`;
+      input.dataset.itemId = imported.id;
+      const tag = document.createElement('span');
+      tag.className = 'imported-tag';
+      tag.textContent = 'FROM LOG';
+      labelRow.appendChild(tag);
+    } else {
+      input.value = saved[slotKey] || '';
+      input.addEventListener('input', ()=>{ delete input.dataset.itemId; });
+    }
+
+    wrap.appendChild(labelRow);
+    wrap.appendChild(input);
+
+    if(imported && !imported.name){
+      const link = document.createElement('a');
+      link.className = 'id-link';
+      link.href = `https://www.wowhead.com/tbc/item=${imported.id}`;
+      link.target = '_blank';
+      link.rel = 'noopener';
+      link.textContent = 'View on Wowhead ↗';
+      wrap.appendChild(link);
+    }
+
+    slotGrid.appendChild(wrap);
+  });
+}
+
+function readCurrentGear(specKey){
+  const entry = BIS_DATA[specKey];
+  const gear = {};
+  Object.keys(entry.slots).forEach(slotKey=>{
+    const el = document.getElementById(`slot-${slotKey}`);
+    if(el && el.value.trim()){
+      gear[slotKey] = { text: el.value.trim(), id: el.dataset.itemId ? parseInt(el.dataset.itemId,10) : null };
+    }
+  });
+  return gear;
+}
+
+function updateSpecNote(){
+  const entry = BIS_DATA[specSelect.value];
+  specNote.innerHTML = `Data verified against Wowhead's live Phase 5 guide. <a href="${entry.wowhead_url}" target="_blank" rel="noopener">View source guide ↗</a>`;
+  footerLink.innerHTML = `Currently loaded: <a href="${entry.wowhead_url}" target="_blank" rel="noopener">${entry.class} ${entry.spec} BiS guide ↗</a>`;
+}
+
+function resetResultsEmpty(){
+  resultsBody.innerHTML = `
+    <div class="empty-state">
+      <div class="glyph">⚔</div>
+      <p>Import a log or fill in your gear on the left, then hit <strong>Analyze Gear</strong> to see what's worth chasing this phase.</p>
+    </div>`;
+}
+
+/* ---------- analysis ---------- */
+function analyze(){
+  const specKey = specSelect.value;
+  const entry = BIS_DATA[specKey];
+  const gear = readCurrentGear(specKey);
+
+  const savedForStorage = {};
+  Object.keys(gear).forEach(k => savedForStorage[k] = gear[k].text);
+  sessionStorage.setItem('gear_'+specKey, JSON.stringify(savedForStorage));
+
+  const slotOrder = ["main_hand","off_hand","ranged","wand","head","chest","legs","shoulder",
+                      "trinket1","trinket2","ring1","ring2","hands","waist","feet","wrist","neck","back"];
+
+  const recs = Object.keys(entry.slots).map(slotKey=>{
+    const bisInfo = entry.slots[slotKey];
+    const equipped = gear[slotKey] || null;
+
+    let status;
+    if(!equipped){
+      status = 'missing';
+    } else if(equipped.id){
+      // exact ID match (from a Warcraft Logs import) — most reliable
+      if(equipped.id === bisInfo.best.id) status = 'bis';
+      else if(bisInfo.alternatives.some(a=>a.id===equipped.id)) status = 'alt';
+      else status = 'upgrade';
+    } else {
+      // fall back to normalized name matching (manual entry)
+      const eqNorm = normalize(equipped.text);
+      if(eqNorm === normalize(bisInfo.best.name)) status = 'bis';
+      else if(bisInfo.alternatives.some(a=>normalize(a.name)===eqNorm)) status = 'alt';
+      else status = 'upgrade';
+    }
+
+    return { slotKey, bisInfo, equipped, status };
+  }).sort((a,b)=>{
+    const ai = slotOrder.indexOf(a.slotKey), bi = slotOrder.indexOf(b.slotKey);
+    return (ai<0?999:ai) - (bi<0?999:bi);
+  });
+
+  renderResults(entry, recs);
+}
+
+function renderResults(entry, recs){
+  const bisCount = recs.filter(r=>r.status==='bis').length;
+  const total = recs.length;
+  const pct = Math.round((bisCount/total)*100);
+
+  const statusMeta = {
+    bis:     {label:'BiS',        cls:'status-bis'},
+    alt:     {label:'Viable Alt', cls:'status-alt'},
+    upgrade: {label:'Upgrade',    cls:'status-upgrade'},
+    missing: {label:'Missing',    cls:'status-missing'}
+  };
+
+  const upgrades = recs.filter(r=>r.status!=='bis');
+  const achieved = recs.filter(r=>r.status==='bis');
+
+  let html = `
+    <div class="score-row"><span class="big">${bisCount}</span><span class="of">/ ${total} slots at Best-in-Slot</span></div>
+    <div class="bar"><div style="width:${pct}%"></div></div>
+    <div class="legend">
+      <span><i class="dot" style="background:var(--green)"></i>BiS</span>
+      <span><i class="dot" style="background:var(--purple)"></i>Viable Alt</span>
+      <span><i class="dot" style="background:var(--orange)"></i>Upgrade available</span>
+      <span><i class="dot" style="background:var(--red)"></i>Missing</span>
+    </div>
+    <div class="cards">
+  `;
+
+  function currentDisplay(r){
+    if(!r.equipped) return '(empty / not entered)';
+    if(r.equipped.id && !r.equipped.text.startsWith('Item #')){
+      return `${escapeHtml(r.equipped.text)} <a href="https://www.wowhead.com/tbc/item=${r.equipped.id}" target="_blank" rel="noopener">↗</a>`;
+    }
+    if(r.equipped.id){
+      return `<a href="https://www.wowhead.com/tbc/item=${r.equipped.id}" target="_blank" rel="noopener">${escapeHtml(r.equipped.text)} ↗</a>`;
+    }
+    return escapeHtml(r.equipped.text);
+  }
+
+  if(upgrades.length === 0){
+    html += `<div class="card status-bis"><div class="card-line">Every tracked slot is already Best-in-Slot. Nothing left to chase this phase.</div></div>`;
+  } else {
+    upgrades.forEach(r=>{
+      const meta = statusMeta[r.status];
+      const label = SLOT_LABELS[r.slotKey] || r.slotKey;
+      html += `
+        <div class="card ${meta.cls}">
+          <div class="card-top">
+            <span class="card-slot">${label}</span>
+            <span class="status-pill">${meta.label}</span>
+          </div>
+          <div class="card-line"><span class="k">Have</span><span class="v">${currentDisplay(r)}</span></div>
+          <div class="card-line"><span class="k">Target</span><span class="v bis-name">${escapeHtml(r.bisInfo.best.name)}</span></div>
+          ${r.bisInfo.alternatives.length ? `<div class="card-alts">Also good: ${r.bisInfo.alternatives.map(a=>escapeHtml(a.name)).join(', ')}</div>` : ''}
+        </div>
+      `;
+    });
+  }
+
+  html += `</div>`;
+
+  if(achieved.length){
+    html += `
+      <div class="bis-block">
+        <h3>Already Best-in-Slot (${achieved.length})</h3>
+        <div class="bis-list">
+          ${achieved.map(r=>`<span>${SLOT_LABELS[r.slotKey]}: ${escapeHtml(r.equipped.text)}</span>`).join('')}
+        </div>
+      </div>
+    `;
+  }
+
+  resultsBody.innerHTML = html;
+}
+
+/* ---------- wiring: spec + manual actions ---------- */
+populateSpecSelect();
+specSelect.value = 'warrior_fury';
+buildSlotGrid(specSelect.value);
+updateSpecNote();
+
+specSelect.addEventListener('change', ()=>{
+  buildSlotGrid(specSelect.value);
+  updateSpecNote();
+  resetResultsEmpty();
+});
+
+document.getElementById('analyzeBtn').addEventListener('click', analyze);
+
+document.getElementById('clearBtn').addEventListener('click', ()=>{
+  currentImportedGear = null;
+  document.querySelectorAll('#slotGrid input').forEach(i=>{ i.value=''; delete i.dataset.itemId; });
+  sessionStorage.removeItem('gear_'+specSelect.value);
+  buildSlotGrid(specSelect.value);
+  resetResultsEmpty();
+});
+
+document.getElementById('sampleBtn').addEventListener('click', ()=>{
+  currentImportedGear = null;
+  buildSlotGrid(specSelect.value);
+  const sample = SAMPLE_GEAR[specSelect.value];
+  if(!sample) return;
+  Object.keys(sample).forEach(slotKey=>{
+    const el = document.getElementById(`slot-${slotKey}`);
+    if(el) el.value = sample[slotKey];
+  });
+});
+
+/* ---------- wiring: Warcraft Logs import ---------- */
+wclParseBtn.addEventListener('click', ()=>{
+  try{
+    parsedReport = parseWclUrl(wclUrlInput.value);
+    setWclStatus(`Parsed — report ${parsedReport.code}, fight ${parsedReport.fightId}. Add your API credentials below, then Fetch Characters.`, 'success');
+  }catch(e){
+    parsedReport = null;
+    setWclStatus(e.message, 'error');
+  }
+});
+
+wclFetchBtn.addEventListener('click', async ()=>{
+  clearWclStatus();
+  if(!parsedReport){
+    try{ parsedReport = parseWclUrl(wclUrlInput.value); }
+    catch(e){ setWclStatus(e.message, 'error'); return; }
+  }
+  const clientId = wclClientId.value.trim();
+  const clientSecret = wclClientSecret.value.trim();
+  if(!clientId || !clientSecret){
+    setWclStatus("Enter your Warcraft Logs Client ID and Secret first (expand the section above).", 'error');
+    return;
+  }
+
+  wclFetchBtn.disabled = true;
+  wclCharSelect.classList.remove('show');
+  setWclStatus('Contacting Warcraft Logs…', 'info');
+
+  try{
+    const token = await wclFetchToken(clientId, clientSecret);
+    const report = await wclFetchReport(token, parsedReport.code, parsedReport.fightId);
+    wclPlayers = buildPlayerList(report);
+
+    if(wclPlayers.length === 0){
+      setWclStatus("Connected, but found no player combat data for that fight — double check the fight number.", 'error');
+      return;
+    }
+
+    wclCharSelect.innerHTML = '<option value="">Select a character…</option>';
+    wclPlayers.forEach((p, i)=>{
+      const opt = document.createElement('option');
+      opt.value = i;
+      opt.textContent = `${p.name} (${p.className || 'Unknown class'})`;
+      wclCharSelect.appendChild(opt);
+    });
+    wclCharSelect.classList.add('show');
+    setWclStatus(`Found ${wclPlayers.length} player${wclPlayers.length===1?'':'s'} in "${report.title || 'this report'}". Pick your character below.`, 'success');
+  }catch(e){
+    setWclStatus(e.message, 'error');
+  }finally{
+    wclFetchBtn.disabled = false;
+  }
+});
+
+wclCharSelect.addEventListener('change', ()=>{
+  const idx = wclCharSelect.value;
+  if(idx === '') return;
+  const player = wclPlayers[parseInt(idx,10)];
+  currentImportedGear = player.gearBySlot;
+
+  const candidateSpecs = CLASS_TO_SPECS[player.className] || [];
+  if(candidateSpecs.length){
+    specSelect.value = candidateSpecs[0];
+    updateSpecNote();
+    setWclStatus(`Loaded gear for ${player.name} (${player.className}). Matched slots are marked "FROM LOG" below.`, 'success');
+  } else {
+    setWclStatus(`Loaded gear for ${player.name} (${player.className}), but there's no BiS data for that class yet — showing raw item data only.`, 'info');
+  }
+
+  buildSlotGrid(specSelect.value);
+  resetResultsEmpty();
+});
+<script>
+async function getPublicData() {
+  const response = await fetch("https://api.warcraftlogs.com/v2/data?client_id=01a012ac-72ba-72fb-8be6-84a046ce66cc");
+  const data = await response.json();
+  console.log(data);
+}
+getPublicData();
+</script>
+
+</body>
+</html>
+
+</script>
+</body>
+</html>
