@@ -17,28 +17,119 @@ const WORKER_URL = "https://wcgear.lambertdaniel26.workers.dev";
 const CLASS_SPEC_MAP = {
   Warrior: [
     { value: "arms_warrior", label: "Arms Warrior" },
-    // Fury / Protection intentionally omitted — out of MVP scope.
+    { value: "fury_warrior", label: "Fury Warrior" },
+    { value: "protection_warrior", label: "Protection Warrior" },
   ],
+
   Warlock: [
+    { value: "affliction_warlock", label: "Affliction Warlock" },
+    { value: "demonology_warlock", label: "Demonology Warlock" },
     { value: "destruction_warlock", label: "Destruction Warlock" },
   ],
+
   Hunter: [
     { value: "beast_mastery_hunter", label: "Beast Mastery Hunter" },
+    { value: "marksmanship_hunter", label: "Marksmanship Hunter" },
+    { value: "survival_hunter", label: "Survival Hunter" },
+  ],
+
+  Mage: [
+    { value: "arcane_mage", label: "Arcane Mage" },
+    { value: "fire_mage", label: "Fire Mage" },
+    { value: "frost_mage", label: "Frost Mage" },
+  ],
+
+  Paladin: [
+    { value: "holy_paladin", label: "Holy Paladin" },
+    { value: "protection_paladin", label: "Protection Paladin" },
+    { value: "retribution_paladin", label: "Retribution Paladin" },
+  ],
+
+  Priest: [
+    { value: "discipline_priest", label: "Discipline Priest" },
+    { value: "holy_priest", label: "Holy Priest" },
+    { value: "shadow_priest", label: "Shadow Priest" },
+  ],
+
+  Shaman: [
+    { value: "elemental_shaman", label: "Elemental Shaman" },
+    { value: "enhancement_shaman", label: "Enhancement Shaman" },
+    { value: "restoration_shaman", label: "Restoration Shaman" },
+  ],
+
+  Rogue: [
+    { value: "assassination_rogue", label: "Assassination Rogue" },
+    { value: "combat_rogue", label: "Combat Rogue" },
+    { value: "subtlety_rogue", label: "Subtlety Rogue" },
+  ],
+
+  Druid: [
+    { value: "balance_druid", label: "Balance Druid" },
+    { value: "feral_dps_druid", label: "Feral DPS (Cat)" },
+    { value: "feral_tank_druid", label: "Feral Tank (Bear)" },
+    { value: "restoration_druid", label: "Restoration Druid" },
   ],
 };
-
 /* Every spec option available in the MVP, independent of detected class.
    The user's selection always drives comparison — see spec section 7. */
 const ALL_SPECS = [
+  // Warrior
   { value: "arms_warrior", label: "Arms Warrior", cls: "Warrior" },
+  { value: "fury_warrior", label: "Fury Warrior", cls: "Warrior" },
+  { value: "protection_warrior", label: "Protection Warrior", cls: "Warrior" },
+
+  // Warlock
+  { value: "affliction_warlock", label: "Affliction Warlock", cls: "Warlock" },
+  { value: "demonology_warlock", label: "Demonology Warlock", cls: "Warlock" },
   { value: "destruction_warlock", label: "Destruction Warlock", cls: "Warlock" },
+
+  // Hunter
   { value: "beast_mastery_hunter", label: "Beast Mastery Hunter", cls: "Hunter" },
+  { value: "marksmanship_hunter", label: "Marksmanship Hunter", cls: "Hunter" },
+  { value: "survival_hunter", label: "Survival Hunter", cls: "Hunter" },
+
+  // Mage
+  { value: "arcane_mage", label: "Arcane Mage", cls: "Mage" },
+  { value: "fire_mage", label: "Fire Mage", cls: "Mage" },
+  { value: "frost_mage", label: "Frost Mage", cls: "Mage" },
+
+  // Paladin
+  { value: "holy_paladin", label: "Holy Paladin", cls: "Paladin" },
+  { value: "protection_paladin", label: "Protection Paladin", cls: "Paladin" },
+  { value: "retribution_paladin", label: "Retribution Paladin", cls: "Paladin" },
+
+  // Priest
+  { value: "discipline_priest", label: "Discipline Priest", cls: "Priest" },
+  { value: "holy_priest", label: "Holy Priest", cls: "Priest" },
+  { value: "shadow_priest", label: "Shadow Priest", cls: "Priest" },
+
+  // Shaman
+  { value: "elemental_shaman", label: "Elemental Shaman", cls: "Shaman" },
+  { value: "enhancement_shaman", label: "Enhancement Shaman", cls: "Shaman" },
+  { value: "restoration_shaman", label: "Restoration Shaman", cls: "Shaman" },
+
+  // Rogue
+  { value: "assassination_rogue", label: "Assassination Rogue", cls: "Rogue" },
+  { value: "combat_rogue", label: "Combat Rogue", cls: "Rogue" },
+  { value: "subtlety_rogue", label: "Subtlety Rogue", cls: "Rogue" },
+
+  // Druid
+  { value: "balance_druid", label: "Balance Druid", cls: "Druid" },
+  { value: "feral_dps_druid", label: "Feral DPS (Cat)", cls: "Druid" },
+  { value: "feral_tank_druid", label: "Feral Tank (Bear)", cls: "Druid" },
+  { value: "restoration_druid", label: "Restoration Druid", cls: "Druid" },
 ];
 
 const CLASS_COLOR_VAR = {
   Warrior: "--class-warrior",
   Warlock: "--class-warlock",
   Hunter: "--class-hunter",
+  Mage: "--class-mage",
+  Paladin: "--class-paladin",
+  Priest: "--class-priest",
+  Shaman: "--class-shaman",
+  Rogue: "--class-rogue",
+  Druid: "--class-druid",
 };
 
 /* Slots that only ever hold one item. */
@@ -659,13 +750,11 @@ function renderItemChip(itemId, sourceLabel, enrichment) {
 function setFetchLoading(loading) {
   els.fetchBtn.disabled = loading;
   els.fetchBtn.querySelector(".btn-label").textContent = loading ? "Summoning…" : "Fetch Character";
-  els.fetchBtn.querySelector(".btn-spinner").hidden = !loading;
 }
 
 function setLoadReportLoading(loading) {
   els.loadReportBtn.disabled = loading;
   els.loadReportBtn.querySelector(".btn-label").textContent = loading ? "Loading…" : "Load Report";
-  els.loadReportBtn.querySelector(".btn-spinner").hidden = !loading;
 }
 
 function showError(msg) {
