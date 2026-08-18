@@ -80,8 +80,8 @@ async function handleCharacter(url, env) {
   const headers = { Authorization: `Bearer ${token}` };
 
   const [summaryRes, equipmentRes] = await Promise.all([
-    fetch(`${host}/profile/wow/character/${realmSlug}/${characterSlug}?namespace=${namespace}&locale=en_US`, { headers }),
-    fetch(`${host}/profile/wow/character/${realmSlug}/${characterSlug}/equipment?namespace=${namespace}&locale=en_US`, { headers }),
+    fetch(`${host}/profile/wow/character/${realmSlug}/${characterSlug}?namespace=${namespace}&locale=en_US`, { headers, cf: { cacheTtl: 0, cacheEverything: false } }),
+    fetch(`${host}/profile/wow/character/${realmSlug}/${characterSlug}/equipment?namespace=${namespace}&locale=en_US`, { headers, cf: { cacheTtl: 0, cacheEverything: false } }),
   ]);
 
   if (summaryRes.status === 404 || equipmentRes.status === 404) {
@@ -233,13 +233,13 @@ async function getBlizzardToken(env) {
 function jsonOk(payload) {
   return new Response(JSON.stringify(payload), {
     status: 200,
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", "Cache-Control": "no-store" },
   });
 }
 function jsonError(message, status) {
   return new Response(JSON.stringify({ error: message }), {
     status,
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", "Cache-Control": "no-store" },
   });
 }
 function corsResponse(response, origin) {
