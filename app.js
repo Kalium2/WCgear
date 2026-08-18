@@ -106,7 +106,7 @@ async function init() {
   if (!WORKER_URL) els.demoNote.hidden = false;
 
   try {
-    const res = await fetch("data/bis.json");
+    const res = await fetch("bis.json");
     state.bisData = await res.json();
   } catch (err) {
     console.error("Failed to load BiS data", err);
