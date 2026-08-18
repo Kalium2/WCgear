@@ -28,6 +28,7 @@ const WCL_GRAPHQL_URL = "https://fresh.warcraftlogs.com/api/v2/client";
 const BLIZZARD_TOKEN_URL = "https://oauth.battle.net/token";
 const BLIZZARD_API_HOST = { us: "https://us.api.blizzard.com", eu: "https://eu.api.blizzard.com" };
 const BLIZZARD_STATIC_NAMESPACE = { us: "static-classic-us", eu: "static-classic-eu" };
+const BLIZZARD_RETAIL_NAMESPACE = { us: "static-us", eu: "static-eu" };
 
 export default {
   async fetch(request, env, ctx) {
@@ -222,13 +223,21 @@ async function handleItems(request, env) {
 
   const token = await getBlizzardToken(env);
   const host = BLIZZARD_API_HOST[region] || BLIZZARD_API_HOST.us;
-  const namespace = BLIZZARD_STATIC_NAMESPACE[region] || BLIZZARD_STATIC_NAMESPACE.us;
   const headers = { Authorization: `Bearer ${token}` };
+
+  // Try the Classic namespace first; some items have gaps there, so
+  // fall back to retail's much more complete item database — Blizzard's
+  // item IDs are shared across game versions, so old TBC items usually
+  // still resolve fine against the current retail data.
+  const namespaces = [
+    BLIZZARD_STATIC_NAMESPACE[region] || BLIZZARD_STATIC_NAMESPACE.us,
+    BLIZZARD_RETAIL_NAMESPACE[region] || BLIZZARD_RETAIL_NAMESPACE.us,
+  ];
 
   const results = {};
   await Promise.all(
     itemIds.map(async (id) => {
-      const item = await fetchItemWithRetry(host, namespace, headers, id);
+      const item = await fetchItemAcrossNamespaces(host, namespaces, headers, id);
       if (item) results[id] = item;
     })
   );
@@ -236,11 +245,23 @@ async function handleItems(request, env) {
   return jsonOk({ items: results });
 }
 
-/** Fetches a single item's data + icon, retrying once after a short
- *  delay if the first attempt fails. Blizzard's API occasionally
- *  rate-limits bursts of parallel requests, which was silently
- *  dropping a handful of items per request before this was added.
- *  Logs the real failure reason so it's visible if it keeps happening. */
+/** Tries each namespace in order (Classic, then retail as fallback),
+ *  each with its own single retry, and returns the first successful
+ *  result. */
+async function fetchItemAcrossNamespaces(host, namespaces, headers, id) {
+  for (const namespace of namespaces) {
+    const item = await fetchItemWithRetry(host, namespace, headers, id);
+    if (item) return item;
+  }
+  return null;
+}
+
+/** Fetches a single item's data + icon from one namespace, retrying
+ *  once after a short delay if the first attempt fails. Blizzard's API
+ *  occasionally rate-limits bursts of parallel requests, which was
+ *  silently dropping a handful of items per request before this was
+ *  added. Logs the real failure reason so it's visible if it keeps
+ *  happening. */
 async function fetchItemWithRetry(host, namespace, headers, id) {
   for (let attempt = 1; attempt <= 2; attempt++) {
     try {
@@ -250,7 +271,7 @@ async function fetchItemWithRetry(host, namespace, headers, id) {
       ]);
 
       if (!itemRes.ok) {
-        console.error(`Item ${id} fetch failed (attempt ${attempt}): status ${itemRes.status}`);
+        console.error(`Item ${id} [${namespace}] fetch failed (attempt ${attempt}): status ${itemRes.status}`);
         if (attempt === 1) { await sleep(300); continue; }
         return null;
       }
@@ -261,7 +282,7 @@ async function fetchItemWithRetry(host, namespace, headers, id) {
         const media = await mediaRes.json();
         icon = media.assets?.find((a) => a.key === "icon")?.value || null;
       } else {
-        console.error(`Item ${id} media fetch failed: status ${mediaRes.status}`);
+        console.error(`Item ${id} [${namespace}] media fetch failed: status ${mediaRes.status}`);
       }
 
       return {
@@ -271,7 +292,7 @@ async function fetchItemWithRetry(host, namespace, headers, id) {
         itemLevel: item.level || null,
       };
     } catch (err) {
-      console.error(`Item ${id} fetch threw (attempt ${attempt}):`, err.message);
+      console.error(`Item ${id} [${namespace}] fetch threw (attempt ${attempt}):`, err.message);
       if (attempt === 1) { await sleep(300); continue; }
       return null;
     }
