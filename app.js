@@ -653,31 +653,6 @@ function renderSlotCard(result, enrichment) {
   return card;
 }
 
-/* ================================================================
-   RENDER — UPDATED TO PASS REAL SOURCES
-   ================================================================ */
-function renderSlotCard(result, enrichment) {
-  const meta = STATE_META[result.state];
-  const card = document.createElement("div");
-  card.className = `slot-card ${meta.cls}`;
-
-  const showArrow = result.state === "upgrade" && result.recommendedId;
-
-  card.innerHTML = `
-    <div class="slot-card-head">
-      <span class="slot-name">${escapeHtml(result.label)}</span>
-      <span class="slot-state-badge"><span class="dot"></span>${meta.badge}</span>
-    </div>
-    <div class="result-icon-flow">
-      ${renderItemChip(result.equippedId, result.equippedSource, enrichment)}
-      ${showArrow ? `<span class="flow-arrow">→</span>${renderItemChip(result.recommendedId, result.recommendedSource, enrichment)}` : ""}
-    </div>
-    ${result.state === "unknown" ? `<div class="slot-note">${escapeHtml(result.note || "Not enough reliable data to evaluate this slot yet.")}</div>` : ""}
-  `;
-  return card;
-}
-
-
 function renderItemChip(itemId, sourceLabel, enrichment) {
   if (itemId == null) {
     return `
