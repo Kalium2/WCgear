@@ -2,11 +2,10 @@
  * WoW Gear Check — Cloudflare Worker
  * ============================================================
  * Secure server-side layer between the GitHub Pages frontend and:
- *   - Warcraft Logs API v2 (character gear, pulled from a specific
- *     report — NOT the broken "cached armory" gameData field, which
- *     doesn't support Classic/Fresh. This uses report.playerDetails,
- *     which is a documented, working field for pulling the gear a
- *     character actually logged with in a given raid.)
+ *   - Warcraft Logs API v2 (report roster + character gear, pulled
+ *     from a specific report via report.playerDetails — NOT the
+ *     broken "cached armory" gameData field, which doesn't support
+ *     Classic/Fresh.)
  *   - Blizzard Game Data API (item name/icon enrichment only)
  *
  * Required secrets (Cloudflare Worker secrets, never in code):
@@ -44,6 +43,9 @@ export default {
     }
 
     try {
+      if (url.pathname === "/api/roster" && request.method === "GET") {
+        return corsResponse(await handleRoster(url, env), origin);
+      }
       if (url.pathname === "/api/character" && request.method === "GET") {
         return corsResponse(await handleCharacter(url, env), origin);
       }
@@ -53,76 +55,51 @@ export default {
       return corsResponse(jsonError("Not found", 404), origin);
     } catch (err) {
       console.error(err);
-      return corsResponse(jsonError("We couldn't retrieve this character. Please try again.", 502), origin);
+      const status = err.status || 502;
+      const message = err.status ? err.message : "We couldn't retrieve that report. Please try again.";
+      return corsResponse(jsonError(message, status), origin);
     }
   },
 };
 
 /* ================================================================
+   /api/roster?reportCode=&fightId=
+   ================================================================
+   Returns every character logged in a report/fight, so the frontend
+   can offer a picker instead of requiring an exact typed name.
+   ================================================================ */
+async function handleRoster(url, env) {
+  const reportCode = url.searchParams.get("reportCode");
+  const fightIdParam = url.searchParams.get("fightId");
+
+  if (!reportCode) return jsonError("Missing report code.", 400);
+
+  const { fightId, allPlayers } = await resolveFightAndPlayers(reportCode, fightIdParam, env);
+
+  if (!allPlayers.length) {
+    return jsonError("No player data found in that report.", 404);
+  }
+
+  const roster = allPlayers
+    .map((p) => ({ name: p.name, class: p.type || "Unknown", spec: p.specs?.[0]?.spec || null }))
+    .sort((a, b) => a.name.localeCompare(b.name));
+
+  return jsonOk({ fightId, roster });
+}
+
+/* ================================================================
    /api/character?name=&reportCode=&fightId=
    ================================================================
-   Pulls the character's gear as logged in a specific Warcraft Logs
-   report — optionally a specific fight, otherwise the most recent
-   fight in the report.
+   Pulls one character's gear as logged in a specific report/fight.
    ================================================================ */
 async function handleCharacter(url, env) {
   const name = url.searchParams.get("name");
   const reportCode = url.searchParams.get("reportCode");
-  let fightId = url.searchParams.get("fightId");
+  const fightIdParam = url.searchParams.get("fightId");
 
   if (!name || !reportCode) return jsonError("Missing character name or report code.", 400);
 
-  const token = await getWclToken(env);
-  const headers = { Authorization: `Bearer ${token}`, "Content-Type": "application/json" };
-
-  // If no specific fight was given, default to the most recent fight in the report.
-  if (!fightId) {
-    const fightsQuery = `
-      query ReportFights($code: String!) {
-        reportData { report(code: $code) { fights { id } } }
-      }
-    `;
-    const fightsRes = await fetch(WCL_GRAPHQL_URL, {
-      method: "POST",
-      headers,
-      body: JSON.stringify({ query: fightsQuery, variables: { code: reportCode } }),
-    });
-    if (!fightsRes.ok) return jsonError("We couldn't retrieve this character. Please try again.", 502);
-    const fightsJson = await fightsRes.json();
-    const fights = fightsJson?.data?.reportData?.report?.fights;
-    if (!fights || fights.length === 0) {
-      return jsonError("That report doesn't have any fights to read gear from.", 404);
-    }
-    fightId = fights[fights.length - 1].id;
-  }
-
-  const detailsQuery = `
-    query PlayerDetails($code: String!, $fightIDs: [Int]) {
-      reportData {
-        report(code: $code) {
-          playerDetails(fightIDs: $fightIDs, includeCombatantInfo: true)
-        }
-      }
-    }
-  `;
-  const detailsRes = await fetch(WCL_GRAPHQL_URL, {
-    method: "POST",
-    headers,
-    body: JSON.stringify({ query: detailsQuery, variables: { code: reportCode, fightIDs: [Number(fightId)] } }),
-  });
-  if (!detailsRes.ok) return jsonError("We couldn't retrieve this character. Please try again.", 502);
-
-  const detailsJson = await detailsRes.json();
-  const playerDetails = detailsJson?.data?.reportData?.report?.playerDetails?.data?.playerDetails
-    ?? detailsJson?.data?.reportData?.report?.playerDetails; // handle either wrapped or unwrapped shape
-
-  if (!playerDetails) return jsonError("That report doesn't have readable player data.", 404);
-
-  const allPlayers = [
-    ...(playerDetails.dps || []),
-    ...(playerDetails.healers || []),
-    ...(playerDetails.tanks || []),
-  ];
+  const { allPlayers } = await resolveFightAndPlayers(reportCode, fightIdParam, env);
   const player = allPlayers.find((p) => (p.name || "").toLowerCase() === name.trim().toLowerCase());
 
   if (!player) return jsonError("Character not found in that report. Check the character name and report URL.", 404);
@@ -142,6 +119,63 @@ async function handleCharacter(url, env) {
     spec: player.specs?.[0]?.spec || null,
     gear,
   });
+}
+
+/** Shared by /api/roster and /api/character: resolves which fight to
+ *  read (defaulting to the most recent one in the report if not
+ *  specified) and returns every player logged in it, with gear info. */
+async function resolveFightAndPlayers(reportCode, fightIdParam, env) {
+  const token = await getWclToken(env);
+  const headers = { Authorization: `Bearer ${token}`, "Content-Type": "application/json" };
+  let fightId = fightIdParam;
+
+  if (!fightId) {
+    const fightsQuery = `
+      query ReportFights($code: String!) {
+        reportData { report(code: $code) { fights { id } } }
+      }
+    `;
+    const fightsRes = await fetch(WCL_GRAPHQL_URL, {
+      method: "POST",
+      headers,
+      body: JSON.stringify({ query: fightsQuery, variables: { code: reportCode } }),
+    });
+    if (!fightsRes.ok) throw new Error("Warcraft Logs request failed while listing fights.");
+    const fightsJson = await fightsRes.json();
+    const fights = fightsJson?.data?.reportData?.report?.fights;
+    if (!fights || fights.length === 0) {
+      const err = new Error("That report doesn't have any fights to read gear from.");
+      err.status = 404;
+      throw err;
+    }
+    fightId = fights[fights.length - 1].id;
+  }
+
+  const detailsQuery = `
+    query PlayerDetails($code: String!, $fightIDs: [Int]) {
+      reportData {
+        report(code: $code) {
+          playerDetails(fightIDs: $fightIDs, includeCombatantInfo: true)
+        }
+      }
+    }
+  `;
+  const detailsRes = await fetch(WCL_GRAPHQL_URL, {
+    method: "POST",
+    headers,
+    body: JSON.stringify({ query: detailsQuery, variables: { code: reportCode, fightIDs: [Number(fightId)] } }),
+  });
+  if (!detailsRes.ok) throw new Error("Warcraft Logs request failed while reading player details.");
+
+  const detailsJson = await detailsRes.json();
+  const playerDetails = detailsJson?.data?.reportData?.report?.playerDetails?.data?.playerDetails
+    ?? detailsJson?.data?.reportData?.report?.playerDetails; // handle either wrapped or unwrapped shape
+
+  const allPlayers = playerDetails
+    ? [...(playerDetails.dps || []), ...(playerDetails.healers || []), ...(playerDetails.tanks || [])]
+    : [];
+
+  return { fightId, allPlayers };
 }
 
 /** Standard WoW inventory slot numbers -> our internal slot keys. */
