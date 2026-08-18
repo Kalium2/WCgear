@@ -461,7 +461,7 @@ function phaseLabel(phaseKey) {
 }
 
 /* ================================================================
-   COMPARISON ENGINE — UPDATED WITH SOURCE SUPPORT
+   COMPARISON ENGINE — UPDATED WITH SOURCE + RANK LOGIC
    ================================================================ */
 function runComparison(gear, bisSet) {
   const results = { weapons: [], armor: [] };
@@ -477,7 +477,7 @@ function runComparison(gear, bisSet) {
     results.armor.push(compareSingleSlot(label, gear[key], bisSet[key]));
   });
 
-  // --- multi-slot categories (trinket, finger) with source support ---
+  // --- multi-slot categories (trinket, finger) with rank-aware logic ---
   MULTI_SLOTS.forEach(([key, label, count]) => {
     if (!bisSet[key]) return;
     const positions = resolveMultiSlot(gear[key] || [], bisSet[key], count);
@@ -493,7 +493,7 @@ function runComparison(gear, bisSet) {
 }
 
 /* ================================================================
-   SINGLE-SLOT COMPARISON — UPDATED WITH SOURCE SUPPORT
+   SINGLE-SLOT COMPARISON — RANK 2 & 3 AS ALTERNATIVES ONLY
    ================================================================ */
 function compareSingleSlot(label, equippedIds, bisRanked) {
   if (!bisRanked || bisRanked.length === 0) {
@@ -504,15 +504,28 @@ function compareSingleSlot(label, equippedIds, bisRanked) {
       recommendedId: null,
       equippedSource: null,
       recommendedSource: null,
+      bisAlternatives: [],
       note: `The BiS list for this phase and spec doesn't include a ${label.toLowerCase()} recommendation yet.`,
     };
   }
 
   const equippedId = equippedIds?.[0] ?? null;
+
+  // Rank 1 item = recommended
   const best = bisRanked[0];
 
+  // All ranked BiS items (rank 1, 2, 3, ...)
+  const bisAlternatives = bisRanked.map(b => ({
+    itemId: b.itemId,
+    rank: b.rank,
+    name: b.name,
+    source: b.source
+  }));
+
   const equippedMatch = bisRanked.find((b) => b.itemId === equippedId);
-  if (equippedMatch) {
+
+  // Equipped rank 1 = BiS
+  if (equippedMatch && equippedMatch.rank === 1) {
     return {
       label,
       state: "bis",
@@ -520,9 +533,24 @@ function compareSingleSlot(label, equippedIds, bisRanked) {
       recommendedId: equippedId,
       equippedSource: equippedMatch.source || null,
       recommendedSource: equippedMatch.source || null,
+      bisAlternatives
     };
   }
 
+  // Equipped rank 2 or 3 = upgrade, but recommended stays rank 1
+  if (equippedMatch && equippedMatch.rank > 1) {
+    return {
+      label,
+      state: "upgrade",
+      equippedId,
+      recommendedId: best.itemId,
+      equippedSource: equippedMatch.source || null,
+      recommendedSource: best.source || null,
+      bisAlternatives
+    };
+  }
+
+  // Equipped item not in BiS list
   return {
     label,
     state: "upgrade",
@@ -530,11 +558,12 @@ function compareSingleSlot(label, equippedIds, bisRanked) {
     recommendedId: best.itemId,
     equippedSource: null,
     recommendedSource: best.source || null,
+    bisAlternatives
   };
 }
 
 /* ================================================================
-   MULTI-SLOT COMPARISON — UPDATED WITH SOURCE SUPPORT
+   MULTI-SLOT COMPARISON — RANK 2 CAN BE UPGRADE TARGET
    ================================================================ */
 function resolveMultiSlot(equippedIds, bisRanked, slotCount) {
   const ranked = [...bisRanked].sort((a, b) => a.rank - b.rank);
@@ -551,12 +580,16 @@ function resolveMultiSlot(equippedIds, bisRanked, slotCount) {
 
   const positions = equippedBis.map((id) => {
     const match = ranked.find((b) => b.itemId === id);
+    const isRank1 = match.rank === 1;
+    const isRank2 = match.rank === 2;
+
     return {
-      state: "bis",
+      state: isRank1 ? "bis" : "upgrade",
       equippedId: id,
-      recommendedId: id,
-      equippedSource: match?.source || null,
-      recommendedSource: match?.source || null,
+      recommendedId: isRank1 ? id : ranked[0].itemId,
+      equippedSource: match.source || null,
+      recommendedSource: ranked[0].source || null,
+      rank: match.rank
     };
   });
 
@@ -569,12 +602,17 @@ function resolveMultiSlot(equippedIds, bisRanked, slotCount) {
 
     if (candidate) {
       candidateIndex++;
+
+      const isRank2 = candidate.rank === 2;
+      const isRank3Plus = candidate.rank > 2;
+
       positions.push({
         state: "upgrade",
         equippedId: equippedForThis,
-        recommendedId: candidate.itemId,
+        recommendedId: isRank2 ? candidate.itemId : ranked[0].itemId,
         equippedSource: null,
-        recommendedSource: candidate.source || null,
+        recommendedSource: isRank2 ? candidate.source : ranked[0].source,
+        rank: candidate.rank
       });
     } else {
       positions.push({
@@ -583,11 +621,36 @@ function resolveMultiSlot(equippedIds, bisRanked, slotCount) {
         recommendedId: null,
         equippedSource: null,
         recommendedSource: null,
+        rank: null
       });
     }
   }
 
   return positions;
+}
+
+/* ================================================================
+   RENDER — UPDATED TO PASS REAL SOURCES
+   ================================================================ */
+function renderSlotCard(result, enrichment) {
+  const meta = STATE_META[result.state];
+  const card = document.createElement("div");
+  card.className = `slot-card ${meta.cls}`;
+
+  const showArrow = result.state === "upgrade" && result.recommendedId;
+
+  card.innerHTML = `
+    <div class="slot-card-head">
+      <span class="slot-name">${escapeHtml(result.label)}</span>
+      <span class="slot-state-badge"><span class="dot"></span>${meta.badge}</span>
+    </div>
+    <div class="result-icon-flow">
+      ${renderItemChip(result.equippedId, result.equippedSource, enrichment)}
+      ${showArrow ? `<span class="flow-arrow">→</span>${renderItemChip(result.recommendedId, result.recommendedSource, enrichment)}` : ""}
+    </div>
+    ${result.state === "unknown" ? `<div class="slot-note">${escapeHtml(result.note || "Not enough reliable data to evaluate this slot yet.")}</div>` : ""}
+  `;
+  return card;
 }
 
 /* ================================================================
