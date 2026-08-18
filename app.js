@@ -409,24 +409,40 @@ function collectItemIds(results) {
   return [...ids];
 }
 
-/** Calls the Worker's /api/items endpoint for name/icon/quality. Returns
- *  {} (safe no-op) in demo mode or if the request fails, so the UI just
- *  falls back to showing item IDs rather than breaking. */
+/** Calls the Worker's /api/items endpoint for name/icon/quality.
+ *  Sent in small batches: Cloudflare Workers cap total subrequests per
+ *  invocation, and a full comparison can reference 30+ unique items
+ *  (equipped + every recommended BiS piece), which blew past that
+ *  ceiling as one request. Returns {} (safe no-op) in demo mode or on
+ *  failure, so the UI just falls back to showing item IDs. */
 async function fetchItemEnrichment(itemIds) {
   if (!WORKER_URL || itemIds.length === 0) return {};
-  try {
-    const res = await fetch(`${WORKER_URL}/api/items`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ itemIds, region: "us" }), // item static data barely varies by region; US default is fine for name/icon lookups
-    });
-    if (!res.ok) return {};
-    const data = await res.json();
-    return data.items || {};
-  } catch (err) {
-    console.error("Item enrichment failed", err);
-    return {};
+
+  const BATCH_SIZE = 12;
+  const batches = [];
+  for (let i = 0; i < itemIds.length; i += BATCH_SIZE) {
+    batches.push(itemIds.slice(i, i + BATCH_SIZE));
   }
+
+  const merged = {};
+  await Promise.all(
+    batches.map(async (batch) => {
+      try {
+        const res = await fetch(`${WORKER_URL}/api/items`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ itemIds: batch, region: "us" }), // item static data barely varies by region
+        });
+        if (!res.ok) return;
+        const data = await res.json();
+        Object.assign(merged, data.items || {});
+      } catch (err) {
+        console.error("Item enrichment batch failed", err);
+      }
+    })
+  );
+
+  return merged;
 }
 
 function renderSpecWarning(specMeta) {
