@@ -101,12 +101,12 @@ async function handleCharacter(url, env, ctx) {
 
   if (!player) return jsonError("Character not found in that report. Check the character name and report URL.", 404);
 
-  // TEMPORARY DIAGNOSTIC — checking the real shape of gems/enchants
-  // before building the item-popup feature on top of a guess. Remove
-  // once confirmed.
+  // TEMPORARY DIAGNOSTIC — the gear/enchant/gem field names are based
+  // on Archon's public production code, not a direct WCL response
+  // we've inspected ourselves yet. Keeping this until confirmed once.
   console.log("RAW COMBATANT GEAR:", JSON.stringify(player.combatantInfo?.gear));
 
-  const gear = mapCombatantGearToSlots(player.combatantInfo?.gear);
+  const { gear, details } = mapCombatantGearToSlots(player.combatantInfo?.gear);
 
   if (!gear || Object.keys(gear).length === 0) {
     return jsonError("No gear data is available for this character in that report.", 200);
@@ -119,6 +119,7 @@ async function handleCharacter(url, env, ctx) {
     class: player.type || "Unknown",
     spec: player.specs?.[0]?.spec || null,
     gear,
+    equippedItemDetails: details, // itemId -> { name, icon, quality, permanentEnchant, temporaryEnchant, gems: [id,...] }
     bestPerfAvg,
     medPerfAvg,
     zoneName: zone?.name ?? null,
@@ -344,8 +345,18 @@ const WOW_SLOT_MAP = {
 };
 
 /** Maps a combatantInfo.gear array into { slot: [itemId, ...], weaponConfig }. */
+/** Maps a combatantInfo.gear array into { slot: [itemId, ...], weaponConfig }
+ *  — unchanged from before, the comparison engine depends on this exact
+ *  shape. Also returns a parallel `details` map (itemId -> name/icon/
+ *  quality/enchant/gems) built from the same data WCL already gives us
+ *  in the same gear array — confirmed against Archon's own production
+ *  code (a company built on this exact API) using item.name, item.icon,
+ *  item.quality, item.permanentEnchant, item.temporaryEnchant, and
+ *  item.gems[].id. No extra WCL query needed; this data was always
+ *  there, just discarded. */
 function mapCombatantGearToSlots(gearArray) {
   const gear = {};
+  const details = {};
   const items = Array.isArray(gearArray) ? gearArray : [];
 
   for (const piece of items) {
@@ -355,6 +366,17 @@ function mapCombatantGearToSlots(gearArray) {
     if (itemId == null) continue;
     if (!gear[key]) gear[key] = [];
     gear[key].push(itemId);
+
+    if (!details[itemId]) {
+      details[itemId] = {
+        name: piece.name ?? null,
+        icon: piece.icon ?? null,
+        quality: piece.quality ?? null,
+        permanentEnchant: piece.permanentEnchant ?? null,
+        temporaryEnchant: piece.temporaryEnchant ?? null,
+        gems: Array.isArray(piece.gems) ? piece.gems.map((g) => g.id).filter((id) => id != null) : [],
+      };
+    }
   }
 
   if (gear.mainhand && gear.offhand) {
@@ -365,7 +387,7 @@ function mapCombatantGearToSlots(gearArray) {
     delete gear.mainhand;
   }
 
-  return gear;
+  return { gear, details };
 }
 
 /* ================================================================
