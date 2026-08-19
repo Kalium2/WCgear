@@ -26,9 +26,14 @@ const CLASS_SPEC_MAP = {
     { value: "destruction_warlock", label: "Destruction" },
   ],
   Hunter: [
-    { value: "beast_mastery_hunter", label: "BeastMastery" },
+    { value: "beast_mastery_hunter", label: "Beast Mastery" },
     { value: "survival_hunter", label: "Survival" },
     { value: "marksmanship_hunter", label: "Marksmanship" },
+  ],
+  Paladin: [
+    { value: "holy_paladin", label: "Holy" },
+    { value: "protection_paladin", label: "Protection" },
+    { value: "retribution_paladin", label: "Retribution" },
   ],
 };
 
@@ -47,6 +52,9 @@ const ALL_SPECS = [
   { value: "beast_mastery_hunter", label: "Beast Mastery Hunter", cls: "Hunter" },
   { value: "survival_hunter", label: "Survival Hunter", cls: "Hunter" },
   { value: "marksmanship_hunter", label: "Marksmanship Hunter", cls: "Hunter" },
+  { value: "holy_paladin", label: "Holy Paladin", cls: "Paladin" },
+  { value: "protection_paladin", label: "Protection Paladin", cls: "Paladin" },
+  { value: "retribution_paladin", label: "Retribution Paladin", cls: "Paladin" },
 ];
 
 const CLASS_COLOR_VAR = {
