@@ -482,6 +482,19 @@ select{ appearance:none; cursor:pointer;
   text-overflow:ellipsis;
   opacity:0.8;
 }
+.item-rank-note{
+  display:inline-block;
+  margin-top:3px;
+  font-size:0.66rem;
+  font-weight:700;
+  letter-spacing:0.03em;
+  text-transform:uppercase;
+  color:var(--accent-warn);
+  background:var(--accent-warn-glow);
+  border:1px solid rgba(255,154,61,0.35);
+  padding:1px 6px;
+  border-radius:10px;
+}
 .flow-arrow{
   color:var(--state-color);
   font-size:1.1rem;
@@ -532,10 +545,13 @@ select{ appearance:none; cursor:pointer;
 .perf-badge{ display:flex; gap:5px; align-items:baseline; }
 .perf-badge .perf-label{ color:var(--text-muted); }
 .perf-badge .perf-value{ font-weight:700; }
-.perf-tier-great{ color:var(--accent-bis); }
-.perf-tier-good{ color:var(--border-fel); }
-.perf-tier-ok{ color:var(--accent-unknown); }
-.perf-tier-low{ color:var(--text-muted); }
+.perf-tier-gold{ color:#e5cc80; }
+.perf-tier-pink{ color:#e268a8; }
+.perf-tier-orange{ color:#ff8000; }
+.perf-tier-purple{ color:#a335ee; }
+.perf-tier-blue{ color:#0070ff; }
+.perf-tier-green{ color:#1eff00; }
+.perf-tier-gray{ color:var(--text-muted); }
 
 .slot-note{
   margin-top:8px;
