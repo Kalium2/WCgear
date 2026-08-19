@@ -969,6 +969,495 @@
           "source": "G'eras - Badges of Justice"
         }
       ]
+    },
+    "holy_paladin": {
+      "weaponConfig": "mainhand_offhand",
+      "mainhand": [
+        {
+          "itemId": 32500,
+          "rank": 1,
+          "name": "Crystal Spire of Karabor",
+          "source": "Illidan Stormrage - Black Temple (highly contested)"
+        },
+        {
+          "itemId": 33743,
+          "rank": 2,
+          "name": "Vengeful Gladiator's Salvation",
+          "source": "Arena Points (Season 3)"
+        },
+        {
+          "itemId": 30918,
+          "rank": 3,
+          "name": "Hammer of Atonement",
+          "source": "Kaz'rogal - Hyjal Summit"
+        },
+        {
+          "itemId": 30108,
+          "rank": 4,
+          "name": "Lightfathom Scepter",
+          "source": "Lady Vashj - Serpentshrine Cavern"
+        },
+        {
+          "itemId": 32964,
+          "rank": 5,
+          "name": "Merciless Gladiator's Salvation",
+          "source": "Arena Points (Season 2)"
+        },
+        {
+          "itemId": 28771,
+          "rank": 6,
+          "name": "Light's Justice",
+          "source": "Prince Malchezaar - Karazhan"
+        },
+        {
+          "itemId": 32451,
+          "rank": 7,
+          "name": "Gladiator's Salvation",
+          "source": "Honor Points (Season 1)"
+        },
+        {
+          "itemId": 28522,
+          "rank": 8,
+          "name": "Shard of the Virtuous",
+          "source": "Maiden of Virtue - Karazhan"
+        },
+        {
+          "itemId": 23556,
+          "rank": 9,
+          "name": "Hand of Eternity",
+          "source": "Blacksmithing (BoE)"
+        },
+        {
+          "itemId": 29353,
+          "rank": 10,
+          "name": "Shockwave Truncheon",
+          "source": "Murmur - Heroic Shadow Labyrinth"
+        }
+      ],
+      "offhand": [
+        {
+          "itemId": 32255,
+          "rank": 1,
+          "name": "Felstone Bulwark",
+          "source": "Supremus - Black Temple"
+        },
+        {
+          "itemId": 30882,
+          "rank": 2,
+          "name": "Bastion of Light",
+          "source": "Anetheron - Hyjal Summit"
+        },
+        {
+          "itemId": 30911,
+          "rank": 3,
+          "name": "Scepter of Purification",
+          "source": "Archimonde - Hyjal Summit"
+        },
+        {
+          "itemId": 33735,
+          "rank": 4,
+          "name": "Vengeful Gladiator's Redoubt",
+          "source": "Arena Points (Season 3)"
+        },
+        {
+          "itemId": 33309,
+          "rank": 5,
+          "name": "Merciless Gladiator's Redoubt",
+          "source": "Arena Points (Season 2)"
+        },
+        {
+          "itemId": 29458,
+          "rank": 6,
+          "name": "Aegis of the Vindicator",
+          "source": "Magtheridon - Magtheridon's Lair"
+        },
+        {
+          "itemId": 29923,
+          "rank": 7,
+          "name": "Talisman of the Sun King",
+          "source": "Al'ar - Tempest Keep"
+        },
+        {
+          "itemId": 29274,
+          "rank": 8,
+          "name": "Tears of Heaven",
+          "source": "G'eras - Badges of Justice"
+        },
+        {
+          "itemId": 29267,
+          "rank": 9,
+          "name": "Light-Bearer's Faith Shield",
+          "source": "G'eras - Badges of Justice"
+        }
+      ],
+      "ranged": [
+        {
+          "itemId": 28592,
+          "rank": 1,
+          "name": "Libram of Souls Redeemed",
+          "source": "Opera Event - Karazhan (Blessing of Light build)"
+        },
+        {
+          "itemId": 23006,
+          "rank": 2,
+          "name": "Libram of Light",
+          "source": "Noth the Plaguebringer - Classic Naxxramas (Flash of Light build)"
+        },
+        {
+          "itemId": 30063,
+          "rank": 3,
+          "name": "Libram of Absolute Truth",
+          "source": "The Lurker Below - Serpentshrine Cavern (Holy Light build)"
+        },
+        {
+          "itemId": 28296,
+          "rank": 4,
+          "name": "Libram of the Lightbringer",
+          "source": "Commander Sarannis - The Botanica (Holy Light build)"
+        },
+        {
+          "itemId": 25644,
+          "rank": 5,
+          "name": "Blessed Book of Nagrand",
+          "source": "Quest: The Ultimate Bloodsport"
+        }
+      ],
+      "head": [
+        {
+          "itemId": 30988,
+          "rank": 1,
+          "name": "Lightbringer Greathelm",
+          "source": "Archimonde - Hyjal Summit (T6)"
+        },
+        {
+          "itemId": 32354,
+          "rank": 2,
+          "name": "Crown of Empowered Fate",
+          "source": "Essence of Anger - Black Temple"
+        },
+        {
+          "itemId": 32241,
+          "rank": 3,
+          "name": "Helm of Soothing Currents",
+          "source": "High Warlord Naj'entus - Black Temple"
+        },
+        {
+          "itemId": 30136,
+          "rank": 4,
+          "name": "Crystalforge Greathelm",
+          "source": "Lady Vashj - Serpentshrine Cavern"
+        }
+      ],
+      "shoulder": [
+        {
+          "itemId": 30996,
+          "rank": 1,
+          "name": "Lightbringer Pauldrons",
+          "source": "Mother Shahraz - Black Temple (T6)"
+        },
+        {
+          "itemId": 30878,
+          "rank": 2,
+          "name": "Glimmering Steel Mantle",
+          "source": "Anetheron - Hyjal Summit"
+        },
+        {
+          "itemId": 30138,
+          "rank": 3,
+          "name": "Crystalforge Pauldrons",
+          "source": "Void Reaver - Tempest Keep"
+        }
+      ],
+      "back": [
+        {
+          "itemId": 32524,
+          "rank": 1,
+          "name": "Shroud of the Highborne",
+          "source": "Illidan Stormrage - Black Temple (haste)"
+        },
+        {
+          "itemId": 34012,
+          "rank": 2,
+          "name": "Shroud of the Final Stand",
+          "source": "Trash Mobs - Black Temple (non-haste)"
+        },
+        {
+          "itemId": 29989,
+          "rank": 3,
+          "name": "Sunshower Light Cloak",
+          "source": "Kael'thas Sunstrider - Tempest Keep"
+        },
+        {
+          "itemId": 32337,
+          "rank": 4,
+          "name": "Shroud of Forgiveness",
+          "source": "Gurtogg Bloodboil - Black Temple"
+        }
+      ],
+      "chest": [
+        {
+          "itemId": 30992,
+          "rank": 1,
+          "name": "Lightbringer Chestpiece",
+          "source": "Illidan Stormrage - Black Temple (T6)"
+        },
+        {
+          "itemId": 30904,
+          "rank": 2,
+          "name": "Savior's Grasp",
+          "source": "Archimonde - Hyjal Summit"
+        },
+        {
+          "itemId": 30134,
+          "rank": 3,
+          "name": "Crystalforge Chestpiece",
+          "source": "Kael'thas Sunstrider - Tempest Keep"
+        }
+      ],
+      "wrist": [
+        {
+          "itemId": 30862,
+          "rank": 1,
+          "name": "Blessed Adamantite Bracers",
+          "source": "Rage Winterchill - Hyjal Summit"
+        },
+        {
+          "itemId": 30869,
+          "rank": 2,
+          "name": "Howling Wind Bracers",
+          "source": "Rage Winterchill - Hyjal Summit"
+        },
+        {
+          "itemId": 32571,
+          "rank": 3,
+          "name": "Dawnsteel Bracers",
+          "source": "Blacksmithing (BoE)"
+        },
+        {
+          "itemId": 30047,
+          "rank": 4,
+          "name": "Blackfathom Warbands",
+          "source": "Hydross the Unstable - Serpentshrine Cavern"
+        }
+      ],
+      "hands": [
+        {
+          "itemId": 30112,
+          "rank": 1,
+          "name": "Glorious Gauntlets of Crestfall",
+          "source": "Lady Vashj - Serpentshrine Cavern"
+        },
+        {
+          "itemId": 30983,
+          "rank": 2,
+          "name": "Lightbringer Gloves",
+          "source": "Azgalor - Hyjal Summit (T6)"
+        },
+        {
+          "itemId": 29976,
+          "rank": 3,
+          "name": "Worldstorm Gauntlets",
+          "source": "High Astromancer Solarian - Tempest Keep"
+        },
+        {
+          "itemId": 32328,
+          "rank": 4,
+          "name": "Botanist's Gloves of Growth",
+          "source": "Teron Gorefiend - Black Temple"
+        }
+      ],
+      "waist": [
+        {
+          "itemId": 30897,
+          "rank": 1,
+          "name": "Girdle of Hope",
+          "source": "Azgalor - Hyjal Summit"
+        },
+        {
+          "itemId": 30030,
+          "rank": 2,
+          "name": "Girdle of Fallen Stars",
+          "source": "Trash Mobs - Tempest Keep"
+        },
+        {
+          "itemId": 29965,
+          "rank": 3,
+          "name": "Girdle of the Righteous Path",
+          "source": "High Astromancer Solarian - Tempest Keep"
+        }
+      ],
+      "legs": [
+        {
+          "itemId": 30994,
+          "rank": 1,
+          "name": "Lightbringer Leggings",
+          "source": "The Illidari Council - Black Temple (T6)"
+        },
+        {
+          "itemId": 30912,
+          "rank": 2,
+          "name": "Leggings of Eternity",
+          "source": "Archimonde - Hyjal Summit"
+        },
+        {
+          "itemId": 32271,
+          "rank": 3,
+          "name": "Kilt of Immortal Nature",
+          "source": "Shade of Akama - Black Temple"
+        },
+        {
+          "itemId": 30893,
+          "rank": 4,
+          "name": "Sun-touched Chain Leggings",
+          "source": "Kaz'rogal - Hyjal Summit"
+        }
+      ],
+      "feet": [
+        {
+          "itemId": 32243,
+          "rank": 1,
+          "name": "Pearl Inlaid Boots",
+          "source": "High Warlord Naj'entus - Black Temple"
+        },
+        {
+          "itemId": 30027,
+          "rank": 2,
+          "name": "Boots of Courage Unending",
+          "source": "Trash Mobs - Serpentshrine Cavern"
+        },
+        {
+          "itemId": 32609,
+          "rank": 3,
+          "name": "Boots of the Divine Light",
+          "source": "Trash Mobs - Hyjal Summit"
+        },
+        {
+          "itemId": 30737,
+          "rank": 4,
+          "name": "Gold-Leaf Wildboots",
+          "source": "Doom Lord Kazzak - World Boss"
+        }
+      ],
+      "neck": [
+        {
+          "itemId": 32370,
+          "rank": 1,
+          "name": "Nadina's Pendant of Purity",
+          "source": "Mother Shahraz - Black Temple"
+        },
+        {
+          "itemId": 30018,
+          "rank": 2,
+          "name": "Lord Sanguinar's Claim",
+          "source": "Kael'thas Sunstrider - Tempest Keep"
+        },
+        {
+          "itemId": 30726,
+          "rank": 3,
+          "name": "Archaic Charm of Presence",
+          "source": "Doomwalker - World Boss"
+        },
+        {
+          "itemId": 28609,
+          "rank": 4,
+          "name": "Emberspur Talisman",
+          "source": "Nightbane - Karazhan"
+        }
+      ],
+      "finger": [
+        {
+          "itemId": 32528,
+          "rank": 1,
+          "name": "Blessed Band of Karabor",
+          "source": "Trash Mobs - Black Temple (haste, not unique)"
+        },
+        {
+          "itemId": 32238,
+          "rank": 2,
+          "name": "Ring of Calming Waves",
+          "source": "High Warlord Naj'entus - Black Temple (non-haste)"
+        },
+        {
+          "itemId": 29309,
+          "rank": 3,
+          "name": "Band of the Eternal Restorer",
+          "source": "Scale of the Sands - Exalted"
+        },
+        {
+          "itemId": 30110,
+          "rank": 4,
+          "name": "Coral Band of the Revived",
+          "source": "Lady Vashj - Serpentshrine Cavern"
+        },
+        {
+          "itemId": 30736,
+          "rank": 5,
+          "name": "Ring of Flowing Light",
+          "source": "Doom Lord Kazzak - World Boss"
+        },
+        {
+          "itemId": 28790,
+          "rank": 6,
+          "name": "Naaru Lightwarden's Band",
+          "source": "Magtheridon - Magtheridon's Lair"
+        },
+        {
+          "itemId": 28763,
+          "rank": 7,
+          "name": "Jade Ring of the Everliving",
+          "source": "Prince Malchezaar - Karazhan"
+        },
+        {
+          "itemId": 29920,
+          "rank": 8,
+          "name": "Phoenix-Ring of Rebirth",
+          "source": "Al'ar - Tempest Keep"
+        }
+      ],
+      "trinket": [
+        {
+          "itemId": 32496,
+          "rank": 1,
+          "name": "Memento of Tyrande",
+          "source": "Illidan Stormrage - Black Temple"
+        },
+        {
+          "itemId": 29376,
+          "rank": 2,
+          "name": "Essence of the Martyr",
+          "source": "G'eras - Badges of Justice"
+        },
+        {
+          "itemId": 38288,
+          "rank": 3,
+          "name": "Direbrew Hops",
+          "source": "Coren Direbrew - Brewfest Event"
+        },
+        {
+          "itemId": 28590,
+          "rank": 4,
+          "name": "Ribbon of Sacrifice",
+          "source": "Opera Event - Karazhan"
+        },
+        {
+          "itemId": 23047,
+          "rank": 5,
+          "name": "Eye of the Dead",
+          "source": "Sapphiron - Classic Naxxramas"
+        },
+        {
+          "itemId": 30841,
+          "rank": 6,
+          "name": "Lower City Prayerbook",
+          "source": "Nakodu - Lower City Revered"
+        },
+        {
+          "itemId": 19395,
+          "rank": 7,
+          "name": "Rejuvenating Gem",
+          "source": "Flamegor/Firemaw/Ebonroc - Classic Blackwing Lair"
+        }
+      ]
     }
   },
   "phase4": {
