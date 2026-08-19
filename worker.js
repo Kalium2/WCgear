@@ -117,8 +117,25 @@ async function handleCharacter(url, env) {
     bestPerfAvg,
     medPerfAvg,
     zoneName: zone?.name ?? null,
+    autoPhase: detectPhaseFromZone(zone?.name),
     raidDate: startTime ? formatRaidDate(startTime) : null,
   });
+}
+
+/** Maps a Warcraft Logs raid zone name to the app's internal phase
+ *  key, so a fetched character can auto-select the matching BiS list
+ *  (requirement 4). Warcraft Logs has no literal "TBC Phase" field —
+ *  this is our own mapping of which zone belongs to which phase.
+ *  Returns null (no auto-selection, user picks manually) for zones
+ *  outside Phase 3/4, or if the zone name is unrecognized. */
+const ZONE_PHASE_MAP = [
+  { match: /black temple/i, phase: "phase3" },
+  { match: /mount hyjal|hyjal summit/i, phase: "phase3" },
+  { match: /zul'?aman/i, phase: "phase4" },
+];
+function detectPhaseFromZone(zoneName) {
+  if (!zoneName) return null;
+  return ZONE_PHASE_MAP.find((z) => z.match.test(zoneName))?.phase ?? null;
 }
 
 /** Warcraft Logs report startTime is epoch milliseconds. Formats as
