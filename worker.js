@@ -182,6 +182,7 @@ async function resolveFightAndPlayers(reportCode, fightIdParam, env) {
 
   const detailsQuery = `
     query PlayerDetails($code: String!, $fightIDs: [Int]) {
+      rateLimitData { limitPerHour pointsSpentThisHour pointsResetIn }
       reportData {
         report(code: $code) {
           zone { id name }
@@ -206,6 +207,12 @@ async function resolveFightAndPlayers(reportCode, fightIdParam, env) {
   if (detailsJson.errors) {
     console.error(`WCL playerDetails GraphQL errors: ${JSON.stringify(detailsJson.errors)}`);
   }
+
+  const rl = detailsJson?.data?.rateLimitData;
+  if (rl) {
+    console.log(`WCL rate limit: ${rl.pointsSpentThisHour}/${rl.limitPerHour} points used, resets in ${rl.pointsResetIn}s`);
+  }
+
   const playerDetails = detailsJson?.data?.reportData?.report?.playerDetails?.data?.playerDetails
     ?? detailsJson?.data?.reportData?.report?.playerDetails; // handle either wrapped or unwrapped shape
 
