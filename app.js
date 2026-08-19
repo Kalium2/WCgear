@@ -16,23 +16,37 @@ const WORKER_URL = "https://wcgear.lambertdaniel26.workers.dev";
    so post-MVP class-aware filtering only needs this table extended. */
 const CLASS_SPEC_MAP = {
   Warrior: [
-    { value: "arms_warrior", label: "Arms Warrior" },
-    // Fury / Protection intentionally omitted — out of MVP scope.
+    { value: "arms_warrior", label: "Arms" },
+    { value: "fury_warrior", label: "Fury" },
+    { value: "protection_warrior", label: "Protection" },
   ],
   Warlock: [
-    { value: "destruction_warlock", label: "Destruction Warlock" },
+    { value: "affliction_warlock", label: "Affliction" },
+    { value: "demonology_warlock", label: "Demonology" },
+    { value: "destruction_warlock", label: "Destruction" },
   ],
   Hunter: [
-    { value: "beast_mastery_hunter", label: "Beast Mastery Hunter" },
+    { value: "beast_mastery_hunter", label: "Beast Mastery" },
+    { value: "survival_hunter", label: "Survival" },
+    { value: "marksmanship_hunter", label: "Marksmanship" },
   ],
 };
 
-/* Every spec option available in the MVP, independent of detected class.
-   The user's selection always drives comparison — see spec section 7. */
+/* Every spec option across all supported classes, independent of
+   detected class — used as a lookup table (label, class ownership)
+   once a spec value is already selected. BiS data only currently
+   exists for one spec per class; the others show a graceful
+   "no data yet" message rather than being hidden (spec section 7). */
 const ALL_SPECS = [
   { value: "arms_warrior", label: "Arms Warrior", cls: "Warrior" },
+  { value: "fury_warrior", label: "Fury Warrior", cls: "Warrior" },
+  { value: "protection_warrior", label: "Protection Warrior", cls: "Warrior" },
+  { value: "affliction_warlock", label: "Affliction Warlock", cls: "Warlock" },
+  { value: "demonology_warlock", label: "Demonology Warlock", cls: "Warlock" },
   { value: "destruction_warlock", label: "Destruction Warlock", cls: "Warlock" },
   { value: "beast_mastery_hunter", label: "Beast Mastery Hunter", cls: "Hunter" },
+  { value: "survival_hunter", label: "Survival Hunter", cls: "Hunter" },
+  { value: "marksmanship_hunter", label: "Marksmanship Hunter", cls: "Hunter" },
 ];
 
 const CLASS_COLOR_VAR = {
@@ -88,10 +102,9 @@ const els = {
   charClassPill: $("charClassPill"),
   charSpec: $("charSpec"),
   charRaid: $("charRaid"),
-  charReportOut: $("charReportOut"),
+  charRaidDate: $("charRaidDate"),
   charBestPerf: $("charBestPerf"),
   charMedPerf: $("charMedPerf"),
-  charGearStatus: $("charGearStatus"),
   refetchBtn: $("refetchBtn"),
 
   comparePanel: $("comparePanel"),
@@ -233,6 +246,20 @@ function resetToFetch() {
   els.reportForm.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
+/** Pulls the actual error message out of a Worker error response body
+ *  (e.g. rate-limit or upstream failure text), falling back to a
+ *  generic message only if the body isn't readable JSON. Without this,
+ *  every non-404 failure showed the same generic text regardless of
+ *  the real cause. */
+async function extractWorkerErrorMessage(res, fallback) {
+  try {
+    const data = await res.json();
+    return data.error || fallback;
+  } catch {
+    return fallback;
+  }
+}
+
 /** Pulls the report code and, if present, the specific fight ID out of
  *  a pasted Warcraft Logs URL. Works with or without a fight= param —
  *  if no fight is specified, the Worker defaults to the most recent
@@ -259,7 +286,7 @@ async function fetchRosterFromWorker(parsed) {
     throw new Error("That report doesn't have any readable fights. Check the URL and try again.");
   }
   if (!res.ok) {
-    throw new Error("We couldn't load that report. Please try again.");
+    throw new Error(await extractWorkerErrorMessage(res, "We couldn't load that report. Please try again."));
   }
 
   const data = await res.json();
@@ -291,7 +318,7 @@ async function fetchCharacterFromWorker(name, resolved) {
     throw new Error("Character not found in that report. Check the character name and report URL.");
   }
   if (!res.ok) {
-    throw new Error("We couldn't retrieve this character. Please try again.");
+    throw new Error(await extractWorkerErrorMessage(res, "We couldn't retrieve this character. Please try again."));
   }
 
   const data = await res.json();
@@ -306,6 +333,7 @@ async function fetchCharacterFromWorker(name, resolved) {
       realmSpec: data.spec || "Unknown",
       reportCode: resolved.reportCode,
       zoneName: data.zoneName || null,
+      raidDate: data.raidDate || null,
       bestPerfAvg: data.bestPerfAvg ?? null, // null -> "Unavailable" (requirement 3.3)
       medPerfAvg: data.medPerfAvg ?? null,
     },
@@ -329,6 +357,7 @@ async function fetchCharacterDemo(name, resolved) {
       realmSpec: "Arms",
       reportCode: resolved.reportCode,
       zoneName: "Black Temple",
+      raidDate: "Aug 15, 2026",
       bestPerfAvg: 87.3, // demo-only sample values so the UI can be previewed pre-Worker
       medPerfAvg: 61.5,
     },
@@ -363,21 +392,28 @@ function renderCharacter() {
   els.charClassPill.style.color = colorVar ? `var(${colorVar})` : "var(--text-parchment)";
   els.charSpec.textContent = c.realmSpec;
   els.charRaid.textContent = c.zoneName || "Unknown";
-  els.charReportOut.innerHTML = `<a href="https://fresh.warcraftlogs.com/reports/${escapeHtml(c.reportCode)}" target="_blank" rel="noopener">${escapeHtml(c.reportCode)}</a>`;
+  els.charRaidDate.innerHTML = c.raidDate
+    ? `<a href="https://fresh.warcraftlogs.com/reports/${escapeHtml(c.reportCode)}" target="_blank" rel="noopener">${escapeHtml(c.raidDate)}</a>`
+    : "Unknown";
   els.charBestPerf.innerHTML = formatPerf(c.bestPerfAvg);
   els.charMedPerf.innerHTML = formatPerf(c.medPerfAvg);
-  els.charGearStatus.textContent = "Successfully loaded";
   els.charPanel.hidden = false;
 
   populateSpecOptions(c.class);
 }
 
 /** Best/Median Performance Average tiering, matching Warcraft Logs'
- *  own color convention: 90+ green, 75-89 blue-ish, 50-74 purple,
- *  below that gray. "Unavailable" per requirement 3.3 when unknown. */
+ *  own percentile color convention exactly (gold/pink/orange/purple/
+ *  blue/green/gray). "Unavailable" per requirement 3.3 when unknown. */
 function formatPerf(value) {
-  if (value == null) return `<span class="perf-tier-low">Unavailable</span>`;
-  const tier = value >= 90 ? "great" : value >= 75 ? "good" : value >= 50 ? "ok" : "low";
+  if (value == null) return `<span class="perf-tier-gray">Unavailable</span>`;
+  const tier =
+    value >= 100 ? "gold" :
+    value >= 99 ? "pink" :
+    value >= 95 ? "orange" :
+    value >= 75 ? "purple" :
+    value >= 50 ? "blue" :
+    value >= 25 ? "green" : "gray";
   return `<span class="perf-tier-${tier}">${value.toFixed(1)}</span>`;
 }
 
@@ -409,9 +445,20 @@ function populateSpecOptions(detectedClass) {
   validSpecs.forEach((spec) => {
     const opt = document.createElement("option");
     opt.value = spec.value;
-    opt.textContent = spec.label;
+    opt.textContent = hasBisData(spec.value) ? spec.label : `${spec.label} (no data yet)`;
     els.specSelect.appendChild(opt);
   });
+
+  // Default to a spec that actually has data, if one exists among the
+  // valid options for this class — no reason to make the user land on
+  // an empty spec first when a real one is right there.
+  const firstWithData = validSpecs.find((s) => hasBisData(s.value));
+  if (firstWithData) els.specSelect.value = firstWithData.value;
+}
+
+/** True if either phase's BiS dataset has an entry for this spec. */
+function hasBisData(specValue) {
+  return Boolean(state.bisData?.phase3?.[specValue] || state.bisData?.phase4?.[specValue]);
 }
 
 /* ================================================================
@@ -602,26 +649,34 @@ function compareSingleSlot(label, equippedIds, bisRanked) {
  * @param {number} slotCount   number of identical slots (e.g. 2 for trinkets)
  * @returns {{state:string, equippedId:number|null, recommendedId:number|null}[]}
  */
+/**
+ * Generic multi-slot ranking system (section 19).
+ * Only a RANK 1 equipped item counts as a full BiS match (no upgrade
+ * shown). An equipped item at rank 2+ still routes through the normal
+ * upgrade-recommendation path — but since it IS a recognized BiS-list
+ * item, not random gear, it's tagged with an ordinal note ("2nd BiS",
+ * "3rd BiS", etc.) under the equipped chip so the player can see it's
+ * not worthless, just not optimal.
+ */
 function resolveMultiSlot(equippedIds, bisRanked, slotCount) {
   const ranked = [...bisRanked].sort((a, b) => a.rank - b.rank);
   const rankOf = new Map(ranked.map((b) => [b.itemId, b.rank]));
   const ownedSet = new Set(equippedIds);
 
-  // Which equipped items are themselves on the BiS list, best rank first —
-  // each seats its own position and can never be displaced by a duplicate
-  // recommendation (section 19's duplicate-prevention requirement).
-  const equippedBis = equippedIds
-    .filter((id) => rankOf.has(id))
-    .sort((a, b) => rankOf.get(a) - rankOf.get(b));
+  // Only rank-1 equipped items are a full BiS match — each seats its
+  // own position and can never be displaced by a duplicate recommendation
+  // (section 19's duplicate-prevention requirement).
+  const equippedRank1 = equippedIds.filter((id) => rankOf.get(id) === 1);
 
-  // Non-BiS equipped items — shown paired with an upgrade suggestion
-  // where a remaining position needs to display "what's worn now".
-  const equippedNonBis = [...equippedIds.filter((id) => !rankOf.has(id))];
+  // Everything else needing a recommendation: equipped items that aren't
+  // rank 1 — whether they're rank 2+ BiS-listed (gets an ordinal note)
+  // or not on the list at all (no note, just a plain upgrade).
+  const equippedNeedingUpgrade = [...equippedIds.filter((id) => rankOf.get(id) !== 1)];
 
   // Candidates for remaining positions: ranked BiS items not already owned.
   const availableCandidates = ranked.filter((b) => !ownedSet.has(b.itemId));
 
-  const positions = equippedBis.map((id) => ({
+  const positions = equippedRank1.map((id) => ({
     state: "bis", equippedId: id, recommendedId: id,
     equippedSource: findSource(id, ranked), recommendedSource: findSource(id, ranked),
     alternatives: ranked,
@@ -630,21 +685,34 @@ function resolveMultiSlot(equippedIds, bisRanked, slotCount) {
   const remainingSlots = slotCount - positions.length;
   let candidateIndex = 0;
   for (let i = 0; i < remainingSlots; i++) {
-    const equippedForThis = equippedNonBis.shift() ?? null;
+    const equippedForThis = equippedNeedingUpgrade.shift() ?? null;
+    const equippedRank = equippedForThis != null ? rankOf.get(equippedForThis) : null;
     const candidate = availableCandidates[candidateIndex];
     if (candidate) {
       candidateIndex++;
       positions.push({
         state: "upgrade", equippedId: equippedForThis, recommendedId: candidate.itemId,
         equippedSource: findSource(equippedForThis, ranked), recommendedSource: findSource(candidate.itemId, ranked),
+        equippedRankNote: equippedRank ? `${ordinal(equippedRank)} BiS` : null,
         alternatives: ranked,
       });
     } else {
-      positions.push({ state: "unknown", equippedId: equippedForThis, recommendedId: null, alternatives: ranked });
+      positions.push({
+        state: "unknown", equippedId: equippedForThis, recommendedId: null,
+        equippedRankNote: equippedRank ? `${ordinal(equippedRank)} BiS` : null,
+        alternatives: ranked,
+      });
     }
   }
 
   return positions;
+}
+
+/** 1 -> "1st", 2 -> "2nd", 3 -> "3rd", 4 -> "4th", etc. */
+function ordinal(n) {
+  const s = ["th", "st", "nd", "rd"];
+  const v = n % 100;
+  return n + (s[(v - 20) % 10] || s[v] || s[0]);
 }
 
 /* ================================================================
@@ -693,7 +761,7 @@ function renderSlotCard(result, enrichment) {
       <span class="slot-state-badge"><span class="dot"></span>${meta.badge}</span>
     </div>
     <div class="result-icon-flow">
-      ${renderItemChip(result.equippedId, result.state === "bis" ? "Equipped — matches BiS" : "Currently equipped", enrichment, result.equippedSource)}
+      ${renderItemChip(result.equippedId, result.state === "bis" ? "Equipped — matches BiS" : "Currently equipped", enrichment, result.equippedSource, result.equippedRankNote)}
       ${showArrow ? `<span class="flow-arrow">→</span>${renderItemChip(result.recommendedId, "Recommended", enrichment, result.recommendedSource)}` : ""}
     </div>
     ${result.state === "unknown" ? `<div class="slot-note">${escapeHtml(result.note || "Not enough reliable data to evaluate this slot yet.")}</div>` : ""}
@@ -722,7 +790,7 @@ function renderAlternatives(alternatives, enrichment) {
     </details>`;
 }
 
-function renderItemChip(itemId, sourceLabel, enrichment, dropSource) {
+function renderItemChip(itemId, sourceLabel, enrichment, dropSource, rankNote) {
   if (itemId == null) {
     return `
       <div class="item-chip">
@@ -740,6 +808,7 @@ function renderItemChip(itemId, sourceLabel, enrichment, dropSource) {
     : `<div class="item-icon placeholder">#</div>`;
   const nameText = info?.name ? escapeHtml(info.name) : `Item ${itemId}`;
   const dropSourceMarkup = dropSource ? `<div class="item-drop-source">${escapeHtml(dropSource)}</div>` : "";
+  const rankNoteMarkup = rankNote ? `<div class="item-rank-note">${escapeHtml(rankNote)}</div>` : "";
 
   return `
     <div class="item-chip">
@@ -748,6 +817,7 @@ function renderItemChip(itemId, sourceLabel, enrichment, dropSource) {
         <div class="item-name">${nameText}</div>
         <div class="item-source">${escapeHtml(sourceLabel)}</div>
         ${dropSourceMarkup}
+        ${rankNoteMarkup}
       </div>
     </div>`;
 }
