@@ -12,6 +12,15 @@
    ================================================================ */
 const WORKER_URL = "https://wcgear.lambertdaniel26.workers.dev";
 
+/* Test Mode: add ?test=1 to the site URL to force the app onto fully
+   static fixture data — no WCL or Blizzard requests at all, even
+   though WORKER_URL above is set. Built so UI/ranking-logic changes
+   can be checked without burning WCL requests or waiting out rate
+   limits. Never affects real users, since it only activates on an
+   explicit URL flag nobody would stumble into by accident. */
+const IS_TEST_MODE = new URLSearchParams(location.search).get("test") === "1";
+const USE_LIVE_WORKER = Boolean(WORKER_URL) && !IS_TEST_MODE;
+
 /* Class -> allowed specs. Config-driven per section 44 of the spec,
    so post-MVP class-aware filtering only needs this table extended. */
 const CLASS_SPEC_MAP = {
@@ -136,7 +145,12 @@ const els = {
    INIT
    ================================================================ */
 async function init() {
-  if (!WORKER_URL) els.demoNote.hidden = false;
+  if (!USE_LIVE_WORKER) {
+    els.demoNote.innerHTML = IS_TEST_MODE
+      ? "<strong>Test mode.</strong> Using static fixture data (deliberately spans every ranking scenario — 1st/2nd/3rd BiS, upgrades, empty weapon slots) so UI changes can be checked without hitting Warcraft Logs or Blizzard at all."
+      : "<strong>Demo mode.</strong> No live Worker endpoint is configured yet, so this is showing sample gear so you can try the flow. Point <code>WORKER_URL</code> in <code>app.js</code> at your deployed Cloudflare Worker to go live.";
+    els.demoNote.hidden = false;
+  }
 
   try {
     const res = await fetch("bis.json");
@@ -170,7 +184,7 @@ async function onLoadReport(evt) {
 
   setLoadReportLoading(true);
   try {
-    const { fightId, roster } = WORKER_URL
+    const { fightId, roster } = USE_LIVE_WORKER
       ? await fetchRosterFromWorker(parsed)
       : await fetchRosterDemo(parsed);
 
@@ -215,7 +229,7 @@ async function onFetchCharacter(evt) {
 
   setFetchLoading(true);
   try {
-    const { character, gear } = WORKER_URL
+    const { character, gear } = USE_LIVE_WORKER
       ? await fetchCharacterFromWorker(name, { reportCode: state.reportCode, fightId: state.fightId })
       : await fetchCharacterDemo(name, { reportCode: state.reportCode, fightId: state.fightId });
 
@@ -325,16 +339,18 @@ async function fetchRosterFromWorker(parsed) {
   return { fightId: data.fightId, roster: data.roster || [] };
 }
 
-/** Demo-mode roster so the UI can be exercised end to end before a
- *  Worker is deployed. Swap WORKER_URL above to go live. */
+/** Demo/test-mode roster. In Test Mode this deliberately spans all
+ *  four supported classes so the class→spec filtering and auto-phase
+ *  detection can be exercised by picking different characters. */
 async function fetchRosterDemo(parsed) {
   await sleep(500);
   return {
     fightId: parsed.fightId || "12",
     roster: [
-      { name: "Kalium", class: "Warrior", spec: "Arms" },
-      { name: "Thrall", class: "Shaman", spec: "Enhancement" },
-      { name: "Drexion", class: "Warlock", spec: "Destruction" },
+      { name: "Testarms", class: "Warrior", spec: "Arms" },
+      { name: "Testlock", class: "Warlock", spec: "Destruction" },
+      { name: "Testhunter", class: "Hunter", spec: "Beast Mastery" },
+      { name: "Testpally", class: "Paladin", spec: "Holy" },
     ],
   };
 }
@@ -374,8 +390,58 @@ async function fetchCharacterFromWorker(name, resolved) {
   };
 }
 
-/** Demo-mode sample response so the UI can be exercised end to end
- *  before a Worker is deployed. Swap WORKER_URL above to go live. */
+/** Demo/test-mode character response. "Testarms" is deliberately built
+ *  to hit every ranking scenario the comparison engine supports, using
+ *  real Phase 3 Arms Warrior item IDs from bis.json so the results
+ *  actually reflect the live ranking logic, not made-up placeholder
+ *  data:
+ *    - rank 1 equipped in a single slot  -> BiS, no note   (head, hands, waist, feet, neck)
+ *    - rank 2 equipped in a single slot  -> upgrade + "2nd BiS" note (shoulder, legs, ranged)
+ *    - rank 3 equipped in a single slot  -> upgrade + "3rd BiS" note (back)
+ *    - rank 4 equipped in a single slot  -> upgrade, no note (rank4 is past the label threshold) (wrist)
+ *    - off-list item in a single slot    -> plain upgrade, no note (chest)
+ *    - rank 1 + rank 2 in a multi-slot   -> BOTH satisfied, rank2 gets "2nd BiS" note, no upgrade (finger)
+ *    - rank 1 + rank 3 in a multi-slot   -> rank1 satisfied; rank3 upgrades to next available (not rank1, already owned) + "3rd BiS" note (trinket)
+ *    - empty two-hand + real mainhand/offhand -> tests all three weapon rows at once
+ *  Other test characters (Testlock/Testhunter/Testpally) return
+ *  simpler placeholder gear just to exercise the picker/class-spec
+ *  flow — Testarms is the one built for thorough ranking-logic checks. */
+const TEST_FIXTURES = {
+  testarms: {
+    character: { class: "Warrior", realmSpec: "Arms", zoneName: "Black Temple", autoPhase: "phase3", raidDate: "Aug 15, 2026", bestPerfAvg: 97.2, medPerfAvg: 62.8 },
+    gear: {
+      // weaponConfig omitted on purpose: the frontend derives weapon
+      // rows from what's actually populated, matching the real Worker.
+      mainhand: [32837], offhand: [32838],       // both rank 1 -> BiS, no upgrade
+      head: [30972],                              // rank 1 -> BiS
+      shoulder: [30055],                           // rank 2 -> upgrade + "2nd BiS"
+      back: [32323],                                // rank 3 -> upgrade + "3rd BiS"
+      chest: [99999],                                // off-list -> plain upgrade, no note
+      wrist: [30861],                                  // rank 4 -> upgrade, no note (past label threshold)
+      hands: [30969],                                   // rank 1 -> BiS
+      waist: [30106],                                     // rank 1 -> BiS
+      legs: [30977],                                       // rank 2 -> upgrade + "2nd BiS"
+      feet: [32345],                                        // rank 1 -> BiS
+      neck: [32591],                                         // rank 1 -> BiS
+      ranged: [32326],                                        // rank 2 -> upgrade + "2nd BiS"
+      finger: [32497, 32335],                                  // rank 1 + rank 2 -> both satisfied
+      trinket: [28830, 32505],                                  // rank 1 + rank 3 -> rank3 upgrades
+    },
+  },
+  testlock: {
+    character: { class: "Warlock", realmSpec: "Destruction", zoneName: "Black Temple", autoPhase: "phase3", raidDate: "Aug 15, 2026", bestPerfAvg: 54.1, medPerfAvg: 31.9 },
+    gear: { twohand: [32374], head: [31051], chest: [30107], trinket: [32483] },
+  },
+  testhunter: {
+    character: { class: "Hunter", realmSpec: "Beast Mastery", zoneName: "Zul'Aman", autoPhase: "phase4", raidDate: "Sep 2, 2026", bestPerfAvg: 100, medPerfAvg: 88.4 },
+    gear: { twohand: [29993], head: [32235], chest: [31004], trinket: [33831] },
+  },
+  testpally: {
+    character: { class: "Paladin", realmSpec: "Holy", zoneName: "Black Temple", autoPhase: "phase3", raidDate: "Aug 15, 2026", bestPerfAvg: 12.6, medPerfAvg: 8.0 },
+    gear: { mainhand: [32500], offhand: [32255], head: [30988], chest: [30992] },
+  },
+};
+
 async function fetchCharacterDemo(name, resolved) {
   await sleep(650);
 
@@ -383,35 +449,11 @@ async function fetchCharacterDemo(name, resolved) {
     throw new Error("Character not found in that report. Check the character name and report URL.");
   }
 
+  const fixture = TEST_FIXTURES[name.trim().toLowerCase()] || TEST_FIXTURES.testarms;
+
   return {
-    character: {
-      name,
-      class: "Warrior",
-      realmSpec: "Arms",
-      reportCode: resolved.reportCode,
-      zoneName: "Black Temple",
-      autoPhase: "phase3",
-      raidDate: "Aug 15, 2026",
-      bestPerfAvg: 87.3, // demo-only sample values so the UI can be previewed pre-Worker
-      medPerfAvg: 61.5,
-    },
-    gear: {
-      weaponConfig: "twohand",
-      twohand: [30318],          // Sample: Sulfuras-tier placeholder ID
-      head: [29757],
-      neck: [28753],
-      shoulder: [30096],
-      back: [28770],
-      chest: [30180],
-      wrist: [28829],
-      hands: [30186],
-      waist: [29774],
-      legs: [30183],
-      feet: [28727],
-      ranged: [28772],
-      trinket: [28830, 29383],   // one BiS-ranked, one off-list, per sample data
-      finger: [29283, 28753],
-    },
+    character: { name, reportCode: resolved.reportCode, ...fixture.character },
+    gear: fixture.gear,
   };
 }
 
@@ -548,7 +590,8 @@ function collectItemIds(results) {
  *  ceiling as one request. Returns {} (safe no-op) in demo mode or on
  *  failure, so the UI just falls back to showing item IDs. */
 async function fetchItemEnrichment(itemIds) {
-  if (!WORKER_URL || itemIds.length === 0) return {};
+  if (IS_TEST_MODE) return buildTestEnrichment(itemIds);
+  if (!USE_LIVE_WORKER || itemIds.length === 0) return {};
 
   const BATCH_SIZE = 12;
   const batches = [];
@@ -575,6 +618,37 @@ async function fetchItemEnrichment(itemIds) {
   );
 
   return merged;
+}
+
+/** Test-mode item enrichment: rather than hand-maintain a separate
+ *  static name list that could drift out of sync, this just looks up
+ *  each item's real name straight out of bis.json's own `name` field
+ *  (already present on every ranked entry for human auditing). Items
+ *  that genuinely aren't on any BiS list (like the fixture's
+ *  deliberately off-list chest item) correctly fall through to the
+ *  "Item {id}" placeholder — which is itself useful to see in test
+ *  mode, since that's exactly what an unrecognized item looks like
+ *  in production too. */
+function buildTestEnrichment(itemIds) {
+  const byId = new Map();
+  const phases = state.bisData ? Object.values(state.bisData).filter((v) => typeof v === "object") : [];
+  phases.forEach((specs) => {
+    Object.values(specs).forEach((slots) => {
+      if (typeof slots !== "object") return;
+      Object.values(slots).forEach((entries) => {
+        if (!Array.isArray(entries)) return;
+        entries.forEach((e) => {
+          if (e.itemId != null && e.name) byId.set(e.itemId, e.name);
+        });
+      });
+    });
+  });
+
+  const result = {};
+  itemIds.forEach((id) => {
+    if (byId.has(id)) result[id] = { name: byId.get(id), icon: null, quality: "epic", itemLevel: null };
+  });
+  return result;
 }
 
 function renderSpecWarning(specMeta) {
