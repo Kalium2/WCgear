@@ -252,7 +252,28 @@ async function onFetchCharacter(evt) {
     if (character.autoPhase && phaseOptionExists) {
       els.phaseSelect.value = character.autoPhase;
     }
-    await runAndRenderComparison({ scroll: false });
+
+    // TEMPORARY DIAGNOSTIC — the auto-run-on-fetch feature isn't
+    // reliably showing results; this pins down exactly why before
+    // guessing further. Remove once confirmed working.
+    console.log("Auto-run check:", {
+      detectedClass: character.class,
+      autoPhase: character.autoPhase,
+      phaseOptionExists,
+      resolvedPhase: els.phaseSelect.value,
+      specSelectDisabled: els.specSelect.disabled,
+      resolvedSpec: els.specSelect.value,
+      hasBisSetForResolved: Boolean(state.bisData?.[els.phaseSelect.value]?.[els.specSelect.value]),
+    });
+
+    try {
+      await runAndRenderComparison({ scroll: false });
+    } catch (autoRunErr) {
+      // Deliberately isolated from the outer catch below — a failure
+      // here should never be mislabeled as "couldn't retrieve this
+      // character" when the character fetch itself actually succeeded.
+      console.error("Auto-run comparison threw:", autoRunErr);
+    }
 
     els.comparePanel.scrollIntoView({ behavior: "smooth", block: "start" });
   } catch (err) {
