@@ -645,7 +645,14 @@ function findSource(itemId, bisRanked) {
  *  recommendation, always pointing at rank 1 specifically (there's
  *  only one position here, so no "next available" logic needed the
  *  way multi-slot requires). */
-const SINGLE_SLOT_SATISFIED_THRESHOLD = 3;
+/** Single-slot items (armor, weapons, ranged): ONLY rank 1 counts as
+ *  a full match with no upgrade shown. Ranks 2 and 3 still get the
+ *  upgrade recommendation (pointing at rank 1) — but since they're
+ *  recognized BiS-list items, not random gear, they're tagged with
+ *  an ordinal note ("2nd BiS"/"3rd BiS") so it's clear they're not
+ *  worthless, just not optimal. Rank 4+ or off-list items get the
+ *  upgrade with no note, same as always. */
+const SINGLE_SLOT_LABEL_THRESHOLD = 3; // ranks up to this get a "Nth BiS" note when upgrading
 
 function compareSingleSlot(label, equippedIds, bisRanked) {
   const equippedId = equippedIds?.[0] ?? null;
@@ -665,17 +672,17 @@ function compareSingleSlot(label, equippedIds, bisRanked) {
   const best = ranked[0];
   const equippedRank = equippedId != null ? ranked.find((b) => b.itemId === equippedId)?.rank : undefined;
 
-  if (equippedRank != null && equippedRank <= SINGLE_SLOT_SATISFIED_THRESHOLD) {
+  if (equippedRank === 1) {
     return {
       label, state: "bis", equippedId, recommendedId: equippedId,
       equippedSource: findSource(equippedId, ranked),
       recommendedSource: findSource(equippedId, ranked),
-      equippedRankNote: equippedRank >= 2 ? `${ordinal(equippedRank)} BiS` : null,
       alternatives: ranked,
     };
   }
   return {
     label, state: "upgrade", equippedId, recommendedId: best.itemId,
+    equippedRankNote: equippedRank != null && equippedRank <= SINGLE_SLOT_LABEL_THRESHOLD ? `${ordinal(equippedRank)} BiS` : null,
     equippedSource: findSource(equippedId, ranked),
     recommendedSource: findSource(best.itemId, ranked),
     alternatives: ranked,
