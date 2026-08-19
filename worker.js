@@ -96,7 +96,7 @@ async function handleCharacter(url, env) {
 
   if (!name || !reportCode) return jsonError("Missing character name or report code.", 400);
 
-  const { allPlayers, zone, actors } = await resolveFightAndPlayers(reportCode, fightIdParam, env);
+  const { allPlayers, zone, startTime } = await resolveFightAndPlayers(reportCode, fightIdParam, env);
   const player = allPlayers.find((p) => (p.name || "").toLowerCase() === name.trim().toLowerCase());
 
   if (!player) return jsonError("Character not found in that report. Check the character name and report URL.", 404);
@@ -107,7 +107,7 @@ async function handleCharacter(url, env) {
     return jsonError("No gear data is available for this character in that report.", 200);
   }
 
-  const { bestPerfAvg, medPerfAvg } = await fetchPerformanceMetrics(player.name, zone, actors, env);
+  const { bestPerfAvg, medPerfAvg } = await fetchPerformanceMetrics(player.name, zone, reportCode, env);
 
   return jsonOk({
     name: player.name,
@@ -117,12 +117,36 @@ async function handleCharacter(url, env) {
     bestPerfAvg,
     medPerfAvg,
     zoneName: zone?.name ?? null,
+    raidDate: startTime ? formatRaidDate(startTime) : null,
   });
+}
+
+/** Warcraft Logs report startTime is epoch milliseconds. Formats as
+ *  e.g. "Aug 15, 2026" for display on the character card. */
+function formatRaidDate(startTimeMs) {
+  try {
+    return new Date(startTimeMs).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
+  } catch {
+    return null;
+  }
 }
 
 /** Shared by /api/roster and /api/character: resolves which fight to
  *  read (defaulting to the most recent one in the report if not
  *  specified) and returns every player logged in it, with gear info. */
+/** Turns a failed Warcraft Logs response status into an accurate,
+ *  user-facing error — specifically calling out rate limiting (429)
+ *  rather than the generic "please try again", since retrying
+ *  immediately against an active rate limit won't help and looks
+ *  like a fresh bug otherwise. */
+function wclError(status) {
+  const err = status === 429
+    ? new Error("Warcraft Logs is rate-limiting requests right now. Please wait a few minutes and try again.")
+    : new Error("Warcraft Logs request failed. Please try again.");
+  err.status = status === 429 ? 429 : 502;
+  return err;
+}
+
 async function resolveFightAndPlayers(reportCode, fightIdParam, env) {
   const token = await getWclToken(env);
   const headers = { Authorization: `Bearer ${token}`, "Content-Type": "application/json" };
@@ -142,11 +166,13 @@ async function resolveFightAndPlayers(reportCode, fightIdParam, env) {
     if (!fightsRes.ok) {
       const bodyText = await fightsRes.text();
       console.error(`WCL fights request failed: status ${fightsRes.status}, body: ${bodyText}`);
-      throw new Error("Warcraft Logs request failed while listing fights.");
+      throw wclError(fightsRes.status);
     }
     const fightsJson = await fightsRes.json();
     const fights = fightsJson?.data?.reportData?.report?.fights;
     if (!fights || fights.length === 0) {
+      // TEMPORARY DIAGNOSTIC — remove once confirmed working.
+      console.error("Empty/missing fights list. Raw response:", JSON.stringify(fightsJson));
       const err = new Error("That report doesn't have any fights to read gear from.");
       err.status = 404;
       throw err;
@@ -159,7 +185,7 @@ async function resolveFightAndPlayers(reportCode, fightIdParam, env) {
       reportData {
         report(code: $code) {
           zone { id name }
-          masterData { actors(type: "Player") { name server { name slug region { slug } } } }
+          startTime
           playerDetails(fightIDs: $fightIDs, includeCombatantInfo: true)
         }
       }
@@ -173,7 +199,7 @@ async function resolveFightAndPlayers(reportCode, fightIdParam, env) {
   if (!detailsRes.ok) {
     const bodyText = await detailsRes.text();
     console.error(`WCL playerDetails request failed: status ${detailsRes.status}, body: ${bodyText}`);
-    throw new Error("Warcraft Logs request failed while reading player details.");
+    throw wclError(detailsRes.status);
   }
 
   const detailsJson = await detailsRes.json();
@@ -188,62 +214,85 @@ async function resolveFightAndPlayers(reportCode, fightIdParam, env) {
     : [];
 
   const zone = detailsJson?.data?.reportData?.report?.zone ?? null;
-  const actors = detailsJson?.data?.reportData?.report?.masterData?.actors ?? [];
+  const startTime = detailsJson?.data?.reportData?.report?.startTime ?? null;
 
-  return { fightId, allPlayers, zone, actors };
+  return { fightId, allPlayers, zone, startTime };
 }
 
 /** Best-effort Warcraft Logs performance metrics (Best/Median
  *  Performance Average) for the matched player, scoped to the raid
  *  zone this report belongs to.
  *
- *  UNVERIFIED — this is a first pass, not yet confirmed against a
- *  live response. characterData.character.zoneRankings is the field
- *  that matches the exact "Best/Median Performance Average" terminology
- *  Warcraft Logs itself uses, but it needs the player's realm/region,
- *  which we don't collect directly anymore (the app moved to a
- *  report-URL-only flow). This pulls realm/region from the report's
- *  own actor roster (masterData.actors) instead of asking the user for
- *  it, but that field's exact shape hasn't been confirmed live yet.
+ *  Deliberately a fully separate GraphQL request from the core
+ *  gear/roster query — an earlier version embedded this in the same
+ *  query, and a schema mistake here (masterData.actors.server is a
+ *  plain string, not an object) took down gear fetching along with
+ *  it. Never again: this lives entirely on its own, wrapped in
+ *  try/catch, so any failure here only means the metrics show
+ *  "Unavailable" (requirement 3.3) — gear is never affected.
  *
- *  Deliberately never throws — any failure here just means the
- *  metrics show "Unavailable" on the frontend, per requirement 3.3.
- *  Check the Worker's live logs after a real test; the diagnostic
- *  line below will show exactly what came back if this needs fixing. */
-async function fetchPerformanceMetrics(playerName, zone, actors, env) {
+ *  Region isn't available from the report data, so it's hardcoded to
+ *  "us" — reasonable for this app's scope (Dreamscythe/Nightslayer
+ *  are both US realms). The realm slug is derived from the actor's
+ *  plain server name string. Still unverified end-to-end; check the
+ *  diagnostic log below after a real test. */
+async function fetchPerformanceMetrics(playerName, zone, reportCode, env) {
   try {
     if (!zone?.id) return { bestPerfAvg: null, medPerfAvg: null };
 
-    const actor = actors.find((a) => (a.name || "").toLowerCase() === playerName.toLowerCase());
-    const serverSlug = actor?.server?.slug;
-    const serverRegion = actor?.server?.region?.slug;
-    if (!serverSlug || !serverRegion) {
-      console.error(`Perf metrics: no server info found for ${playerName} in report actors.`);
+    const token = await getWclToken(env);
+    const headers = { Authorization: `Bearer ${token}`, "Content-Type": "application/json" };
+
+    const actorsQuery = `
+      query ReportActors($code: String!) {
+        reportData { report(code: $code) { masterData { actors(type: "Player") { name server } } } }
+      }
+    `;
+    const actorsRes = await fetch(WCL_GRAPHQL_URL, {
+      method: "POST",
+      headers,
+      body: JSON.stringify({ query: actorsQuery, variables: { code: reportCode } }),
+    });
+    const actorsJson = await actorsRes.json();
+    if (actorsJson.errors) {
+      console.error("Perf metrics: actors query errors:", JSON.stringify(actorsJson.errors));
       return { bestPerfAvg: null, medPerfAvg: null };
     }
 
-    const token = await getWclToken(env);
-    const query = `
-      query PerfMetrics($name: String!, $serverSlug: String!, $serverRegion: String!, $zoneID: Int!) {
+    const actors = actorsJson?.data?.reportData?.report?.masterData?.actors ?? [];
+    const actor = actors.find((a) => (a.name || "").toLowerCase() === playerName.toLowerCase());
+    if (!actor?.server) {
+      console.error(`Perf metrics: no server found for ${playerName} in report actors.`);
+      return { bestPerfAvg: null, medPerfAvg: null };
+    }
+    const serverSlug = actor.server.toLowerCase().replace(/[\s']+/g, "-");
+
+    const perfQuery = `
+      query PerfMetrics($name: String!, $serverSlug: String!, $zoneID: Int!) {
         characterData {
-          character(name: $name, serverSlug: $serverSlug, serverRegion: $serverRegion) {
+          character(name: $name, serverSlug: $serverSlug, serverRegion: "US") {
             zoneRankings(zoneID: $zoneID)
           }
         }
       }
     `;
-    const res = await fetch(WCL_GRAPHQL_URL, {
+    const perfRes = await fetch(WCL_GRAPHQL_URL, {
       method: "POST",
-      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-      body: JSON.stringify({ query, variables: { name: playerName, serverSlug, serverRegion, zoneID: zone.id } }),
+      headers,
+      body: JSON.stringify({ query: perfQuery, variables: { name: playerName, serverSlug, zoneID: zone.id } }),
     });
+    const perfJson = await perfRes.json();
 
-    const json = await res.json();
-    // TEMPORARY DIAGNOSTIC — this endpoint is unverified; check this log
-    // after a real test and remove once the field names are confirmed.
-    console.log("PERF METRICS RAW RESPONSE:", JSON.stringify(json));
+    // TEMPORARY DIAGNOSTIC — unverified end-to-end; check this log after
+    // a real test, then remove once the field names are confirmed.
+    console.log("PERF METRICS RAW RESPONSE:", JSON.stringify(perfJson));
 
-    const zr = json?.data?.characterData?.character?.zoneRankings;
+    if (perfJson.errors) {
+      console.error("Perf metrics: zoneRankings query errors:", JSON.stringify(perfJson.errors));
+      return { bestPerfAvg: null, medPerfAvg: null };
+    }
+
+    const zr = perfJson?.data?.characterData?.character?.zoneRankings;
     return {
       bestPerfAvg: zr?.bestPerformanceAverage ?? null,
       medPerfAvg: zr?.medianPerformanceAverage ?? null,
