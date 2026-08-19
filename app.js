@@ -95,6 +95,7 @@ const state = {
   roster: null,         // [{ name, class, spec }, ...] from /api/roster
   character: null,       // { name, class, realmSpec, reportCode }
   gear: null,              // { slot: [itemId, ...], weaponConfig: "..." }
+  equippedItemDetails: null, // itemId -> { name, icon, quality, permanentEnchant, temporaryEnchant, gems }
   bisData: null,            // loaded once from data/bis.json
 };
 
@@ -229,12 +230,13 @@ async function onFetchCharacter(evt) {
 
   setFetchLoading(true);
   try {
-    const { character, gear } = USE_LIVE_WORKER
+    const { character, gear, equippedItemDetails } = USE_LIVE_WORKER
       ? await fetchCharacterFromWorker(name, { reportCode: state.reportCode, fightId: state.fightId })
       : await fetchCharacterDemo(name, { reportCode: state.reportCode, fightId: state.fightId });
 
     state.character = character;
     state.gear = gear;
+    state.equippedItemDetails = equippedItemDetails || {};
     renderCharacter();
     els.comparePanel.hidden = false;
     els.loadedEmptyState.hidden = false;
@@ -252,26 +254,12 @@ async function onFetchCharacter(evt) {
     if (character.autoPhase && phaseOptionExists) {
       els.phaseSelect.value = character.autoPhase;
     }
-
-    // TEMPORARY DIAGNOSTIC — the auto-run-on-fetch feature isn't
-    // reliably showing results; this pins down exactly why before
-    // guessing further. Remove once confirmed working.
-    console.log("Auto-run check:", {
-      detectedClass: character.class,
-      autoPhase: character.autoPhase,
-      phaseOptionExists,
-      resolvedPhase: els.phaseSelect.value,
-      specSelectDisabled: els.specSelect.disabled,
-      resolvedSpec: els.specSelect.value,
-      hasBisSetForResolved: Boolean(state.bisData?.[els.phaseSelect.value]?.[els.specSelect.value]),
-    });
-
     try {
       await runAndRenderComparison({ scroll: false });
     } catch (autoRunErr) {
-      // Deliberately isolated from the outer catch below — a failure
-      // here should never be mislabeled as "couldn't retrieve this
-      // character" when the character fetch itself actually succeeded.
+      // Isolated from the outer catch below on purpose — a failure here
+      // should never be mislabeled as "couldn't retrieve this character"
+      // when the character fetch itself actually succeeded.
       console.error("Auto-run comparison threw:", autoRunErr);
     }
 
@@ -298,6 +286,7 @@ function resetToFetch() {
   state.roster = null;
   state.character = null;
   state.gear = null;
+  state.equippedItemDetails = null;
   els.charPanel.hidden = true;
   els.comparePanel.hidden = true;
   els.resultsPanel.hidden = true;
@@ -408,6 +397,7 @@ async function fetchCharacterFromWorker(name, resolved) {
       medPerfAvg: data.medPerfAvg ?? null,
     },
     gear: data.gear, // expected shape: { slot: [itemId,...], weaponConfig }
+    equippedItemDetails: data.equippedItemDetails || {}, // itemId -> { name, icon, quality, permanentEnchant, temporaryEnchant, gems }
   };
 }
 
@@ -448,6 +438,14 @@ const TEST_FIXTURES = {
       finger: [32497, 32335],                                  // rank 1 + rank 2 -> both satisfied
       trinket: [28830, 32505],                                  // rank 1 + rank 3 -> rank3 upgrades
     },
+    // Sample gems/enchants so the hover-tooltip feature can be checked
+    // without needing a live WCL fetch. Real gem IDs (Bold/Delicate
+    // Living Ruby etc.) and a real TBC weapon enchant ID.
+    equippedItemDetails: {
+      30972: { name: "Onslaught Battle-Helm", icon: null, quality: "Epic", permanentEnchant: null, temporaryEnchant: null, gems: [23107, 23096] }, // 2 red gems
+      32837: { name: "Warglaive of Azzinoth", icon: null, quality: "Legendary", permanentEnchant: 2673, temporaryEnchant: null, gems: [] }, // Enchant: Executioner
+      30055: { name: "Shoulderpads of the Stranger", icon: null, quality: "Epic", permanentEnchant: null, temporaryEnchant: null, gems: [23096] },
+    },
   },
   testlock: {
     character: { class: "Warlock", realmSpec: "Destruction", zoneName: "Black Temple", autoPhase: "phase3", raidDate: "Aug 15, 2026", bestPerfAvg: 54.1, medPerfAvg: 31.9 },
@@ -475,6 +473,7 @@ async function fetchCharacterDemo(name, resolved) {
   return {
     character: { name, reportCode: resolved.reportCode, ...fixture.character },
     gear: fixture.gear,
+    equippedItemDetails: fixture.equippedItemDetails || {},
   };
 }
 
@@ -570,28 +569,39 @@ async function onCheckGear(evt) {
  *  and renders it. Shared by the manual "Check Gear" submit and the
  *  automatic run that fires right after a character is fetched, so
  *  there's exactly one place this logic lives (requirement 3/4/8). */
+let comparisonInFlight = false;
+
 async function runAndRenderComparison({ scroll } = {}) {
   if (els.specSelect.disabled) return; // unsupported class — nothing valid to compare
-  const phase = els.phaseSelect.value;
-  const specValue = els.specSelect.value;
-  const specMeta = ALL_SPECS.find((s) => s.value === specValue);
+  if (comparisonInFlight) return; // guards against a manual Check Gear click racing the auto-run
+  comparisonInFlight = true;
+  els.checkBtn.disabled = true;
 
-  renderSpecWarning(specMeta);
+  try {
+    const phase = els.phaseSelect.value;
+    const specValue = els.specSelect.value;
+    const specMeta = ALL_SPECS.find((s) => s.value === specValue);
 
-  const bisSet = state.bisData?.[phase]?.[specValue];
-  if (!bisSet) {
-    showError(`No BiS data is available yet for ${specMeta.label} in ${phaseLabel(phase)}.`);
-    return;
+    renderSpecWarning(specMeta);
+
+    const bisSet = state.bisData?.[phase]?.[specValue];
+    if (!bisSet) {
+      showError(`No BiS data is available yet for ${specMeta.label} in ${phaseLabel(phase)}.`);
+      return;
+    }
+
+    const results = runComparison(state.gear, bisSet);
+    const itemIds = collectItemIds(results);
+    const enrichment = await fetchItemEnrichment(itemIds);
+
+    renderResults(results, phase, specMeta, enrichment);
+    els.loadedEmptyState.hidden = true;
+    els.resultsPanel.hidden = false;
+    if (scroll) els.resultsPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+  } finally {
+    comparisonInFlight = false;
+    els.checkBtn.disabled = false;
   }
-
-  const results = runComparison(state.gear, bisSet);
-  const itemIds = collectItemIds(results);
-  const enrichment = await fetchItemEnrichment(itemIds);
-
-  renderResults(results, phase, specMeta, enrichment);
-  els.loadedEmptyState.hidden = true;
-  els.resultsPanel.hidden = false;
-  if (scroll) els.resultsPanel.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
 /** Every equipped/recommended item ID referenced across the results, deduped. */
@@ -600,6 +610,11 @@ function collectItemIds(results) {
   [...results.weapons, ...results.armor].forEach((r) => {
     if (r.equippedId != null) ids.add(r.equippedId);
     if (r.recommendedId != null) ids.add(r.recommendedId);
+  });
+  // Gems are just items too — reuse the same Blizzard enrichment pass
+  // to get their real names/icons instead of a separate lookup path.
+  Object.values(state.equippedItemDetails || {}).forEach((d) => {
+    (d.gems || []).forEach((gemId) => ids.add(gemId));
   });
   return [...ids];
 }
@@ -931,8 +946,8 @@ function renderSlotCard(result, enrichment) {
       <span class="slot-state-badge"><span class="dot"></span>${meta.badge}</span>
     </div>
     <div class="result-icon-flow">
-      ${renderItemChip(result.equippedId, result.state === "bis" ? "Equipped — matches BiS" : "Currently equipped", enrichment, result.equippedSource, result.equippedRankNote)}
-      ${showArrow ? `<span class="flow-arrow">→</span>${renderItemChip(result.recommendedId, "Recommended", enrichment, result.recommendedSource)}` : ""}
+      ${renderItemChip(result.equippedId, result.state === "bis" ? "Equipped — matches BiS" : "Currently equipped", enrichment, result.equippedSource, result.equippedRankNote, true)}
+      ${showArrow ? `<span class="flow-arrow">→</span>${renderItemChip(result.recommendedId, "Recommended", enrichment, result.recommendedSource, null, false)}` : ""}
     </div>
     ${result.state === "unknown" ? `<div class="slot-note">${escapeHtml(result.note || "Not enough reliable data to evaluate this slot yet.")}</div>` : ""}
     ${renderAlternatives(alternatives, enrichment)}
@@ -960,7 +975,29 @@ function renderAlternatives(alternatives, enrichment) {
     </details>`;
 }
 
-function renderItemChip(itemId, sourceLabel, enrichment, dropSource, rankNote) {
+/** Quality -> color, matching WoW's own item-quality convention.
+ *  WCL's combatantInfo returns quality as a string (e.g. "Epic"). */
+const QUALITY_COLOR = {
+  Poor: "#9d9d9d", Common: "#ffffff", Uncommon: "#1eff00",
+  Rare: "#0070ff", Epic: "#a335ee", Legendary: "#ff8000", Artifact: "#e5cc80",
+};
+
+/** Best-effort permanent-enchant ID -> friendly name for the handful
+ *  of enchants likely to actually show up for our supported specs
+ *  (weapon/chest/cloak/bracer/gloves/boots). Not exhaustive — WCL
+ *  only gives us the numeric enchant ID, and there's no API to
+ *  resolve it to a name, so anything not in this table just shows
+ *  as "Enchant #ID" rather than silently guessing wrong. */
+const ENCHANT_NAMES = {
+  2673: "Executioner", 2666: "Mongoose", 2670: "Sunfire", 2672: "Soulfrost",
+  3225: "Bracing Earthstorm Diamond", 2660: "Spellsurge", 2665: "Spellpower",
+  911: "Nethercobra Leg Armor", 928: "Nethercleft Leg Armor",
+};
+function enchantLabel(enchantId) {
+  return ENCHANT_NAMES[enchantId] || `Enchant #${enchantId}`;
+}
+
+function renderItemChip(itemId, sourceLabel, enrichment, dropSource, rankNote, isEquipped) {
   if (itemId == null) {
     return `
       <div class="item-chip">
@@ -980,8 +1017,16 @@ function renderItemChip(itemId, sourceLabel, enrichment, dropSource, rankNote) {
   const dropSourceMarkup = dropSource ? `<div class="item-drop-source">${escapeHtml(dropSource)}</div>` : "";
   const rankNoteMarkup = rankNote ? `<div class="item-rank-note">${escapeHtml(rankNote)}</div>` : "";
 
+  // Hover tooltip: only equipped items carry real gem/enchant data —
+  // that comes straight from Warcraft Logs' combatantInfo, which only
+  // exists for what a player actually has on. Recommended/BiS items
+  // are just catalog entries with no gems or enchants attached (that
+  // would need its own curated "recommended socketing" dataset, which
+  // doesn't exist yet).
+  const tooltipMarkup = isEquipped ? renderItemTooltip(itemId, enrichment) : "";
+
   return `
-    <div class="item-chip">
+    <div class="item-chip${tooltipMarkup ? " has-tooltip" : ""}">
       ${iconMarkup}
       <div class="item-text">
         <div class="item-name">${nameText}</div>
@@ -989,6 +1034,44 @@ function renderItemChip(itemId, sourceLabel, enrichment, dropSource, rankNote) {
         ${dropSourceMarkup}
         ${rankNoteMarkup}
       </div>
+      ${tooltipMarkup}
+    </div>`;
+}
+
+/** Builds the hover-tooltip content for an equipped item: quality-
+ *  colored name, permanent/temporary enchant, and socketed gems
+ *  (each resolved to a real name/icon via the same Blizzard
+ *  enrichment pass used for everything else, since gems are items
+ *  too). Returns "" if there's nothing beyond the basic name to show. */
+function renderItemTooltip(itemId, enrichment) {
+  const details = state.equippedItemDetails?.[itemId];
+  if (!details) return "";
+
+  const hasEnchant = details.permanentEnchant || details.temporaryEnchant;
+  const hasGems = details.gems && details.gems.length > 0;
+  if (!hasEnchant && !hasGems) return "";
+
+  const qualityColor = QUALITY_COLOR[details.quality] || "var(--text-ice)";
+  const nameLine = `<div class="tooltip-item-name" style="color:${qualityColor}">${escapeHtml(details.name || `Item ${itemId}`)}</div>`;
+
+  const enchantLines = [];
+  if (details.permanentEnchant) enchantLines.push(`<div class="tooltip-enchant">${escapeHtml(enchantLabel(details.permanentEnchant))}</div>`);
+  if (details.temporaryEnchant) enchantLines.push(`<div class="tooltip-enchant tooltip-enchant-temp">${escapeHtml(enchantLabel(details.temporaryEnchant))} (temporary)</div>`);
+
+  const gemLines = (details.gems || []).map((gemId) => {
+    const gemInfo = enrichment?.[gemId];
+    const gemName = gemInfo?.name ? escapeHtml(gemInfo.name) : `Gem #${gemId}`;
+    const gemIcon = gemInfo?.icon
+      ? `<img class="tooltip-gem-icon" src="${escapeHtml(gemInfo.icon)}" alt="">`
+      : `<span class="tooltip-gem-icon placeholder">#</span>`;
+    return `<div class="tooltip-gem">${gemIcon}${gemName}</div>`;
+  });
+
+  return `
+    <div class="item-tooltip">
+      ${nameLine}
+      ${enchantLines.join("")}
+      ${gemLines.length ? `<div class="tooltip-gems">${gemLines.join("")}</div>` : ""}
     </div>`;
 }
 
