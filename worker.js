@@ -147,6 +147,8 @@ async function resolveFightAndPlayers(reportCode, fightIdParam, env) {
     const fightsJson = await fightsRes.json();
     const fights = fightsJson?.data?.reportData?.report?.fights;
     if (!fights || fights.length === 0) {
+      // TEMPORARY DIAGNOSTIC — remove once confirmed working.
+      console.error("Empty/missing fights list. Raw response:", JSON.stringify(fightsJson));
       const err = new Error("That report doesn't have any fights to read gear from.");
       err.status = 404;
       throw err;
