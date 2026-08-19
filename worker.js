@@ -41,13 +41,13 @@ export default {
 
     try {
       if (url.pathname === "/api/roster" && request.method === "GET") {
-        return corsResponse(await handleRoster(url, env), origin);
+        return corsResponse(await handleRoster(url, env, ctx), origin);
       }
       if (url.pathname === "/api/character" && request.method === "GET") {
-        return corsResponse(await handleCharacter(url, env), origin);
+        return corsResponse(await handleCharacter(url, env, ctx), origin);
       }
       if (url.pathname === "/api/items" && request.method === "POST") {
-        return corsResponse(await handleItems(request, env), origin);
+        return corsResponse(await handleItems(request, env, ctx), origin);
       }
       return corsResponse(jsonError("Not found", 404), origin);
     } catch (err) {
@@ -65,13 +65,13 @@ export default {
    Returns every character logged in a report/fight, so the frontend
    can offer a picker instead of requiring an exact typed name.
    ================================================================ */
-async function handleRoster(url, env) {
+async function handleRoster(url, env, ctx) {
   const reportCode = url.searchParams.get("reportCode");
   const fightIdParam = url.searchParams.get("fightId");
 
   if (!reportCode) return jsonError("Missing report code.", 400);
 
-  const { fightId, allPlayers } = await resolveFightAndPlayers(reportCode, fightIdParam, env);
+  const { fightId, allPlayers } = await resolveFightAndPlayers(reportCode, fightIdParam, env, ctx);
 
   if (!allPlayers.length) {
     return jsonError("No player data found in that report.", 404);
@@ -89,14 +89,14 @@ async function handleRoster(url, env) {
    ================================================================
    Pulls one character's gear as logged in a specific report/fight.
    ================================================================ */
-async function handleCharacter(url, env) {
+async function handleCharacter(url, env, ctx) {
   const name = url.searchParams.get("name");
   const reportCode = url.searchParams.get("reportCode");
   const fightIdParam = url.searchParams.get("fightId");
 
   if (!name || !reportCode) return jsonError("Missing character name or report code.", 400);
 
-  const { allPlayers, zone, startTime } = await resolveFightAndPlayers(reportCode, fightIdParam, env);
+  const { allPlayers, zone, startTime, actors } = await resolveFightAndPlayers(reportCode, fightIdParam, env, ctx);
   const player = allPlayers.find((p) => (p.name || "").toLowerCase() === name.trim().toLowerCase());
 
   if (!player) return jsonError("Character not found in that report. Check the character name and report URL.", 404);
@@ -112,7 +112,7 @@ async function handleCharacter(url, env) {
     return jsonError("No gear data is available for this character in that report.", 200);
   }
 
-  const { bestPerfAvg, medPerfAvg } = await fetchPerformanceMetrics(player.name, zone, reportCode, env);
+  const { bestPerfAvg, medPerfAvg } = await fetchPerformanceMetrics(player.name, zone, actors, env, ctx);
 
   return jsonOk({
     name: player.name,
@@ -169,8 +169,8 @@ function wclError(status) {
   return err;
 }
 
-async function resolveFightAndPlayers(reportCode, fightIdParam, env) {
-  const token = await getWclToken(env);
+async function resolveFightAndPlayers(reportCode, fightIdParam, env, ctx) {
+  const token = await getWclToken(env, ctx);
   const headers = { Authorization: `Bearer ${token}`, "Content-Type": "application/json" };
   let fightId = fightIdParam;
 
@@ -193,13 +193,24 @@ async function resolveFightAndPlayers(reportCode, fightIdParam, env) {
     const fightsJson = await fightsRes.json();
     const fights = fightsJson?.data?.reportData?.report?.fights;
     if (!fights || fights.length === 0) {
-      // TEMPORARY DIAGNOSTIC — remove once confirmed working.
       console.error("Empty/missing fights list. Raw response:", JSON.stringify(fightsJson));
       const err = new Error("That report doesn't have any fights to read gear from.");
       err.status = 404;
       throw err;
     }
     fightId = fights[fights.length - 1].id;
+  }
+
+  // Load Report and Fetch Character often ask for the exact same
+  // report/fight seconds apart — Load Report's playerDetails query
+  // already includes every player's full gear, so re-fetching it for
+  // one player a moment later was a pure duplicate WCL request. Check
+  // the cache before hitting WCL again.
+  const cacheKey = `https://wcgear-cache.internal/report/${reportCode}/${fightId}`;
+  const cached = await cacheGet(cacheKey);
+  if (cached) {
+    console.log(`Cache hit for report ${reportCode} fight ${fightId} — skipped a duplicate WCL request.`);
+    return { fightId, ...cached };
   }
 
   const detailsQuery = `
@@ -209,6 +220,7 @@ async function resolveFightAndPlayers(reportCode, fightIdParam, env) {
         report(code: $code) {
           zone { id name }
           startTime
+          masterData { actors(type: "Player") { name server } }
           playerDetails(fightIDs: $fightIDs, includeCombatantInfo: true)
         }
       }
@@ -244,51 +256,37 @@ async function resolveFightAndPlayers(reportCode, fightIdParam, env) {
 
   const zone = detailsJson?.data?.reportData?.report?.zone ?? null;
   const startTime = detailsJson?.data?.reportData?.report?.startTime ?? null;
+  const actors = detailsJson?.data?.reportData?.report?.masterData?.actors ?? [];
 
-  return { fightId, allPlayers, zone, startTime };
+  const result = { allPlayers, zone, startTime, actors };
+  // 10-minute TTL — long enough to cover Load Report -> pick a
+  // character, short enough that stale data doesn't linger.
+  await cachePut(ctx, cacheKey, result, 600);
+
+  return { fightId, ...result };
 }
 
 /** Best-effort Warcraft Logs performance metrics (Best/Median
  *  Performance Average) for the matched player, scoped to the raid
  *  zone this report belongs to.
  *
- *  Deliberately a fully separate GraphQL request from the core
- *  gear/roster query — an earlier version embedded this in the same
- *  query, and a schema mistake here (masterData.actors.server is a
- *  plain string, not an object) took down gear fetching along with
- *  it. Never again: this lives entirely on its own, wrapped in
- *  try/catch, so any failure here only means the metrics show
- *  "Unavailable" (requirement 3.3) — gear is never affected.
+ *  Only one WCL request now — the actor roster (needed for the
+ *  player's realm) rides along with the main playerDetails query in
+ *  resolveFightAndPlayers instead of its own separate round-trip,
+ *  now that the schema mistake that originally broke that (treating
+ *  masterData.actors.server as an object instead of a plain string)
+ *  is fixed. Still wrapped in try/catch — any failure here only
+ *  means the metrics show "Unavailable" (requirement 3.3), gear is
+ *  never affected.
  *
  *  Region isn't available from the report data, so it's hardcoded to
  *  "us" — reasonable for this app's scope (Dreamscythe/Nightslayer
- *  are both US realms). The realm slug is derived from the actor's
- *  plain server name string. Still unverified end-to-end; check the
+ *  are both US realms). Still unverified end-to-end; check the
  *  diagnostic log below after a real test. */
-async function fetchPerformanceMetrics(playerName, zone, reportCode, env) {
+async function fetchPerformanceMetrics(playerName, zone, actors, env, ctx) {
   try {
     if (!zone?.id) return { bestPerfAvg: null, medPerfAvg: null };
 
-    const token = await getWclToken(env);
-    const headers = { Authorization: `Bearer ${token}`, "Content-Type": "application/json" };
-
-    const actorsQuery = `
-      query ReportActors($code: String!) {
-        reportData { report(code: $code) { masterData { actors(type: "Player") { name server } } } }
-      }
-    `;
-    const actorsRes = await fetch(WCL_GRAPHQL_URL, {
-      method: "POST",
-      headers,
-      body: JSON.stringify({ query: actorsQuery, variables: { code: reportCode } }),
-    });
-    const actorsJson = await actorsRes.json();
-    if (actorsJson.errors) {
-      console.error("Perf metrics: actors query errors:", JSON.stringify(actorsJson.errors));
-      return { bestPerfAvg: null, medPerfAvg: null };
-    }
-
-    const actors = actorsJson?.data?.reportData?.report?.masterData?.actors ?? [];
     const actor = actors.find((a) => (a.name || "").toLowerCase() === playerName.toLowerCase());
     if (!actor?.server) {
       console.error(`Perf metrics: no server found for ${playerName} in report actors.`);
@@ -296,6 +294,7 @@ async function fetchPerformanceMetrics(playerName, zone, reportCode, env) {
     }
     const serverSlug = actor.server.toLowerCase().replace(/[\s']+/g, "-");
 
+    const token = await getWclToken(env, ctx);
     const perfQuery = `
       query PerfMetrics($name: String!, $serverSlug: String!, $zoneID: Int!) {
         characterData {
@@ -307,7 +306,7 @@ async function fetchPerformanceMetrics(playerName, zone, reportCode, env) {
     `;
     const perfRes = await fetch(WCL_GRAPHQL_URL, {
       method: "POST",
-      headers,
+      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
       body: JSON.stringify({ query: perfQuery, variables: { name: playerName, serverSlug, zoneID: zone.id } }),
     });
     const perfJson = await perfRes.json();
@@ -374,14 +373,14 @@ function mapCombatantGearToSlots(gearArray) {
    ================================================================
    Enriches raw item IDs with Blizzard's name/icon/quality data.
    ================================================================ */
-async function handleItems(request, env) {
+async function handleItems(request, env, ctx) {
   const body = await request.json();
   const itemIds = Array.isArray(body.itemIds) ? body.itemIds : [];
   const region = (body.region || "us").toLowerCase();
 
   if (itemIds.length === 0) return jsonOk({ items: {} });
 
-  const token = await getBlizzardToken(env);
+  const token = await getBlizzardToken(env, ctx);
   const host = BLIZZARD_API_HOST[region] || BLIZZARD_API_HOST.us;
   const headers = { Authorization: `Bearer ${token}` };
 
@@ -468,13 +467,46 @@ async function fetchItemFromNamespace(host, namespace, headers, id, budget) {
 /* ================================================================
    OAUTH — client credentials flow, both APIs
    ================================================================
-   Tokens are cached in memory for the life of the Worker isolate.
+   Tokens are cached two ways: an in-memory variable for the (best
+   case) warm isolate, and Cloudflare's Cache API as a fallback —
+   Workers isolates are frequently cold-started between separate
+   incoming requests, so the in-memory cache alone was silently
+   missing most of the time, meaning a fresh OAuth token got fetched
+   on nearly every single API call instead of being reused for its
+   real ~1hr lifetime. The Cache API persists across cold starts
+   (edge-local, so not a 100% guarantee across every Cloudflare PoP,
+   but a large improvement in practice).
    ================================================================ */
-let wclTokenCache = null; // { token, expiresAt }
+const CACHE = caches.default;
+const CACHE_ORIGIN = "https://wcgear-cache.internal";
+
+async function cacheGet(path) {
+  try {
+    const match = await CACHE.match(new Request(`${CACHE_ORIGIN}${path}`));
+    if (!match) return null;
+    return await match.json();
+  } catch {
+    return null;
+  }
+}
+async function cachePut(ctx, path, value, ttlSeconds) {
+  const res = new Response(JSON.stringify(value), {
+    headers: { "Content-Type": "application/json", "Cache-Control": `max-age=${ttlSeconds}` },
+  });
+  ctx.waitUntil(CACHE.put(new Request(`${CACHE_ORIGIN}${path}`), res));
+}
+
+let wclTokenCache = null; // { token, expiresAt } — in-memory, warm-isolate fast path
 let blizzardTokenCache = null;
 
-async function getWclToken(env) {
+async function getWclToken(env, ctx) {
   if (wclTokenCache && wclTokenCache.expiresAt > Date.now()) return wclTokenCache.token;
+
+  const cached = await cacheGet("/wcl-token");
+  if (cached && cached.expiresAt > Date.now()) {
+    wclTokenCache = cached;
+    return cached.token;
+  }
 
   const res = await fetch(WCL_TOKEN_URL, {
     method: "POST",
@@ -491,12 +523,20 @@ async function getWclToken(env) {
   }
 
   const data = await res.json();
-  wclTokenCache = { token: data.access_token, expiresAt: Date.now() + (data.expires_in - 60) * 1000 };
+  const ttlSeconds = Math.max(60, data.expires_in - 60);
+  wclTokenCache = { token: data.access_token, expiresAt: Date.now() + ttlSeconds * 1000 };
+  await cachePut(ctx, "/wcl-token", wclTokenCache, ttlSeconds);
   return wclTokenCache.token;
 }
 
-async function getBlizzardToken(env) {
+async function getBlizzardToken(env, ctx) {
   if (blizzardTokenCache && blizzardTokenCache.expiresAt > Date.now()) return blizzardTokenCache.token;
+
+  const cached = await cacheGet("/blizzard-token");
+  if (cached && cached.expiresAt > Date.now()) {
+    blizzardTokenCache = cached;
+    return cached.token;
+  }
 
   const res = await fetch(BLIZZARD_TOKEN_URL, {
     method: "POST",
@@ -513,7 +553,9 @@ async function getBlizzardToken(env) {
   }
 
   const data = await res.json();
-  blizzardTokenCache = { token: data.access_token, expiresAt: Date.now() + (data.expires_in - 60) * 1000 };
+  const ttlSeconds = Math.max(60, data.expires_in - 60);
+  blizzardTokenCache = { token: data.access_token, expiresAt: Date.now() + ttlSeconds * 1000 };
+  await cachePut(ctx, "/blizzard-token", blizzardTokenCache, ttlSeconds);
   return blizzardTokenCache.token;
 }
 
