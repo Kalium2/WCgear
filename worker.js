@@ -101,6 +101,11 @@ async function handleCharacter(url, env) {
 
   if (!player) return jsonError("Character not found in that report. Check the character name and report URL.", 404);
 
+  // TEMPORARY DIAGNOSTIC — checking the real shape of gems/enchants
+  // before building the item-popup feature on top of a guess. Remove
+  // once confirmed.
+  console.log("RAW COMBATANT GEAR:", JSON.stringify(player.combatantInfo?.gear));
+
   const gear = mapCombatantGearToSlots(player.combatantInfo?.gear);
 
   if (!gear || Object.keys(gear).length === 0) {
