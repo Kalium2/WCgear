@@ -139,8 +139,8 @@ async function init() {
 
   els.reportForm.addEventListener("submit", onLoadReport);
   els.charSelectForm.addEventListener("submit", onFetchCharacter);
-  els.changeReportBtn.addEventListener("click", resetToFetch);
-  els.refetchBtn.addEventListener("click", resetToFetch);
+  els.changeReportBtn.addEventListener("click", onClearReportClick);
+  els.refetchBtn.addEventListener("click", onClearReportClick);
   els.compareForm.addEventListener("submit", onCheckGear);
 }
 
@@ -217,12 +217,36 @@ async function onFetchCharacter(evt) {
     els.comparePanel.hidden = false;
     els.loadedEmptyState.hidden = false;
     els.resultsPanel.hidden = true;
+
+    // Auto-select the phase WCL's raid zone tells us this log belongs
+    // to (requirement 4) — falling back to whatever's already selected
+    // if we couldn't confidently map the zone. populateSpecOptions
+    // (called inside renderCharacter) has already defaulted the spec
+    // dropdown to the one with real data, so both pieces are in place
+    // before we auto-run the comparison (requirement 3/8). The
+    // dropdowns stay fully editable afterward for manual research
+    // (requirement 5) — this only sets the *initial* view.
+    const phaseOptionExists = [...els.phaseSelect.options].some((o) => o.value === character.autoPhase);
+    if (character.autoPhase && phaseOptionExists) {
+      els.phaseSelect.value = character.autoPhase;
+    }
+    await runAndRenderComparison({ scroll: false });
+
     els.comparePanel.scrollIntoView({ behavior: "smooth", block: "start" });
   } catch (err) {
     showError(err.message || "We couldn't retrieve this character. Please try again.");
   } finally {
     setFetchLoading(false);
   }
+}
+
+/** Clearing the loaded report/character wipes everything currently on
+ *  screen — confirm before doing it, since there's no undo. */
+function onClearReportClick() {
+  const confirmed = window.confirm(
+    "Clear the loaded report and character data? This will reset the page back to the start — you'll need to load the report again."
+  );
+  if (confirmed) resetToFetch();
 }
 
 function resetToFetch() {
@@ -333,6 +357,7 @@ async function fetchCharacterFromWorker(name, resolved) {
       realmSpec: data.spec || "Unknown",
       reportCode: resolved.reportCode,
       zoneName: data.zoneName || null,
+      autoPhase: data.autoPhase || null,
       raidDate: data.raidDate || null,
       bestPerfAvg: data.bestPerfAvg ?? null, // null -> "Unavailable" (requirement 3.3)
       medPerfAvg: data.medPerfAvg ?? null,
@@ -357,6 +382,7 @@ async function fetchCharacterDemo(name, resolved) {
       realmSpec: "Arms",
       reportCode: resolved.reportCode,
       zoneName: "Black Temple",
+      autoPhase: "phase3",
       raidDate: "Aug 15, 2026",
       bestPerfAvg: 87.3, // demo-only sample values so the UI can be previewed pre-Worker
       medPerfAvg: 61.5,
@@ -466,6 +492,14 @@ function hasBisData(specValue) {
    ================================================================ */
 async function onCheckGear(evt) {
   evt.preventDefault();
+  await runAndRenderComparison({ scroll: true });
+}
+
+/** Runs the comparison for whatever phase/spec is currently selected
+ *  and renders it. Shared by the manual "Check Gear" submit and the
+ *  automatic run that fires right after a character is fetched, so
+ *  there's exactly one place this logic lives (requirement 3/4/8). */
+async function runAndRenderComparison({ scroll } = {}) {
   if (els.specSelect.disabled) return; // unsupported class — nothing valid to compare
   const phase = els.phaseSelect.value;
   const specValue = els.specSelect.value;
@@ -486,7 +520,7 @@ async function onCheckGear(evt) {
   renderResults(results, phase, specMeta, enrichment);
   els.loadedEmptyState.hidden = true;
   els.resultsPanel.hidden = false;
-  els.resultsPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+  if (scroll) els.resultsPanel.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
 /** Every equipped/recommended item ID referenced across the results, deduped. */
@@ -604,6 +638,15 @@ function findSource(itemId, bisRanked) {
  *  ranked BiS list for that slot (rank 1 = best). Carries the full
  *  ranked list through as `alternatives` so the UI can expose every
  *  ranked option, not just the top pick (requirement 5.2/5.5). */
+/** Single-slot items (armor, weapons, ranged): 1st, 2nd, and 3rd BiS
+ *  are all considered "within the rankings" — no upgrade is suggested
+ *  for any of them, just an ordinal label on 2nd/3rd. Only rank 4+ (or
+ *  an item that isn't on the list at all) triggers an upgrade
+ *  recommendation, always pointing at rank 1 specifically (there's
+ *  only one position here, so no "next available" logic needed the
+ *  way multi-slot requires). */
+const SINGLE_SLOT_SATISFIED_THRESHOLD = 3;
+
 function compareSingleSlot(label, equippedIds, bisRanked) {
   const equippedId = equippedIds?.[0] ?? null;
 
@@ -618,21 +661,24 @@ function compareSingleSlot(label, equippedIds, bisRanked) {
     };
   }
 
-  const best = bisRanked[0];
+  const ranked = [...bisRanked].sort((a, b) => a.rank - b.rank);
+  const best = ranked[0];
+  const equippedRank = equippedId != null ? ranked.find((b) => b.itemId === equippedId)?.rank : undefined;
 
-  if (equippedId != null && bisRanked.some((b) => b.itemId === equippedId)) {
+  if (equippedRank != null && equippedRank <= SINGLE_SLOT_SATISFIED_THRESHOLD) {
     return {
       label, state: "bis", equippedId, recommendedId: equippedId,
-      equippedSource: findSource(equippedId, bisRanked),
-      recommendedSource: findSource(equippedId, bisRanked),
-      alternatives: bisRanked,
+      equippedSource: findSource(equippedId, ranked),
+      recommendedSource: findSource(equippedId, ranked),
+      equippedRankNote: equippedRank >= 2 ? `${ordinal(equippedRank)} BiS` : null,
+      alternatives: ranked,
     };
   }
   return {
     label, state: "upgrade", equippedId, recommendedId: best.itemId,
-    equippedSource: findSource(equippedId, bisRanked),
-    recommendedSource: findSource(best.itemId, bisRanked),
-    alternatives: bisRanked,
+    equippedSource: findSource(equippedId, ranked),
+    recommendedSource: findSource(best.itemId, ranked),
+    alternatives: ranked,
   };
 }
 
@@ -658,29 +704,43 @@ function compareSingleSlot(label, equippedIds, bisRanked) {
  * "3rd BiS", etc.) under the equipped chip so the player can see it's
  * not worthless, just not optimal.
  */
+/** Multi-slot items (trinket, finger): rank 1 or 2 both count as
+ *  "satisfied" — no upgrade suggested, since these categories have
+ *  two physical positions and getting the 2nd-best pick is a
+ *  reasonable outcome when only one rank-1 item exists to go around.
+ *  Rank 3+ (or off-list) triggers the upgrade path. */
+const MULTI_SLOT_SATISFIED_THRESHOLD = 2;
+
 function resolveMultiSlot(equippedIds, bisRanked, slotCount) {
   const ranked = [...bisRanked].sort((a, b) => a.rank - b.rank);
   const rankOf = new Map(ranked.map((b) => [b.itemId, b.rank]));
   const ownedSet = new Set(equippedIds);
 
-  // Only rank-1 equipped items are a full BiS match — each seats its
-  // own position and can never be displaced by a duplicate recommendation
-  // (section 19's duplicate-prevention requirement).
-  const equippedRank1 = equippedIds.filter((id) => rankOf.get(id) === 1);
+  const isSatisfied = (id) => rankOf.has(id) && rankOf.get(id) <= MULTI_SLOT_SATISFIED_THRESHOLD;
 
-  // Everything else needing a recommendation: equipped items that aren't
-  // rank 1 — whether they're rank 2+ BiS-listed (gets an ordinal note)
-  // or not on the list at all (no note, just a plain upgrade).
-  const equippedNeedingUpgrade = [...equippedIds.filter((id) => rankOf.get(id) !== 1)];
+  // Rank 1/2 equipped items are each a full BiS match — every one seats
+  // its own position and can never be displaced by a duplicate
+  // recommendation (section 19's duplicate-prevention requirement).
+  const equippedSatisfied = equippedIds
+    .filter(isSatisfied)
+    .sort((a, b) => rankOf.get(a) - rankOf.get(b));
+
+  // Everything else needing a recommendation: equipped items ranked 3+
+  // (gets an ordinal note) or not on the list at all (no note).
+  const equippedNeedingUpgrade = [...equippedIds.filter((id) => !isSatisfied(id))];
 
   // Candidates for remaining positions: ranked BiS items not already owned.
   const availableCandidates = ranked.filter((b) => !ownedSet.has(b.itemId));
 
-  const positions = equippedRank1.map((id) => ({
-    state: "bis", equippedId: id, recommendedId: id,
-    equippedSource: findSource(id, ranked), recommendedSource: findSource(id, ranked),
-    alternatives: ranked,
-  }));
+  const positions = equippedSatisfied.map((id) => {
+    const rank = rankOf.get(id);
+    return {
+      state: "bis", equippedId: id, recommendedId: id,
+      equippedSource: findSource(id, ranked), recommendedSource: findSource(id, ranked),
+      equippedRankNote: rank >= 2 ? `${ordinal(rank)} BiS` : null,
+      alternatives: ranked,
+    };
+  });
 
   const remainingSlots = slotCount - positions.length;
   let candidateIndex = 0;
