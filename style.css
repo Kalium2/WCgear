@@ -442,6 +442,74 @@ select{ appearance:none; cursor:pointer;
   gap:9px;
   flex:1;
   min-width:0;
+  position:relative;
+}
+.item-chip.has-tooltip{ cursor:help; }
+.item-chip.has-tooltip:hover .item-tooltip,
+.item-chip.has-tooltip:focus-within .item-tooltip{
+  opacity:1;
+  visibility:visible;
+  transform:translateY(0);
+}
+
+/* ---------- item hover tooltip (gems/enchants) ---------- */
+
+.item-tooltip{
+  position:absolute;
+  bottom:calc(100% + 8px);
+  left:0;
+  z-index:20;
+  min-width:200px;
+  max-width:260px;
+  background:var(--bg-void);
+  border:1px solid var(--border-fel);
+  border-radius:var(--radius);
+  box-shadow:0 8px 24px -8px rgba(0,0,0,0.85);
+  padding:10px 12px;
+  opacity:0;
+  visibility:hidden;
+  transform:translateY(4px);
+  transition:opacity 0.12s ease, transform 0.12s ease;
+  pointer-events:none;
+}
+.tooltip-item-name{
+  font-family:var(--font-display);
+  font-size:0.85rem;
+  font-weight:700;
+  margin-bottom:4px;
+}
+.tooltip-enchant{
+  font-size:0.75rem;
+  color:var(--accent-bis);
+}
+.tooltip-enchant-temp{ color:var(--accent-warn); }
+.tooltip-gems{
+  margin-top:6px;
+  padding-top:6px;
+  border-top:1px solid var(--border-hairline);
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+}
+.tooltip-gem{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  font-size:0.75rem;
+  color:var(--text-ice-dim);
+}
+.tooltip-gem-icon{
+  width:16px; height:16px;
+  border-radius:2px;
+  flex-shrink:0;
+  object-fit:cover;
+}
+.tooltip-gem-icon.placeholder{
+  display:flex; align-items:center; justify-content:center;
+  background:var(--bg-panel);
+  border:1px solid var(--border-fel-dim);
+  color:var(--text-muted);
+  font-size:0.6rem;
 }
 .item-icon{
   width:34px; height:34px;
