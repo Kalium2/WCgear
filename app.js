@@ -1002,9 +1002,11 @@ function renderItemChip(itemId, sourceLabel, enrichment, dropSource, rankNote, i
   if (itemId == null) {
     return `
       <div class="item-chip">
-        <div class="item-icon placeholder">—</div>
-        <div class="item-text">
+        <div class="item-chip-link">
+          <div class="item-icon placeholder">—</div>
           <div class="item-name">Empty</div>
+        </div>
+        <div class="item-text">
           <div class="item-source">${escapeHtml(sourceLabel)}</div>
         </div>
       </div>`;
@@ -1038,14 +1040,12 @@ function renderItemChip(itemId, sourceLabel, enrichment, dropSource, rankNote, i
   // shown briefly before the script runs, or if it's ever blocked.
   return `
     <div class="item-chip">
-      <a class="item-chip-link" href="https://www.wowhead.com/tbc/item=${itemId}" target="_blank" rel="noopener"${whAttr}>
-        <div class="item-text">
-          <div class="item-name">Item ${itemId}</div>
-          <div class="item-source">${escapeHtml(sourceLabel)}</div>
-          ${dropSourceMarkup}
-          ${rankNoteMarkup}
-        </div>
-      </a>
+      <a class="item-chip-link" href="https://www.wowhead.com/tbc/item=${itemId}" target="_blank" rel="noopener"${whAttr}>Item ${itemId}</a>
+      <div class="item-text">
+        <div class="item-source">${escapeHtml(sourceLabel)}</div>
+        ${dropSourceMarkup}
+        ${rankNoteMarkup}
+      </div>
     </div>`;
 }
 
