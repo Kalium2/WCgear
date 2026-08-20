@@ -3,23 +3,34 @@
 /* ================================================================
    CONFIGURATION
    ================================================================
-   Point this at your deployed Cloudflare Worker once it exists.
-   Until then the app runs in demo mode using sample data so the
-   full flow (fetch -> compare -> results) can be exercised.
-   Expected Worker endpoints (see cloudflare-worker/worker.js):
-     GET  {WORKER_URL}/api/character?name=&reportCode=&fightId=
-     POST {WORKER_URL}/api/items   (body: { itemIds: [...] })
+   Two separate backends, split deliberately:
+
+   WCL_API_URL — the Warcraft Logs–calling endpoints (roster,
+   character/gear). Hosted on a VPS with a real dedicated IP, since
+   Cloudflare Workers share a small, heavily-used pool of egress IPs
+   across every Workers customer, and Warcraft Logs' anti-abuse IP
+   throttle was triggering off that shared traffic — not our own
+   usage. Confirmed directly with the Warcraft Logs team.
+
+   ITEMS_API_URL — Blizzard item enrichment. Stayed on Cloudflare
+   Workers unchanged; that API never showed the shared-IP problem.
+
+   Expected endpoints:
+     GET  {WCL_API_URL}/api/roster?reportCode=&fightId=
+     GET  {WCL_API_URL}/api/character?name=&reportCode=&fightId=
+     POST {ITEMS_API_URL}/api/items   (body: { itemIds: [...] })
    ================================================================ */
-const WORKER_URL = "https://wcgear.lambertdaniel26.workers.dev";
+const WCL_API_URL = "https://bischeck.net";
+const ITEMS_API_URL = "https://wcgear.lambertdaniel26.workers.dev";
 
 /* Test Mode: add ?test=1 to the site URL to force the app onto fully
    static fixture data — no WCL or Blizzard requests at all, even
-   though WORKER_URL above is set. Built so UI/ranking-logic changes
+   though the URLs above are set. Built so UI/ranking-logic changes
    can be checked without burning WCL requests or waiting out rate
    limits. Never affects real users, since it only activates on an
    explicit URL flag nobody would stumble into by accident. */
 const IS_TEST_MODE = new URLSearchParams(location.search).get("test") === "1";
-const USE_LIVE_WORKER = Boolean(WORKER_URL) && !IS_TEST_MODE;
+const USE_LIVE_WORKER = Boolean(WCL_API_URL) && !IS_TEST_MODE;
 
 /* Class -> allowed specs. Config-driven per section 44 of the spec,
    so post-MVP class-aware filtering only needs this table extended. */
@@ -149,7 +160,7 @@ async function init() {
   if (!USE_LIVE_WORKER) {
     els.demoNote.innerHTML = IS_TEST_MODE
       ? "<strong>Test mode.</strong> Using static fixture data (deliberately spans every ranking scenario — 1st/2nd/3rd BiS, upgrades, empty weapon slots) so UI changes can be checked without hitting Warcraft Logs or Blizzard at all."
-      : "<strong>Demo mode.</strong> No live Worker endpoint is configured yet, so this is showing sample gear so you can try the flow. Point <code>WORKER_URL</code> in <code>app.js</code> at your deployed Cloudflare Worker to go live.";
+      : "<strong>Demo mode.</strong> No live Worker endpoint is configured yet, so this is showing sample gear so you can try the flow. Point the backend URLs in <code>app.js</code> at your deployed servers to go live.";
     els.demoNote.hidden = false;
   }
 
@@ -335,7 +346,7 @@ function parseReportUrl(raw) {
 async function fetchRosterFromWorker(parsed) {
   const params = new URLSearchParams({ reportCode: parsed.reportCode });
   if (parsed.fightId) params.set("fightId", parsed.fightId);
-  const url = `${WORKER_URL}/api/roster?${params.toString()}`;
+  const url = `${WCL_API_URL}/api/roster?${params.toString()}`;
   const res = await fetch(url, { cache: "no-store" });
 
   if (res.status === 404) {
@@ -369,7 +380,7 @@ async function fetchRosterDemo(parsed) {
  *  never exposes client credentials to this frontend (spec section 10). */
 async function fetchCharacterFromWorker(name, resolved) {
   const params = new URLSearchParams({ name, reportCode: resolved.reportCode, fightId: resolved.fightId });
-  const url = `${WORKER_URL}/api/character?${params.toString()}`;
+  const url = `${WCL_API_URL}/api/character?${params.toString()}`;
   const res = await fetch(url, { cache: "no-store" });
 
   if (res.status === 404) {
@@ -639,7 +650,7 @@ async function fetchItemEnrichment(itemIds) {
   await Promise.all(
     batches.map(async (batch) => {
       try {
-        const res = await fetch(`${WORKER_URL}/api/items`, {
+        const res = await fetch(`${ITEMS_API_URL}/api/items`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ itemIds: batch, region: "us" }), // item static data barely varies by region
