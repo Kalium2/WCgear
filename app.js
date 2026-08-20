@@ -998,11 +998,6 @@ function renderItemChip(itemId, sourceLabel, enrichment, dropSource, rankNote, i
       </div>`;
   }
 
-  const info = enrichment?.[itemId];
-  const iconMarkup = info?.icon
-    ? `<img class="item-icon" src="${escapeHtml(info.icon)}" alt="" loading="lazy">`
-    : `<div class="item-icon placeholder">#</div>`;
-  const nameText = info?.name ? escapeHtml(info.name) : `Item ${itemId}`;
   const dropSourceMarkup = dropSource ? `<div class="item-drop-source">${escapeHtml(dropSource)}</div>` : "";
   const rankNoteMarkup = rankNote ? `<div class="item-rank-note">${escapeHtml(rankNote)}</div>` : "";
 
@@ -1024,12 +1019,16 @@ function renderItemChip(itemId, sourceLabel, enrichment, dropSource, rankNote, i
   if (details?.permanentEnchant) whParams.push(`ench=${details.permanentEnchant}`);
   const whAttr = whParams.length ? ` data-wowhead="${whParams.join("&")}"` : "";
 
+  // Icon and name text are no longer built from Blizzard enrichment —
+  // iconizeLinks/renameLinks (set in index.html) tell Wowhead's own
+  // script to supply both directly on this link, the same way it
+  // already supplies the tooltip. The text below is only a fallback
+  // shown briefly before the script runs, or if it's ever blocked.
   return `
     <div class="item-chip">
       <a class="item-chip-link" href="https://www.wowhead.com/tbc/item=${itemId}" target="_blank" rel="noopener"${whAttr}>
-        ${iconMarkup}
         <div class="item-text">
-          <div class="item-name">${nameText}</div>
+          <div class="item-name">Item ${itemId}</div>
           <div class="item-source">${escapeHtml(sourceLabel)}</div>
           ${dropSourceMarkup}
           ${rankNoteMarkup}
