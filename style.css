@@ -1,0 +1,619 @@
+/* ============================================================
+   WoW Gear Check — visual language
+   Palette drawn from The Burning Crusade: the Dark Portal's fel
+   green skies and swirling orange portal-fire, set against
+   Outland's near-black void. Result colors echo the standard
+   BiS/Upgrade/Unknown language.
+   ============================================================ */
+
+:root{
+  --bg-void: #090c07;
+  --bg-void-2: #0c1009;
+  --bg-panel: #10150c;
+  --bg-panel-raised: #161d10;
+  --bg-inset: #0b0f08;
+
+  --border-fel: #9dfc3f;
+  --border-fel-dim: #3a5620;
+  --border-hairline: #1c2414;
+
+  --text-ice: #eafbe0;
+  --text-ice-dim: #b7d99e;
+  --text-muted: #6c8259;
+
+  --accent-bis: #6ee85a;
+  --accent-bis-glow: rgba(110,232,90,0.35);
+  --accent-upgrade: #ff6a3d;
+  --accent-upgrade-glow: rgba(255,106,61,0.35);
+  --accent-unknown: #b48cff;
+  --accent-unknown-glow: rgba(180,140,255,0.32);
+  --accent-warn: #ffb347;
+  --accent-warn-glow: rgba(255,179,71,0.28);
+
+  --class-warrior: #f0c674;
+  --class-warlock: #b48cff;
+  --class-hunter: #7ee081;
+
+  --font-display: 'Cinzel', serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  --radius: 4px;
+  --shadow-panel: 0 1px 0 rgba(157,252,63,0.06) inset, 0 12px 34px -14px rgba(0,0,0,0.8);
+}
+
+*{ box-sizing:border-box; }
+
+html{ background:var(--bg-void); }
+
+body{
+  margin:0;
+  background:
+    radial-gradient(1200px 600px at 50% -10%, #1a2a0c 0%, transparent 60%),
+    var(--bg-void);
+  color:var(--text-ice);
+  font-family:var(--font-body);
+  line-height:1.5;
+  min-height:100vh;
+}
+
+.rune-noise{
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  z-index:0;
+  opacity:0.04;
+  background-image:
+    repeating-linear-gradient(0deg, #fff 0 1px, transparent 1px 3px);
+  mix-blend-mode:overlay;
+}
+
+@media (prefers-reduced-motion: no-preference){
+  .btn-spinner{ animation: spin 0.8s linear infinite; }
+  .result-icon-flow .flow-arrow{ animation: pulse 1.8s ease-in-out infinite; }
+}
+@keyframes spin{ to{ transform:rotate(360deg); } }
+@keyframes pulse{ 0%,100%{ opacity:0.55; } 50%{ opacity:1; } }
+
+/* ---------- header ---------- */
+
+.site-header{
+  border-bottom:1px solid var(--border-hairline);
+  background:linear-gradient(180deg, var(--bg-void-2), var(--bg-void));
+  position:relative;
+  z-index:1;
+}
+.header-inner{
+  max-width:920px;
+  margin:0 auto;
+  padding:18px 24px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+}
+.brand{ display:flex; align-items:center; gap:12px; }
+.brand-mark{ color:var(--border-fel); flex-shrink:0; filter:drop-shadow(0 0 6px rgba(157,252,63,0.6)); }
+.brand-text{ display:flex; flex-direction:column; line-height:1.2; }
+.brand-title{
+  font-family:var(--font-display);
+  font-weight:700;
+  font-size:1.05rem;
+  letter-spacing:0.04em;
+  color:var(--text-ice);
+}
+.brand-sub{
+  font-size:0.72rem;
+  color:var(--text-muted);
+  letter-spacing:0.06em;
+  text-transform:uppercase;
+}
+.header-phase-tag{
+  font-family:var(--font-mono);
+  font-size:0.7rem;
+  color:var(--text-ice-dim);
+  border:1px solid var(--border-fel-dim);
+  padding:5px 10px;
+  border-radius:2px;
+  letter-spacing:0.03em;
+  white-space:nowrap;
+}
+
+/* ---------- layout ---------- */
+
+.page{
+  max-width:760px;
+  margin:0 auto;
+  padding:36px 20px 80px;
+  position:relative;
+  z-index:1;
+  display:flex;
+  flex-direction:column;
+  gap:22px;
+}
+
+/* ---------- panel (tooltip-style card) ---------- */
+
+.panel{
+  background:linear-gradient(180deg, var(--bg-panel-raised), var(--bg-panel));
+  border:1px solid var(--border-fel-dim);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow-panel);
+  padding:26px 28px 28px;
+  position:relative;
+}
+.panel::before{
+  content:"";
+  position:absolute;
+  top:0; left:14px; right:14px;
+  height:1px;
+  background:linear-gradient(90deg, transparent, var(--border-fel), transparent);
+  opacity:0.6;
+}
+
+.step-label{
+  display:flex;
+  align-items:center;
+  gap:9px;
+  font-family:var(--font-display);
+  font-size:0.72rem;
+  letter-spacing:0.14em;
+  text-transform:uppercase;
+  color:var(--border-fel);
+  margin-bottom:14px;
+}
+.step-num{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:20px; height:20px;
+  border:1px solid var(--border-fel-dim);
+  border-radius:50%;
+  font-size:0.68rem;
+}
+
+.panel-title{
+  font-family:var(--font-display);
+  font-weight:600;
+  font-size:1.4rem;
+  margin:0 0 6px;
+  color:var(--text-ice);
+}
+.panel-hint{
+  margin:0 0 22px;
+  color:var(--text-ice-dim);
+  font-size:0.9rem;
+}
+
+/* ---------- forms ---------- */
+
+.fetch-form, .compare-form{
+  display:grid;
+  grid-template-columns:1fr 1fr auto auto;
+  gap:14px;
+  align-items:end;
+}
+.compare-form{ grid-template-columns:1fr 1fr auto; }
+
+.field{ display:flex; flex-direction:column; gap:6px; min-width:0; }
+.field-region{ grid-column:auto; }
+
+/* Single-field forms (report URL, character picker) get the field the
+   full available width instead of splitting it with unused grid tracks
+   left over from the old multi-field layout — this was silently
+   truncating long report URLs and character names. */
+#reportForm, #charSelectForm{ grid-template-columns:1fr auto; }
+
+label{
+  font-size:0.72rem;
+  letter-spacing:0.05em;
+  text-transform:uppercase;
+  color:var(--text-muted);
+}
+
+input[type="text"], select{
+  background:var(--bg-inset);
+  border:1px solid var(--border-fel-dim);
+  color:var(--text-ice);
+  font-family:var(--font-body);
+  font-size:0.94rem;
+  padding:10px 12px;
+  border-radius:2px;
+  outline:none;
+  transition:border-color 0.15s ease;
+  width:100%;
+}
+input[type="text"]::placeholder{ color:var(--text-muted); }
+input[type="text"]:focus, select:focus{
+  border-color:var(--border-fel);
+  box-shadow:0 0 0 3px rgba(157,252,63,0.22);
+}
+select{ appearance:none; cursor:pointer;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%239dfc3f'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;
+  background-position:right 12px center;
+  padding-right:30px;
+}
+
+.btn{
+  font-family:var(--font-body);
+  font-weight:600;
+  font-size:0.88rem;
+  letter-spacing:0.02em;
+  border-radius:2px;
+  padding:10px 20px;
+  cursor:pointer;
+  border:1px solid transparent;
+  transition:transform 0.1s ease, filter 0.15s ease, background 0.15s ease;
+  white-space:nowrap;
+}
+.btn:active{ transform:translateY(1px); }
+.btn:focus-visible{ outline:2px solid var(--border-fel); outline-offset:2px; }
+
+.btn-primary{
+  background:linear-gradient(180deg, #ff9a4d, #e2571c);
+  color:#1a0d02;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  justify-content:center;
+}
+.btn-primary:hover{ filter:brightness(1.08); }
+.btn-primary:disabled{ opacity:0.55; cursor:not-allowed; filter:none; }
+
+.btn-ghost{
+  background:transparent;
+  border:1px solid var(--border-fel-dim);
+  color:var(--text-ice-dim);
+}
+.btn-ghost:hover{ border-color:var(--border-fel); color:var(--text-ice); }
+
+.btn-spinner{
+  width:13px; height:13px;
+  border:2px solid rgba(26,13,2,0.35);
+  border-top-color:#1a0d02;
+  border-radius:50%;
+  display:inline-block;
+}
+
+.form-error{
+  margin:14px 0 0;
+  color:var(--accent-upgrade);
+  font-size:0.86rem;
+  background:var(--accent-upgrade-glow);
+  border:1px solid rgba(255,92,77,0.4);
+  padding:10px 12px;
+  border-radius:2px;
+}
+
+.demo-note{
+  margin:16px 0 0;
+  font-size:0.82rem;
+  color:var(--text-ice-dim);
+  background:rgba(157,252,63,0.10);
+  border:1px solid var(--border-fel-dim);
+  padding:12px 14px;
+  border-radius:2px;
+}
+.demo-note code{
+  font-family:var(--font-mono);
+  background:rgba(0,0,0,0.3);
+  padding:1px 5px;
+  border-radius:2px;
+  font-size:0.82em;
+}
+
+/* ---------- character panel ---------- */
+
+.char-panel-inner{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:20px;
+  flex-wrap:wrap;
+}
+.char-name-row{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+.char-name{
+  font-family:var(--font-display);
+  font-size:1.5rem;
+  margin:0;
+  color:var(--text-ice);
+}
+.char-class-pill{
+  font-size:0.72rem;
+  letter-spacing:0.04em;
+  text-transform:uppercase;
+  padding:3px 9px;
+  border-radius:20px;
+  border:1px solid currentColor;
+  background:color-mix(in srgb, currentColor 16%, transparent);
+  font-weight:600;
+}
+.char-meta{
+  display:grid;
+  grid-template-columns:repeat(auto-fit, minmax(110px, 1fr));
+  gap:14px 26px;
+  margin:16px 0 0;
+}
+.char-meta dt{
+  font-size:0.68rem;
+  letter-spacing:0.06em;
+  text-transform:uppercase;
+  color:var(--text-muted);
+  margin-bottom:3px;
+}
+.char-meta dd{
+  margin:0;
+  font-size:0.92rem;
+  color:var(--text-ice);
+}
+
+/* ---------- spec warning ---------- */
+
+.spec-warning{
+  margin:16px 0 0;
+  font-size:0.85rem;
+  color:var(--accent-warn);
+  background:var(--accent-warn-glow);
+  border:1px solid rgba(255,154,61,0.35);
+  padding:10px 12px;
+  border-radius:2px;
+}
+
+/* ---------- results ---------- */
+
+.results-header{
+  display:flex;
+  align-items:baseline;
+  justify-content:space-between;
+  gap:14px;
+  flex-wrap:wrap;
+  margin-bottom:18px;
+}
+.results-summary{
+  font-family:var(--font-mono);
+  font-size:0.8rem;
+  color:var(--text-ice-dim);
+  display:flex;
+  gap:14px;
+}
+.results-summary .tally-bis{ color:var(--accent-bis); }
+.results-summary .tally-upgrade{ color:var(--accent-upgrade); }
+.results-summary .tally-unknown{ color:var(--accent-unknown); }
+
+.results-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+  margin-bottom:6px;
+}
+@media (max-width:600px){
+  .results-grid{ grid-template-columns:1fr; }
+}
+
+.slot-card{
+  background:var(--bg-inset);
+  border:1px solid var(--border-hairline);
+  border-top:2px solid var(--state-color, var(--border-fel-dim));
+  border-radius:2px;
+  padding:13px 14px;
+}
+.slot-card.state-bis{ --state-color: var(--accent-bis); }
+.slot-card.state-upgrade{ --state-color: var(--accent-upgrade); }
+.slot-card.state-unknown{ --state-color: var(--accent-unknown); }
+
+.slot-card-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:9px;
+}
+.slot-name{
+  font-size:0.72rem;
+  letter-spacing:0.06em;
+  text-transform:uppercase;
+  color:var(--text-muted);
+}
+.slot-state-badge{
+  font-size:0.7rem;
+  font-weight:700;
+  letter-spacing:0.03em;
+  color:var(--state-color);
+  display:flex;
+  align-items:center;
+  gap:5px;
+}
+.slot-state-badge .dot{
+  width:7px; height:7px;
+  border-radius:50%;
+  background:var(--state-color);
+  box-shadow:0 0 6px var(--state-color);
+  display:inline-block;
+}
+
+.result-icon-flow{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.item-chip{
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+  flex:1;
+  min-width:0;
+}
+/* The chip's icon+name live inside an <a> to Wowhead — a Wowhead item
+   link, so their tooltip script (loaded in index.html) auto-attaches
+   the full authentic WoW tooltip on hover, and auto-fills the real
+   icon/name into this link (iconizeLinks/renameLinks in index.html).
+   Everything else (source, drop location, rank note) sits in a
+   sibling block below, deliberately OUTSIDE the link — Wowhead's
+   rename/iconize pass rewrites the link's own contents, so anything
+   nested inside it would get wiped out along with the placeholder text. */
+.item-chip-link{
+  display:flex;
+  align-items:center;
+  gap:9px;
+  text-decoration:none;
+  color:inherit;
+  font-size:0.86rem;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.item-icon{
+  width:34px; height:34px;
+  border-radius:3px;
+  border:1px solid var(--border-fel-dim);
+  background:var(--bg-panel);
+  flex-shrink:0;
+  object-fit:cover;
+}
+.item-icon.placeholder{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:var(--text-muted);
+  font-size:0.65rem;
+}
+.item-text{ min-width:0; }
+.item-name{
+  font-size:0.86rem;
+  color:var(--text-ice);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.item-source{
+  font-size:0.72rem;
+  color:var(--text-muted);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.item-drop-source{
+  font-size:0.68rem;
+  color:var(--text-muted);
+  font-style:italic;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  opacity:0.8;
+}
+.item-rank-note{
+  display:inline-block;
+  margin-top:3px;
+  font-size:0.66rem;
+  font-weight:700;
+  letter-spacing:0.03em;
+  text-transform:uppercase;
+  color:var(--accent-warn);
+  background:var(--accent-warn-glow);
+  border:1px solid rgba(255,154,61,0.35);
+  padding:1px 6px;
+  border-radius:10px;
+}
+.flow-arrow{
+  color:var(--state-color);
+  font-size:1.1rem;
+  flex-shrink:0;
+}
+
+/* ---------- ranked BiS alternatives ---------- */
+
+.slot-alternatives{
+  margin-top:10px;
+  padding-top:10px;
+  border-top:1px solid var(--border-hairline);
+}
+.slot-alternatives summary{
+  font-size:0.7rem;
+  letter-spacing:0.04em;
+  text-transform:uppercase;
+  color:var(--text-muted);
+  cursor:pointer;
+  user-select:none;
+}
+.slot-alternatives summary:hover{ color:var(--text-ice-dim); }
+.alt-list{ margin-top:8px; display:flex; flex-direction:column; gap:6px; }
+.alt-row{
+  display:flex;
+  align-items:baseline;
+  gap:8px;
+  font-size:0.78rem;
+}
+.alt-rank{
+  font-family:var(--font-mono);
+  color:var(--border-fel);
+  min-width:22px;
+  flex-shrink:0;
+}
+.alt-name{ color:var(--text-ice-dim); text-decoration:none; }
+.alt-name:hover{ color:var(--border-fel); text-decoration:underline; }
+.alt-source{ color:var(--text-muted); font-size:0.72rem; font-style:italic; }
+
+/* ---------- performance metrics ---------- */
+
+.results-perf, .results-summary{
+  font-family:var(--font-mono);
+  font-size:0.8rem;
+  color:var(--text-ice-dim);
+  display:flex;
+  gap:14px;
+}
+.perf-badge{ display:flex; gap:5px; align-items:baseline; }
+.perf-badge .perf-label{ color:var(--text-muted); }
+.perf-badge .perf-value{ font-weight:700; }
+.perf-tier-gold{ color:#e5cc80; }
+.perf-tier-pink{ color:#e268a8; }
+.perf-tier-orange{ color:#ff8000; }
+.perf-tier-purple{ color:#a335ee; }
+.perf-tier-blue{ color:#0070ff; }
+.perf-tier-green{ color:#1eff00; }
+.perf-tier-gray{ color:var(--text-muted); }
+
+.slot-note{
+  margin-top:8px;
+  font-size:0.76rem;
+  color:var(--text-muted);
+  font-style:italic;
+}
+
+/* ---------- empty state ---------- */
+
+.empty-state{
+  text-align:center;
+  color:var(--text-muted);
+  font-size:0.9rem;
+  padding:20px 0;
+}
+
+/* ---------- footer ---------- */
+
+.site-footer{
+  max-width:760px;
+  margin:0 auto;
+  padding:0 20px 50px;
+  color:var(--text-muted);
+  font-size:0.78rem;
+  text-align:center;
+  position:relative;
+  z-index:1;
+}
+
+/* ---------- responsive ---------- */
+
+@media (max-width:640px){
+  .fetch-form{ grid-template-columns:1fr 1fr; }
+  .fetch-form .btn-fetch{ grid-column:1 / -1; }
+  .compare-form{ grid-template-columns:1fr 1fr; }
+  .compare-form .btn{ grid-column:1 / -1; }
+  .panel{ padding:20px 18px 22px; }
+}
+
+/* ---------- keyboard focus ---------- */
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible{
+  outline:2px solid var(--border-fel);
+  outline-offset:2px;
+}
