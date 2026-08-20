@@ -935,6 +935,18 @@ function renderResults(results, phase, specMeta, enrichment) {
 
   els.armorResults.innerHTML = "";
   results.armor.forEach((r) => els.armorResults.appendChild(renderSlotCard(r, enrichment)));
+
+  // Wowhead's tooltip script only iconizes/renames links it sees during
+  // its initial page scan — every result card here is injected
+  // dynamically via JS, well after that scan already happened, so
+  // without this the icon/name never populate (tooltips still work,
+  // since hover detection works differently). Confirmed straight from
+  // a Wowhead team reply: "call $WowheadPower.refreshLinks() after
+  // you're done generating links." Guarded in case the script hasn't
+  // finished loading yet (e.g. slow network) or is blocked.
+  if (window.$WowheadPower?.refreshLinks) {
+    window.$WowheadPower.refreshLinks();
+  }
 }
 
 const STATE_META = {
@@ -1069,4 +1081,3 @@ function sleep(ms) {
 }
 
 document.addEventListener("DOMContentLoaded", init);
-
