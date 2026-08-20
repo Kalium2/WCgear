@@ -46,7 +46,7 @@ const CLASS_SPEC_MAP = {
     { value: "destruction_warlock", label: "Destruction" },
   ],
   Hunter: [
-    { value: "beast_mastery_hunter", label: "BeastMastery" },
+    { value: "beast_mastery_hunter", label: "Beast Mastery" },
     { value: "survival_hunter", label: "Survival" },
     { value: "marksmanship_hunter", label: "Marksmanship" },
   ],
