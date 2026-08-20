@@ -914,10 +914,33 @@ function ordinal(n) {
 /* ================================================================
    RENDER — RESULTS
    ================================================================ */
+/** Filters out whichever weapon row doesn't apply to how this
+ *  character is actually built — a Two-Hand user's empty Main Hand/
+ *  Off Hand rows (and vice versa) exist for display context, but
+ *  should never count as "missing BiS" since that config was never
+ *  in play to begin with. Falls back to "only rows with something
+ *  actually equipped" if weaponConfig is ever missing. */
+function filterApplicableResults(results, gear) {
+  const config = gear?.weaponConfig;
+  const weapons = results.weapons.filter((r) => {
+    if (config === "twohand") return r.label === "Two-Hand";
+    if (config === "mainhand_offhand") return r.label === "Main Hand" || r.label === "Off Hand";
+    return r.equippedId != null;
+  });
+  return [...weapons, ...results.armor];
+}
+
 function renderResults(results, phase, specMeta, enrichment) {
-  const all = [...results.weapons, ...results.armor];
+  const applicable = filterApplicableResults(results, state.gear);
   const tally = { bis: 0, upgrade: 0, unknown: 0 };
-  all.forEach((r) => tally[r.state]++);
+  applicable.forEach((r) => tally[r.state]++);
+
+  // BiS percentage deliberately excludes "Unable to Check" slots from
+  // the denominator — we genuinely don't know if those are BiS or
+  // not, so counting them as "missing" would be misleading.
+  const countable = applicable.filter((r) => r.state !== "unknown");
+  const bisCount = countable.filter((r) => r.state === "bis").length;
+  const bisPercent = countable.length > 0 ? Math.round((bisCount / countable.length) * 100) : 0;
 
   els.resultsPerf.innerHTML = `
     <span class="perf-badge"><span class="perf-label">Best Perf Avg</span> ${formatPerf(state.character?.bestPerfAvg)}</span>
@@ -925,7 +948,7 @@ function renderResults(results, phase, specMeta, enrichment) {
   `;
 
   els.resultsSummary.innerHTML = `
-    <span class="tally-bis">${tally.bis} BiS</span>
+    <span class="bis-progress"><span class="bis-progress-count">${bisCount}/${countable.length}</span> BiS <span class="bis-progress-percent">(${bisPercent}%)</span></span>
     <span class="tally-upgrade">${tally.upgrade} Upgrade</span>
     <span class="tally-unknown">${tally.unknown} Unable to Check</span>
   `;
