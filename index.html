@@ -95,6 +95,20 @@
     </div>
   </section>
 
+  <!-- ============ SIMULATED DPS (hidden until a simulatable character is loaded) ============ -->
+  <section class="panel char-panel" id="simPanel" hidden aria-labelledby="simHeading">
+    <div class="char-panel-inner">
+      <div class="char-id">
+        <h2 id="simHeading" class="char-name" style="font-size:1.15rem;">Simulated DPS</h2>
+        <p class="panel-hint" style="margin:6px 0 0;">Runs your currently-equipped gear through wowsimtbc. Currently Destruction Warlock only — more specs coming as their rotations get added.</p>
+        <div class="results-perf" id="simResult" style="margin-top:12px;"></div>
+      </div>
+      <button type="button" class="btn btn-primary" id="simulateBtn">
+        <span class="btn-label">Run Simulation</span>
+      </button>
+    </div>
+  </section>
+
   <!-- ============ STEP 2 — COMPARE GEAR ============ -->
   <section class="panel step-panel" id="comparePanel" hidden aria-labelledby="compareHeading">
     <div class="step-label"><span class="step-num">II</span><span>Compare Gear</span></div>
@@ -139,7 +153,7 @@
 </main>
 
 <footer class="site-footer">
-  <p>Item data enriched via the Blizzard Game Data API where available. BiS lists are manually curated and may lag behind live changes.</p>
+  <p>Item data enriched via the Blizzard Game Data API where available. BiS lists are manually curated and may lag behind live changes. Simulated DPS is computed by wowsimtbc.</p>
 </footer>
 
 <script src="app.js"></script>
