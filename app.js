@@ -6,11 +6,14 @@
    Two separate backends, split deliberately:
 
    WCL_API_URL — the Warcraft Logs–calling endpoints (roster,
-   character/gear). Hosted on a VPS with a real dedicated IP, since
-   Cloudflare Workers share a small, heavily-used pool of egress IPs
-   across every Workers customer, and Warcraft Logs' anti-abuse IP
-   throttle was triggering off that shared traffic — not our own
-   usage. Confirmed directly with the Warcraft Logs team.
+   character/gear) AND the wowsimtbc simulation endpoint (/api/simulate),
+   all hosted on a VPS with a real dedicated IP, since Cloudflare
+   Workers share a small, heavily-used pool of egress IPs across every
+   Workers customer, and Warcraft Logs' anti-abuse IP throttle was
+   triggering off that shared traffic — not our own usage. The
+   simulation endpoint lives here rather than on Workers because it
+   needs to reach the wowsimtbc process running locally on the same
+   VPS (localhost:3333), which only the VPS can do.
 
    ITEMS_API_URL — Blizzard item enrichment. Stayed on Cloudflare
    Workers unchanged; that API never showed the shared-IP problem.
@@ -18,7 +21,8 @@
    Expected endpoints:
      GET  {WCL_API_URL}/api/roster?reportCode=&fightId=
      GET  {WCL_API_URL}/api/character?name=&reportCode=&fightId=
-     POST {ITEMS_API_URL}/api/items   (body: { itemIds: [...] })
+     POST {WCL_API_URL}/api/simulate   (body: { name, reportCode, fightId })
+     POST {ITEMS_API_URL}/api/items    (body: { itemIds: [...] })
    ================================================================ */
 const WCL_API_URL = "https://bischeck.net";
 const ITEMS_API_URL = "https://wcgear.lambertdaniel26.workers.dev";
@@ -31,6 +35,13 @@ const ITEMS_API_URL = "https://wcgear.lambertdaniel26.workers.dev";
    explicit URL flag nobody would stumble into by accident. */
 const IS_TEST_MODE = new URLSearchParams(location.search).get("test") === "1";
 const USE_LIVE_WORKER = Boolean(WCL_API_URL) && !IS_TEST_MODE;
+
+/* Classes the wowsimtbc integration actually supports right now (see
+   server.js's SIMULATABLE_CLASSES and sim.js's buildDestructionWarlockPlayer).
+   Used as a client-side fallback for demo/test mode, where there's no
+   server to report back the `simulatable` flag the live /api/character
+   response includes. Extend alongside server.js as more specs are added. */
+const SIMULATABLE_CLASSES = new Set(["Warlock"]);
 
 /* Class -> allowed specs. Config-driven per section 44 of the spec,
    so post-MVP class-aware filtering only needs this table extended. */
@@ -55,6 +66,16 @@ const CLASS_SPEC_MAP = {
     { value: "protection_paladin", label: "Protection" },
     { value: "retribution_paladin", label: "Retribution" },
   ],
+  Priest: [
+    { value: "holy_priest", label: "Holy" },
+    { value: "discipline_priest", label: "Discipline" },
+    { value: "shadow_priest", label: "Shadow" },
+  ],
+  Shaman: [
+    { value: "elemental_shaman", label: "Elemental" },
+    { value: "enhancement_shaman", label: "Enhancement" },
+    { value: "restoration_shaman", label: "Restoration" },
+  ],
 };
 
 /* Every spec option across all supported classes, independent of
@@ -75,6 +96,12 @@ const ALL_SPECS = [
   { value: "holy_paladin", label: "Holy Paladin", cls: "Paladin" },
   { value: "protection_paladin", label: "Protection Paladin", cls: "Paladin" },
   { value: "retribution_paladin", label: "Retribution Paladin", cls: "Paladin" },
+  { value: "holy_priest", label: "Holy Priest", cls: "Priest" },
+  { value: "discipline_priest", label: "Discipline Priest", cls: "Priest" },
+  { value: "shadow_priest", label: "Shadow Priest", cls: "Priest" },
+  { value: "elemental_shaman", label: "Elemental Shaman", cls: "Shaman" },
+  { value: "enhancement_shaman", label: "Enhancement Shaman", cls: "Shaman" },
+  { value: "restoration_shaman", label: "Restoration Shaman", cls: "Shaman" },
 ];
 
 const CLASS_COLOR_VAR = {
@@ -136,6 +163,10 @@ const els = {
   charMedPerf: $("charMedPerf"),
   refetchBtn: $("refetchBtn"),
 
+  simPanel: $("simPanel"),
+  simulateBtn: $("simulateBtn"),
+  simResult: $("simResult"),
+
   comparePanel: $("comparePanel"),
   compareForm: $("compareForm"),
   phaseSelect: $("phaseSelect"),
@@ -176,6 +207,7 @@ async function init() {
   els.changeReportBtn.addEventListener("click", onClearReportClick);
   els.refetchBtn.addEventListener("click", onClearReportClick);
   els.compareForm.addEventListener("submit", onCheckGear);
+  els.simulateBtn.addEventListener("click", onRunSimulation);
 }
 
 /* ================================================================
@@ -299,6 +331,8 @@ function resetToFetch() {
   state.gear = null;
   state.equippedItemDetails = null;
   els.charPanel.hidden = true;
+  els.simPanel.hidden = true;
+  els.simResult.innerHTML = "";
   els.comparePanel.hidden = true;
   els.resultsPanel.hidden = true;
   els.loadedEmptyState.hidden = true;
@@ -376,8 +410,8 @@ async function fetchRosterDemo(parsed) {
   };
 }
 
-/** Calls the Cloudflare Worker, which owns Warcraft Logs OAuth and
- *  never exposes client credentials to this frontend (spec section 10). */
+/** Calls the VPS server, which owns Warcraft Logs OAuth and never
+ *  exposes client credentials to this frontend (spec section 10). */
 async function fetchCharacterFromWorker(name, resolved) {
   const params = new URLSearchParams({ name, reportCode: resolved.reportCode, fightId: resolved.fightId });
   const url = `${WCL_API_URL}/api/character?${params.toString()}`;
@@ -401,11 +435,13 @@ async function fetchCharacterFromWorker(name, resolved) {
       class: data.class,
       realmSpec: data.spec || "Unknown",
       reportCode: resolved.reportCode,
+      fightId: resolved.fightId,
       zoneName: data.zoneName || null,
       autoPhase: data.autoPhase || null,
       raidDate: data.raidDate || null,
       bestPerfAvg: data.bestPerfAvg ?? null, // null -> "Unavailable" (requirement 3.3)
       medPerfAvg: data.medPerfAvg ?? null,
+      simulatable: Boolean(data.simulatable), // server tells us definitively whether /api/simulate supports this class
     },
     gear: data.gear, // expected shape: { slot: [itemId,...], weaponConfig }
     equippedItemDetails: data.equippedItemDetails || {}, // itemId -> { name, icon, quality, permanentEnchant, temporaryEnchant, gems }
@@ -482,7 +518,13 @@ async function fetchCharacterDemo(name, resolved) {
   const fixture = TEST_FIXTURES[name.trim().toLowerCase()] || TEST_FIXTURES.testarms;
 
   return {
-    character: { name, reportCode: resolved.reportCode, ...fixture.character },
+    character: {
+      name,
+      reportCode: resolved.reportCode,
+      fightId: resolved.fightId,
+      simulatable: SIMULATABLE_CLASSES.has(fixture.character.class),
+      ...fixture.character,
+    },
     gear: fixture.gear,
     equippedItemDetails: fixture.equippedItemDetails || {},
   };
@@ -505,6 +547,13 @@ function renderCharacter() {
   els.charBestPerf.innerHTML = formatPerf(c.bestPerfAvg);
   els.charMedPerf.innerHTML = formatPerf(c.medPerfAvg);
   els.charPanel.hidden = false;
+
+  // Simulation is only available for classes sim.js actually has a
+  // rotation built for (Destruction Warlock, currently) — hide the
+  // panel entirely rather than show a button that will always 400.
+  els.simResult.innerHTML = "";
+  setSimulateLoading(false);
+  els.simPanel.hidden = !c.simulatable;
 
   populateSpecOptions(c.class);
 }
@@ -566,6 +615,76 @@ function populateSpecOptions(detectedClass) {
 /** True if either phase's BiS dataset has an entry for this spec. */
 function hasBisData(specValue) {
   return Boolean(state.bisData?.phase3?.[specValue] || state.bisData?.phase4?.[specValue]);
+}
+
+/* ================================================================
+   SIMULATE DPS — runs the currently-equipped gear through wowsimtbc
+   ================================================================
+   Independent of the BiS-comparison step below: this simulates
+   exactly what's equipped right now (no phase/spec selection — the
+   backend infers the build from the character's actual class/gear),
+   and reports back a single overall raid DPS number for a standard
+   3-minute patchwerk-style encounter. See sim.js/server.js for how
+   the number itself is computed.
+   ================================================================ */
+let simulateInFlight = false;
+
+async function onRunSimulation() {
+  if (simulateInFlight || !state.character) return;
+  simulateInFlight = true;
+  setSimulateLoading(true);
+  els.simResult.innerHTML = `<span class="perf-badge"><span class="perf-label">Simulating…</span></span>`;
+
+  try {
+    const { dps, error } = USE_LIVE_WORKER
+      ? await runSimulationFromWorker()
+      : await runSimulationDemo();
+
+    if (error) {
+      els.simResult.innerHTML = `<span class="perf-badge"><span class="perf-value" style="color:var(--accent-upgrade);">${escapeHtml(error)}</span></span>`;
+      return;
+    }
+
+    els.simResult.innerHTML = dps != null
+      ? `<span class="perf-badge"><span class="perf-label">Simulated DPS</span> <span class="perf-value perf-tier-gold">${dps.toFixed(1)}</span></span>`
+      : `<span class="perf-badge"><span class="perf-value" style="color:var(--accent-upgrade);">Simulation returned no result.</span></span>`;
+  } catch (err) {
+    els.simResult.innerHTML = `<span class="perf-badge"><span class="perf-value" style="color:var(--accent-upgrade);">${escapeHtml(err.message || "Simulation failed. Please try again.")}</span></span>`;
+  } finally {
+    simulateInFlight = false;
+    setSimulateLoading(false);
+  }
+}
+
+/** wowsimtbc runs a full multi-thousand-iteration sim, which can take
+ *  well past a normal request timeout — no client-side timeout is set
+ *  here on purpose; the backend's own polling loop (sim.js) gives up
+ *  after ~60s and returns a real error if something's actually wrong. */
+async function runSimulationFromWorker() {
+  const res = await fetch(`${WCL_API_URL}/api/simulate`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name: state.character.name, reportCode: state.character.reportCode, fightId: state.character.fightId }),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    return { dps: null, error: data.error || "Simulation failed. Please try again." };
+  }
+  return { dps: data.dps ?? null, error: data.error || null };
+}
+
+/** Demo/test-mode simulation: no real wowsimtbc server to call, so
+ *  this returns a plausible fixed number after a delay — enough to
+ *  exercise the UI flow (loading state, result rendering) without a
+ *  live backend, matching the pattern used by fetchCharacterDemo. */
+async function runSimulationDemo() {
+  await sleep(1500);
+  return { dps: 2487.3, error: null };
+}
+
+function setSimulateLoading(loading) {
+  els.simulateBtn.disabled = loading;
+  els.simulateBtn.querySelector(".btn-label").textContent = loading ? "Simulating…" : "Run Simulation";
 }
 
 /* ================================================================
@@ -763,17 +882,6 @@ function findSource(itemId, bisRanked) {
   return bisRanked.find((b) => b.itemId === itemId)?.source ?? null;
 }
 
-/** Compares a single-item slot (0 or 1 equipped item) against a
- *  ranked BiS list for that slot (rank 1 = best). Carries the full
- *  ranked list through as `alternatives` so the UI can expose every
- *  ranked option, not just the top pick (requirement 5.2/5.5). */
-/** Single-slot items (armor, weapons, ranged): 1st, 2nd, and 3rd BiS
- *  are all considered "within the rankings" — no upgrade is suggested
- *  for any of them, just an ordinal label on 2nd/3rd. Only rank 4+ (or
- *  an item that isn't on the list at all) triggers an upgrade
- *  recommendation, always pointing at rank 1 specifically (there's
- *  only one position here, so no "next available" logic needed the
- *  way multi-slot requires). */
 /** Single-slot items (armor, weapons, ranged): ONLY rank 1 counts as
  *  a full match with no upgrade shown. Ranks 2 and 3 still get the
  *  upgrade recommendation (pointing at rank 1) — but since they're
@@ -825,26 +933,12 @@ function compareSingleSlot(label, equippedIds, bisRanked) {
  * first), then fills any remaining positions with the next-highest
  * ranked BiS items the character doesn't already own — never
  * recommending a duplicate of something already equipped.
- *
- * @param {number[]} equippedIds   items currently in the slot category
- * @param {{itemId:number, rank:number}[]} bisRanked   sorted ascending by rank
- * @param {number} slotCount   number of identical slots (e.g. 2 for trinkets)
- * @returns {{state:string, equippedId:number|null, recommendedId:number|null}[]}
+ * Multi-slot items (trinket, finger): rank 1 or 2 both count as
+ * "satisfied" — no upgrade suggested, since these categories have
+ * two physical positions and getting the 2nd-best pick is a
+ * reasonable outcome when only one rank-1 item exists to go around.
+ * Rank 3+ (or off-list) triggers the upgrade path.
  */
-/**
- * Generic multi-slot ranking system (section 19).
- * Only a RANK 1 equipped item counts as a full BiS match (no upgrade
- * shown). An equipped item at rank 2+ still routes through the normal
- * upgrade-recommendation path — but since it IS a recognized BiS-list
- * item, not random gear, it's tagged with an ordinal note ("2nd BiS",
- * "3rd BiS", etc.) under the equipped chip so the player can see it's
- * not worthless, just not optimal.
- */
-/** Multi-slot items (trinket, finger): rank 1 or 2 both count as
- *  "satisfied" — no upgrade suggested, since these categories have
- *  two physical positions and getting the 2nd-best pick is a
- *  reasonable outcome when only one rank-1 item exists to go around.
- *  Rank 3+ (or off-list) triggers the upgrade path. */
 const MULTI_SLOT_SATISFIED_THRESHOLD = 2;
 
 function resolveMultiSlot(equippedIds, bisRanked, slotCount) {
