@@ -315,6 +315,11 @@ async function onFetchCharacter(evt) {
     if (character.autoPhase && phaseOptionExists) {
       els.phaseSelect.value = character.autoPhase;
     }
+    // The upgrade panel's phase control has to follow the auto-detected
+    // phase too. Without this it stays on its markup default, and because
+    // onFindUpgrades() resolves any disagreement in that control's favour,
+    // the sweep would silently drag the comparison to the wrong phase.
+    els.upgradePhaseSelect.value = els.phaseSelect.value;
     try {
       await runAndRenderComparison({ scroll: false });
     } catch (autoRunErr) {
