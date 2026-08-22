@@ -166,6 +166,10 @@ const els = {
   simPanel: $("simPanel"),
   simulateBtn: $("simulateBtn"),
   simResult: $("simResult"),
+  upgradePanel: $("upgradePanel"),
+  upgradeBtn: $("upgradeBtn"),
+  upgradeStatus: $("upgradeStatus"),
+  upgradeResults: $("upgradeResults"),
 
   comparePanel: $("comparePanel"),
   compareForm: $("compareForm"),
@@ -208,6 +212,7 @@ async function init() {
   els.refetchBtn.addEventListener("click", onClearReportClick);
   els.compareForm.addEventListener("submit", onCheckGear);
   els.simulateBtn.addEventListener("click", onRunSimulation);
+  els.upgradeBtn.addEventListener("click", onFindUpgrades);
 }
 
 /* ================================================================
@@ -333,6 +338,9 @@ function resetToFetch() {
   els.charPanel.hidden = true;
   els.simPanel.hidden = true;
   els.simResult.innerHTML = "";
+  els.upgradePanel.hidden = true;
+  els.upgradeStatus.innerHTML = "";
+  els.upgradeResults.innerHTML = "";
   els.comparePanel.hidden = true;
   els.resultsPanel.hidden = true;
   els.loadedEmptyState.hidden = true;
@@ -554,6 +562,9 @@ function renderCharacter() {
   els.simResult.innerHTML = "";
   setSimulateLoading(false);
   els.simPanel.hidden = !c.simulatable;
+  els.upgradePanel.hidden = !c.simulatable;
+  els.upgradeStatus.innerHTML = "";
+  els.upgradeResults.innerHTML = "";
 
   populateSpecOptions(c.class);
 }
@@ -686,6 +697,133 @@ function setSimulateLoading(loading) {
   els.simulateBtn.disabled = loading;
   els.simulateBtn.querySelector(".btn-label").textContent = loading ? "Simulating…" : "Run Simulation";
 }
+
+/* ================================================================
+   UPGRADE PRIORITY — what is each recommended piece actually worth?
+   ================================================================
+   Deliberately separate from the BiS comparison below: that panel is
+   driven by the curated data/bis.json, while this one simulates
+   wowsims' own preset gear set. The two can name different items for
+   the same slot, so they're presented as two independent views rather
+   than being interleaved (which would risk showing one item's name
+   next to another item's DPS number).
+
+   The backend runs one sim per slot (~30s total), so this is a job:
+   POST starts it and returns an id, then we poll for progress.
+   ================================================================ */
+let upgradeInFlight = false;
+
+async function onFindUpgrades() {
+  if (upgradeInFlight || !state.character) return;
+  upgradeInFlight = true;
+  setUpgradeLoading(true);
+  els.upgradeResults.innerHTML = "";
+  els.upgradeStatus.innerHTML = `<span class="perf-badge"><span class="perf-label">Starting…</span></span>`;
+
+  try {
+    if (!USE_LIVE_WORKER) {
+      await sleep(1200);
+      renderUpgradeResults(2487.3, DEMO_UPGRADES);
+      return;
+    }
+
+    const startRes = await fetch(`${WCL_API_URL}/api/upgrade-sweep`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: state.character.name,
+        reportCode: state.character.reportCode,
+        fightId: state.character.fightId,
+        phase: els.phaseSelect.value,
+      }),
+    });
+    const start = await startRes.json().catch(() => ({}));
+    if (!startRes.ok || start.error) {
+      throw new Error(start.error || "Could not start the upgrade sweep.");
+    }
+
+    // The backend caches finished sweeps, so a repeat request for the
+    // same character/fight/phase comes back instantly with no job.
+    if (start.cached) {
+      renderUpgradeResults(start.baselineDps, start.results);
+      return;
+    }
+
+    const final = await pollUpgradeSweep(start.jobId);
+    renderUpgradeResults(final.baselineDps, final.results);
+  } catch (err) {
+    els.upgradeStatus.innerHTML = `<span class="perf-badge"><span class="perf-value" style="color:var(--accent-upgrade);">${escapeHtml(err.message || "Upgrade sweep failed.")}</span></span>`;
+  } finally {
+    upgradeInFlight = false;
+    setUpgradeLoading(false);
+  }
+}
+
+async function pollUpgradeSweep(jobId) {
+  const deadline = Date.now() + 5 * 60 * 1000;
+  while (Date.now() < deadline) {
+    await sleep(1500);
+    const res = await fetch(`${WCL_API_URL}/api/upgrade-sweep/${encodeURIComponent(jobId)}`);
+    if (!res.ok) throw new Error("Lost track of the upgrade sweep — please try again.");
+    const job = await res.json();
+    if (job.status === "error") throw new Error(job.error || "Upgrade sweep failed.");
+    if (job.status === "done") return job;
+    els.upgradeStatus.innerHTML =
+      `<span class="perf-badge"><span class="perf-label">Simulating ${job.done}/${job.total}</span> <span class="perf-value">${escapeHtml(job.currentSlot || "")}</span></span>`;
+  }
+  throw new Error("The upgrade sweep took longer than expected.");
+}
+
+function renderUpgradeResults(baselineDps, results) {
+  els.upgradeStatus.innerHTML =
+    `<span class="perf-badge"><span class="perf-label">Current gear</span> <span class="perf-value perf-tier-gold">${baselineDps.toFixed(1)} DPS</span></span>`;
+
+  const rowStyle = "display:flex;align-items:center;gap:12px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.07);";
+  const slotStyle = "flex:0 0 92px;opacity:0.75;font-size:0.85rem;";
+  const itemStyle = "flex:1 1 auto;min-width:0;";
+  const valStyle = "flex:0 0 auto;font-weight:600;font-variant-numeric:tabular-nums;";
+
+  // Wowhead's tooltip script (loaded in index.html with renameLinks on)
+  // turns a bare item link into the real item name, icon and tooltip, so
+  // there's no need to run these through the enrichment pipeline.
+  const itemLink = (id) => `<a href="https://www.wowhead.com/tbc/item=${id}">Item ${id}</a>`;
+
+  const rows = (results || []).map((r) => {
+    if (r.error) {
+      return `<div style="${rowStyle}"><span style="${slotStyle}">${escapeHtml(r.slotName)}</span><span style="${itemStyle}">${itemLink(r.recommendedItemId)}</span><span style="${valStyle};opacity:0.6;">couldn't simulate</span></div>`;
+    }
+    if (r.alreadyEquipped) {
+      return `<div style="${rowStyle}"><span style="${slotStyle}">${escapeHtml(r.slotName)}</span><span style="${itemStyle}">${itemLink(r.recommendedItemId)}</span><span style="${valStyle};opacity:0.6;">already equipped</span></div>`;
+    }
+    const d = r.delta;
+    const colour = d > 0.05 ? "var(--accent-bis, #63d471)" : d < -0.05 ? "var(--accent-upgrade)" : "inherit";
+    const sign = d >= 0 ? "+" : "";
+    return `<div style="${rowStyle}"><span style="${slotStyle}">${escapeHtml(r.slotName)}</span><span style="${itemStyle}">${itemLink(r.recommendedItemId)}</span><span style="${valStyle};color:${colour};">${sign}${d.toFixed(1)} DPS</span></div>`;
+  }).join("");
+
+  els.upgradeResults.innerHTML = `
+    <div style="margin-top:12px;">${rows}</div>
+    <p class="panel-hint" style="margin-top:12px;">
+      Each figure is what you'd gain from obtaining that single piece, with everything else left as it is.
+      They don't add up — the spell hit cap and set bonuses make gear non-linear.
+      A negative usually means swapping that piece would break a set bonus you're currently getting.
+    </p>
+  `;
+}
+
+function setUpgradeLoading(loading) {
+  els.upgradeBtn.disabled = loading;
+  els.upgradeBtn.querySelector(".btn-label").textContent = loading ? "Simulating…" : "Find My Upgrades";
+}
+
+/** Demo-mode stand-in so the panel can be exercised without a backend. */
+const DEMO_UPGRADES = [
+  { slot: 14, slotName: "Main Hand", recommendedItemId: 32374, alreadyEquipped: false, delta: 172.1 },
+  { slot: 4, slotName: "Chest", recommendedItemId: 30107, alreadyEquipped: false, delta: 35.9 },
+  { slot: 12, slotName: "Trinket 1", recommendedItemId: 32483, alreadyEquipped: false, delta: 20.3 },
+  { slot: 7, slotName: "Waist", recommendedItemId: 30038, alreadyEquipped: true, delta: 0 },
+  { slot: 3, slotName: "Back", recommendedItemId: 32524, alreadyEquipped: false, delta: -4.8 },
+];
 
 /* ================================================================
    STEP 2 — CHECK GEAR
