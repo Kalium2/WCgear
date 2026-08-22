@@ -114,7 +114,14 @@
     <div class="char-panel-inner">
       <div class="char-id" style="flex:1 1 auto;min-width:0;">
         <h2 id="upgradeHeading" class="char-name" style="font-size:1.15rem;">Upgrade Priority</h2>
-        <p class="panel-hint" style="margin:6px 0 0;">Simulates each piece from wowsims' recommended gear set into your current setup, one slot at a time, and reports what it's actually worth. Takes about half a minute.</p>
+        <p class="panel-hint" style="margin:6px 0 0;">Simulates each recommended piece into your current gear, one slot at a time, and reports what it's actually worth. Takes about half a minute.</p>
+        <div class="field" style="margin-top:12px;max-width:200px;">
+          <label for="upgradePhaseSelect">Evaluate for</label>
+          <select id="upgradePhaseSelect">
+            <option value="phase3">Phase 3</option>
+            <option value="phase4" selected>Phase 4</option>
+          </select>
+        </div>
         <div class="results-perf" id="upgradeStatus" style="margin-top:12px;"></div>
         <div id="upgradeResults"></div>
       </div>
