@@ -901,6 +901,15 @@ function buildSweepTargets() {
       const itemId = row.recommendedId;
       if (!itemId) continue;
 
+      // Commit to the weapon build this BiS set actually uses. Without this a
+      // twohand set still sends its Off Hand row and the sim wields a two-hander
+      // AND an off-hand - an impossible set-up that returns a large fake gain.
+      // The Compare panel still shows all three rows on purpose (req 5.1); this
+      // only governs what gets simulated.
+      const wc = bisSet && bisSet.weaponConfig;
+      if (wc === "twohand" && (row.label === "Main Hand" || row.label === "Off Hand")) continue;
+      if (wc === "mainhand_offhand" && row.label === "Two-Hand") continue;
+
     // Slot 14 collision: prefer the weapon config this spec's BiS set
     // actually uses. Two-Hand wins if it has a recommendation, since a
     // staff spec leaves Main Hand empty rather than the other way round.
