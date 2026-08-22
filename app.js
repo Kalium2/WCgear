@@ -727,6 +727,11 @@ async function onFindUpgrades() {
       return;
     }
 
+    const targets = buildSweepTargets();
+    if (targets.length === 0) {
+      throw new Error("Run a gear check first — there are no recommended items to simulate yet.");
+    }
+
     const startRes = await fetch(`${WCL_API_URL}/api/upgrade-sweep`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -735,6 +740,7 @@ async function onFindUpgrades() {
         reportCode: state.character.reportCode,
         fightId: state.character.fightId,
         phase: els.phaseSelect.value,
+        targets,
       }),
     });
     const start = await startRes.json().catch(() => ({}));
@@ -814,6 +820,43 @@ function renderUpgradeResults(baselineDps, results) {
 function setUpgradeLoading(loading) {
   els.upgradeBtn.disabled = loading;
   els.upgradeBtn.querySelector(".btn-label").textContent = loading ? "Simulating…" : "Find My Upgrades";
+}
+
+/** Comparison slot label -> wowsimtbc ItemSlot index (proto/common.proto).
+ *  "Two-Hand" and "Main Hand" both occupy slot 14; whichever the BiS set
+ *  actually populates for this spec is the one that gets sent. */
+const SWEEP_SLOT_INDEX = {
+  "Head": 0, "Neck": 1, "Shoulder": 2, "Back": 3, "Chest": 4, "Wrist": 5,
+  "Hands": 6, "Waist": 7, "Legs": 8, "Feet": 9,
+  "Finger 1": 10, "Finger 2": 11, "Trinket 1": 12, "Trinket 2": 13,
+  "Two-Hand": 14, "Main Hand": 14, "Off Hand": 15, "Ranged": 16,
+};
+
+/** The items the current comparison recommends, as [{slot, itemId}].
+ *  Only slots that actually have a recommendation are included. */
+function buildSweepTargets() {
+  const comparison = state.lastComparison;
+  if (!comparison) return [];
+
+  const bySlot = new Map();
+  const rows = [...(comparison.weapons || []), ...(comparison.armor || [])];
+
+  for (const row of rows) {
+    const slot = SWEEP_SLOT_INDEX[row.label];
+    if (slot === undefined) continue;
+
+    // Nothing to test if the slot is already BiS or has no recommendation.
+    const itemId = row.recommendedId;
+    if (!itemId) continue;
+
+    // Slot 14 collision: prefer the weapon config this spec's BiS set
+    // actually uses. Two-Hand wins if it has a recommendation, since a
+    // staff spec leaves Main Hand empty rather than the other way round.
+    if (bySlot.has(slot) && row.label === "Main Hand") continue;
+    bySlot.set(slot, { slot, itemId });
+  }
+
+  return [...bySlot.values()];
 }
 
 /** Demo-mode stand-in so the panel can be exercised without a backend. */
@@ -1163,6 +1206,9 @@ function filterApplicableResults(results, gear) {
 }
 
 function renderResults(results, phase, specMeta, enrichment) {
+  // Remembered so the upgrade sweep can simulate exactly the items these
+  // cards recommend — see buildSweepTargets().
+  state.lastComparison = results;
   const applicable = filterApplicableResults(results, state.gear);
   const tally = { bis: 0, upgrade: 0, unknown: 0 };
   applicable.forEach((r) => tally[r.state]++);
