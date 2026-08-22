@@ -1905,6 +1905,336 @@
           "source": "G'eras - Badges of Justice"
         }
       ]
+    },
+    "affliction_warlock": {
+      "_source": "wowsims-preset",
+      "_preset": "presets/warlock/t6.gear.json",
+      "head": [
+        {
+          "itemId": 31051,
+          "rank": 1,
+          "name": "Hood of the Malefic",
+          "source": "",
+          "enchant": 3002,
+          "gems": [
+            34220,
+            32218
+          ]
+        }
+      ],
+      "neck": [
+        {
+          "itemId": 32349,
+          "rank": 1,
+          "name": "Translucent Spellthread Necklace",
+          "source": ""
+        }
+      ],
+      "shoulder": [
+        {
+          "itemId": 31054,
+          "rank": 1,
+          "name": "Mantle of the Malefic",
+          "source": "",
+          "enchant": 2982,
+          "gems": [
+            32196,
+            32196
+          ]
+        }
+      ],
+      "back": [
+        {
+          "itemId": 32524,
+          "rank": 1,
+          "name": "Shroud of the Highborne",
+          "source": "",
+          "enchant": 2621
+        }
+      ],
+      "chest": [
+        {
+          "itemId": 30107,
+          "rank": 1,
+          "name": "Vestments of the Sea-Witch",
+          "source": "",
+          "enchant": 2661,
+          "gems": [
+            32196,
+            32196,
+            32196
+          ]
+        }
+      ],
+      "wrist": [
+        {
+          "itemId": 32586,
+          "rank": 1,
+          "name": "Bracers of Nimble Thought",
+          "source": "",
+          "enchant": 2650
+        }
+      ],
+      "hands": [
+        {
+          "itemId": 31050,
+          "rank": 1,
+          "name": "Gloves of the Malefic",
+          "source": "",
+          "enchant": 2937,
+          "gems": [
+            32196
+          ]
+        }
+      ],
+      "waist": [
+        {
+          "itemId": 30038,
+          "rank": 1,
+          "name": "Belt of Blasting",
+          "source": "",
+          "gems": [
+            32215,
+            32218
+          ]
+        }
+      ],
+      "legs": [
+        {
+          "itemId": 31053,
+          "rank": 1,
+          "name": "Leggings of the Malefic",
+          "source": "",
+          "enchant": 2748,
+          "gems": [
+            32196
+          ]
+        }
+      ],
+      "feet": [
+        {
+          "itemId": 32239,
+          "rank": 1,
+          "name": "Slippers of the Seacaller",
+          "source": "",
+          "enchant": 2940,
+          "gems": [
+            32218,
+            32215
+          ]
+        }
+      ],
+      "finger": [
+        {
+          "itemId": 32527,
+          "rank": 1,
+          "name": "Ring of Ancient Knowledge",
+          "source": ""
+        },
+        {
+          "itemId": 32527,
+          "rank": 2,
+          "name": "Ring of Ancient Knowledge",
+          "source": ""
+        }
+      ],
+      "trinket": [
+        {
+          "itemId": 32483,
+          "rank": 1,
+          "name": "The Skull of Gul'dan",
+          "source": ""
+        },
+        {
+          "itemId": 29370,
+          "rank": 2,
+          "name": "Icon of the Silver Crescent",
+          "source": ""
+        }
+      ],
+      "ranged": [
+        {
+          "itemId": 29982,
+          "rank": 1,
+          "name": "Wand of the Forgotten Star",
+          "source": ""
+        }
+      ],
+      "weaponConfig": "mainhand_offhand",
+      "mainhand": [
+        {
+          "itemId": 32374,
+          "rank": 1,
+          "name": "Zhar'doom, Greatstaff of the Devourer",
+          "source": "",
+          "enchant": 2672
+        }
+      ]
+    },
+    "demonology_warlock": {
+      "_source": "wowsims-preset",
+      "_preset": "presets/warlock/t6.gear.json",
+      "head": [
+        {
+          "itemId": 31051,
+          "rank": 1,
+          "name": "Hood of the Malefic",
+          "source": "",
+          "enchant": 3002,
+          "gems": [
+            34220,
+            32218
+          ]
+        }
+      ],
+      "neck": [
+        {
+          "itemId": 32349,
+          "rank": 1,
+          "name": "Translucent Spellthread Necklace",
+          "source": ""
+        }
+      ],
+      "shoulder": [
+        {
+          "itemId": 31054,
+          "rank": 1,
+          "name": "Mantle of the Malefic",
+          "source": "",
+          "enchant": 2982,
+          "gems": [
+            32196,
+            32196
+          ]
+        }
+      ],
+      "back": [
+        {
+          "itemId": 32524,
+          "rank": 1,
+          "name": "Shroud of the Highborne",
+          "source": "",
+          "enchant": 2621
+        }
+      ],
+      "chest": [
+        {
+          "itemId": 30107,
+          "rank": 1,
+          "name": "Vestments of the Sea-Witch",
+          "source": "",
+          "enchant": 2661,
+          "gems": [
+            32196,
+            32196,
+            32196
+          ]
+        }
+      ],
+      "wrist": [
+        {
+          "itemId": 32586,
+          "rank": 1,
+          "name": "Bracers of Nimble Thought",
+          "source": "",
+          "enchant": 2650
+        }
+      ],
+      "hands": [
+        {
+          "itemId": 31050,
+          "rank": 1,
+          "name": "Gloves of the Malefic",
+          "source": "",
+          "enchant": 2937,
+          "gems": [
+            32196
+          ]
+        }
+      ],
+      "waist": [
+        {
+          "itemId": 30038,
+          "rank": 1,
+          "name": "Belt of Blasting",
+          "source": "",
+          "gems": [
+            32215,
+            32218
+          ]
+        }
+      ],
+      "legs": [
+        {
+          "itemId": 31053,
+          "rank": 1,
+          "name": "Leggings of the Malefic",
+          "source": "",
+          "enchant": 2748,
+          "gems": [
+            32196
+          ]
+        }
+      ],
+      "feet": [
+        {
+          "itemId": 32239,
+          "rank": 1,
+          "name": "Slippers of the Seacaller",
+          "source": "",
+          "enchant": 2940,
+          "gems": [
+            32218,
+            32215
+          ]
+        }
+      ],
+      "finger": [
+        {
+          "itemId": 32527,
+          "rank": 1,
+          "name": "Ring of Ancient Knowledge",
+          "source": ""
+        },
+        {
+          "itemId": 32527,
+          "rank": 2,
+          "name": "Ring of Ancient Knowledge",
+          "source": ""
+        }
+      ],
+      "trinket": [
+        {
+          "itemId": 32483,
+          "rank": 1,
+          "name": "The Skull of Gul'dan",
+          "source": ""
+        },
+        {
+          "itemId": 29370,
+          "rank": 2,
+          "name": "Icon of the Silver Crescent",
+          "source": ""
+        }
+      ],
+      "ranged": [
+        {
+          "itemId": 29982,
+          "rank": 1,
+          "name": "Wand of the Forgotten Star",
+          "source": ""
+        }
+      ],
+      "weaponConfig": "mainhand_offhand",
+      "mainhand": [
+        {
+          "itemId": 32374,
+          "rank": 1,
+          "name": "Zhar'doom, Greatstaff of the Devourer",
+          "source": "",
+          "enchant": 2672
+        }
+      ]
     }
   },
   "phase4": {
@@ -3453,6 +3783,338 @@
           "rank": 6,
           "name": "Badge of the Swarmguard",
           "source": "Battleguard Sartura - Ahn'Qiraj"
+        }
+      ]
+    },
+    "affliction_warlock": {
+      "_source": "wowsims-preset",
+      "_preset": "presets/warlock/za.gear.json",
+      "head": [
+        {
+          "itemId": 31051,
+          "rank": 1,
+          "name": "Hood of the Malefic",
+          "source": "",
+          "enchant": 3002,
+          "gems": [
+            34220,
+            32218
+          ]
+        }
+      ],
+      "neck": [
+        {
+          "itemId": 32349,
+          "rank": 1,
+          "name": "Translucent Spellthread Necklace",
+          "source": ""
+        }
+      ],
+      "shoulder": [
+        {
+          "itemId": 31054,
+          "rank": 1,
+          "name": "Mantle of the Malefic",
+          "source": "",
+          "gems": [
+            32215,
+            32218
+          ]
+        }
+      ],
+      "back": [
+        {
+          "itemId": 32524,
+          "rank": 1,
+          "name": "Shroud of the Highborne",
+          "source": ""
+        }
+      ],
+      "chest": [
+        {
+          "itemId": 30107,
+          "rank": 1,
+          "name": "Vestments of the Sea-Witch",
+          "source": "",
+          "enchant": 2661,
+          "gems": [
+            32196,
+            32196,
+            32196
+          ]
+        }
+      ],
+      "wrist": [
+        {
+          "itemId": 32586,
+          "rank": 1,
+          "name": "Bracers of Nimble Thought",
+          "source": "",
+          "enchant": 2650
+        }
+      ],
+      "hands": [
+        {
+          "itemId": 31050,
+          "rank": 1,
+          "name": "Gloves of the Malefic",
+          "source": "",
+          "enchant": 2937,
+          "gems": [
+            32196
+          ]
+        }
+      ],
+      "waist": [
+        {
+          "itemId": 30038,
+          "rank": 1,
+          "name": "Belt of Blasting",
+          "source": "",
+          "gems": [
+            32196,
+            32196
+          ]
+        }
+      ],
+      "legs": [
+        {
+          "itemId": 31053,
+          "rank": 1,
+          "name": "Leggings of the Malefic",
+          "source": "",
+          "enchant": 2748,
+          "gems": [
+            32196
+          ]
+        }
+      ],
+      "feet": [
+        {
+          "itemId": 32239,
+          "rank": 1,
+          "name": "Slippers of the Seacaller",
+          "source": "",
+          "enchant": 2940,
+          "gems": [
+            32218,
+            32215
+          ]
+        }
+      ],
+      "finger": [
+        {
+          "itemId": 32527,
+          "rank": 1,
+          "name": "Ring of Ancient Knowledge",
+          "source": ""
+        },
+        {
+          "itemId": 32527,
+          "rank": 2,
+          "name": "Ring of Ancient Knowledge",
+          "source": ""
+        }
+      ],
+      "trinket": [
+        {
+          "itemId": 32483,
+          "rank": 1,
+          "name": "The Skull of Gul'dan",
+          "source": ""
+        },
+        {
+          "itemId": 33829,
+          "rank": 2,
+          "name": "Hex Shrunken Head",
+          "source": ""
+        }
+      ],
+      "ranged": [
+        {
+          "itemId": 33192,
+          "rank": 1,
+          "name": "Carved Witch Doctor's Stick",
+          "source": "",
+          "gems": [
+            32196
+          ]
+        }
+      ],
+      "weaponConfig": "mainhand_offhand",
+      "mainhand": [
+        {
+          "itemId": 32374,
+          "rank": 1,
+          "name": "Zhar'doom, Greatstaff of the Devourer",
+          "source": "",
+          "enchant": 2672
+        }
+      ]
+    },
+    "demonology_warlock": {
+      "_source": "wowsims-preset",
+      "_preset": "presets/warlock/za.gear.json",
+      "head": [
+        {
+          "itemId": 31051,
+          "rank": 1,
+          "name": "Hood of the Malefic",
+          "source": "",
+          "enchant": 3002,
+          "gems": [
+            34220,
+            32218
+          ]
+        }
+      ],
+      "neck": [
+        {
+          "itemId": 32349,
+          "rank": 1,
+          "name": "Translucent Spellthread Necklace",
+          "source": ""
+        }
+      ],
+      "shoulder": [
+        {
+          "itemId": 31054,
+          "rank": 1,
+          "name": "Mantle of the Malefic",
+          "source": "",
+          "gems": [
+            32215,
+            32218
+          ]
+        }
+      ],
+      "back": [
+        {
+          "itemId": 32524,
+          "rank": 1,
+          "name": "Shroud of the Highborne",
+          "source": ""
+        }
+      ],
+      "chest": [
+        {
+          "itemId": 30107,
+          "rank": 1,
+          "name": "Vestments of the Sea-Witch",
+          "source": "",
+          "enchant": 2661,
+          "gems": [
+            32196,
+            32196,
+            32196
+          ]
+        }
+      ],
+      "wrist": [
+        {
+          "itemId": 32586,
+          "rank": 1,
+          "name": "Bracers of Nimble Thought",
+          "source": "",
+          "enchant": 2650
+        }
+      ],
+      "hands": [
+        {
+          "itemId": 31050,
+          "rank": 1,
+          "name": "Gloves of the Malefic",
+          "source": "",
+          "enchant": 2937,
+          "gems": [
+            32196
+          ]
+        }
+      ],
+      "waist": [
+        {
+          "itemId": 30038,
+          "rank": 1,
+          "name": "Belt of Blasting",
+          "source": "",
+          "gems": [
+            32196,
+            32196
+          ]
+        }
+      ],
+      "legs": [
+        {
+          "itemId": 31053,
+          "rank": 1,
+          "name": "Leggings of the Malefic",
+          "source": "",
+          "enchant": 2748,
+          "gems": [
+            32196
+          ]
+        }
+      ],
+      "feet": [
+        {
+          "itemId": 32239,
+          "rank": 1,
+          "name": "Slippers of the Seacaller",
+          "source": "",
+          "enchant": 2940,
+          "gems": [
+            32218,
+            32215
+          ]
+        }
+      ],
+      "finger": [
+        {
+          "itemId": 32527,
+          "rank": 1,
+          "name": "Ring of Ancient Knowledge",
+          "source": ""
+        },
+        {
+          "itemId": 32527,
+          "rank": 2,
+          "name": "Ring of Ancient Knowledge",
+          "source": ""
+        }
+      ],
+      "trinket": [
+        {
+          "itemId": 32483,
+          "rank": 1,
+          "name": "The Skull of Gul'dan",
+          "source": ""
+        },
+        {
+          "itemId": 33829,
+          "rank": 2,
+          "name": "Hex Shrunken Head",
+          "source": ""
+        }
+      ],
+      "ranged": [
+        {
+          "itemId": 33192,
+          "rank": 1,
+          "name": "Carved Witch Doctor's Stick",
+          "source": "",
+          "gems": [
+            32196
+          ]
+        }
+      ],
+      "weaponConfig": "mainhand_offhand",
+      "mainhand": [
+        {
+          "itemId": 32374,
+          "rank": 1,
+          "name": "Zhar'doom, Greatstaff of the Devourer",
+          "source": "",
+          "enchant": 2672
         }
       ]
     }
