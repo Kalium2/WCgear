@@ -163,9 +163,6 @@ const els = {
   charMedPerf: $("charMedPerf"),
   refetchBtn: $("refetchBtn"),
 
-  simPanel: $("simPanel"),
-  simulateBtn: $("simulateBtn"),
-  simResult: $("simResult"),
   upgradePanel: $("upgradePanel"),
   upgradeBtn: $("upgradeBtn"),
   upgradePhaseSelect: $("upgradePhaseSelect"),
@@ -212,7 +209,6 @@ async function init() {
   els.changeReportBtn.addEventListener("click", onClearReportClick);
   els.refetchBtn.addEventListener("click", onClearReportClick);
   els.compareForm.addEventListener("submit", onCheckGear);
-  els.simulateBtn.addEventListener("click", onRunSimulation);
   els.upgradeBtn.addEventListener("click", onFindUpgrades);
 
   // The two phase controls are kept in lockstep on purpose. The sweep
@@ -354,8 +350,6 @@ function resetToFetch() {
   state.gear = null;
   state.equippedItemDetails = null;
   els.charPanel.hidden = true;
-  els.simPanel.hidden = true;
-  els.simResult.innerHTML = "";
   els.upgradePanel.hidden = true;
   els.upgradeStatus.innerHTML = "";
   els.upgradeResults.innerHTML = "";
@@ -577,9 +571,6 @@ function renderCharacter() {
   // Simulation is only available for classes sim.js actually has a
   // rotation built for (Destruction Warlock, currently) — hide the
   // panel entirely rather than show a button that will always 400.
-  els.simResult.innerHTML = "";
-  setSimulateLoading(false);
-  els.simPanel.hidden = !c.simulatable;
   els.upgradePanel.hidden = !c.simulatable;
   els.upgradeStatus.innerHTML = "";
   els.upgradeResults.innerHTML = "";
@@ -647,76 +638,6 @@ function hasBisData(specValue) {
 }
 
 /* ================================================================
-   SIMULATE DPS — runs the currently-equipped gear through wowsimtbc
-   ================================================================
-   Independent of the BiS-comparison step below: this simulates
-   exactly what's equipped right now (no phase/spec selection — the
-   backend infers the build from the character's actual class/gear),
-   and reports back a single overall raid DPS number for a standard
-   3-minute patchwerk-style encounter. See sim.js/server.js for how
-   the number itself is computed.
-   ================================================================ */
-let simulateInFlight = false;
-
-async function onRunSimulation() {
-  if (simulateInFlight || !state.character) return;
-  simulateInFlight = true;
-  setSimulateLoading(true);
-  els.simResult.innerHTML = `<span class="perf-badge"><span class="perf-label">Simulating…</span></span>`;
-
-  try {
-    const { dps, error } = USE_LIVE_WORKER
-      ? await runSimulationFromWorker()
-      : await runSimulationDemo();
-
-    if (error) {
-      els.simResult.innerHTML = `<span class="perf-badge"><span class="perf-value" style="color:var(--accent-upgrade);">${escapeHtml(error)}</span></span>`;
-      return;
-    }
-
-    els.simResult.innerHTML = dps != null
-      ? `<span class="perf-badge"><span class="perf-label">Simulated DPS</span> <span class="perf-value perf-tier-gold">${dps.toFixed(1)}</span></span>`
-      : `<span class="perf-badge"><span class="perf-value" style="color:var(--accent-upgrade);">Simulation returned no result.</span></span>`;
-  } catch (err) {
-    els.simResult.innerHTML = `<span class="perf-badge"><span class="perf-value" style="color:var(--accent-upgrade);">${escapeHtml(err.message || "Simulation failed. Please try again.")}</span></span>`;
-  } finally {
-    simulateInFlight = false;
-    setSimulateLoading(false);
-  }
-}
-
-/** wowsimtbc runs a full multi-thousand-iteration sim, which can take
- *  well past a normal request timeout — no client-side timeout is set
- *  here on purpose; the backend's own polling loop (sim.js) gives up
- *  after ~60s and returns a real error if something's actually wrong. */
-async function runSimulationFromWorker() {
-  const res = await fetch(`${WCL_API_URL}/api/simulate`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ name: state.character.name, reportCode: state.character.reportCode, fightId: state.character.fightId }),
-  });
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) {
-    return { dps: null, error: data.error || "Simulation failed. Please try again." };
-  }
-  return { dps: data.dps ?? null, error: data.error || null };
-}
-
-/** Demo/test-mode simulation: no real wowsimtbc server to call, so
- *  this returns a plausible fixed number after a delay — enough to
- *  exercise the UI flow (loading state, result rendering) without a
- *  live backend, matching the pattern used by fetchCharacterDemo. */
-async function runSimulationDemo() {
-  await sleep(1500);
-  return { dps: 2487.3, error: null };
-}
-
-function setSimulateLoading(loading) {
-  els.simulateBtn.disabled = loading;
-  els.simulateBtn.querySelector(".btn-label").textContent = loading ? "Simulating…" : "Run Simulation";
-}
-
-/* ================================================================
    UPGRADE PRIORITY — what is each recommended piece actually worth?
    ================================================================
    Deliberately separate from the BiS comparison below: that panel is
@@ -741,7 +662,7 @@ async function onFindUpgrades() {
   try {
     if (!USE_LIVE_WORKER) {
       await sleep(1200);
-      renderUpgradeResults(2487.3, DEMO_UPGRADES);
+      renderUpgradeResults({ baselineDps: 1821.1, fullBisDps: 2104.6, results: DEMO_UPGRADES });
       return;
     }
 
@@ -777,12 +698,12 @@ async function onFindUpgrades() {
     // The backend caches finished sweeps, so a repeat request for the
     // same character/fight/phase comes back instantly with no job.
     if (start.cached) {
-      renderUpgradeResults(start.baselineDps, start.results);
+      renderUpgradeResults(start);
       return;
     }
 
     const final = await pollUpgradeSweep(start.jobId);
-    renderUpgradeResults(final.baselineDps, final.results);
+    renderUpgradeResults(final);
   } catch (err) {
     els.upgradeStatus.innerHTML = `<span class="perf-badge"><span class="perf-value" style="color:var(--accent-upgrade);">${escapeHtml(err.message || "Upgrade sweep failed.")}</span></span>`;
   } finally {
@@ -806,9 +727,26 @@ async function pollUpgradeSweep(jobId) {
   throw new Error("The upgrade sweep took longer than expected.");
 }
 
-function renderUpgradeResults(baselineDps, results) {
-  els.upgradeStatus.innerHTML =
-    `<span class="perf-badge"><span class="perf-label">Current gear</span> <span class="perf-value perf-tier-gold">${baselineDps.toFixed(1)} DPS</span></span>`;
+function renderUpgradeResults({ baselineDps, fullBisDps, fullBisError, results }) {
+  // Three levels of answer: where you are now, where the full recommended
+  // set would put you, and what each individual piece contributes.
+  const badges = [
+    `<span class="perf-badge"><span class="perf-label">Current gear</span> <span class="perf-value perf-tier-gold">${baselineDps.toFixed(1)} DPS</span></span>`,
+  ];
+
+  if (fullBisDps != null) {
+    const gain = fullBisDps - baselineDps;
+    const sign = gain >= 0 ? "+" : "";
+    badges.push(
+      `<span class="perf-badge"><span class="perf-label">Full recommended set</span> <span class="perf-value perf-tier-gold">${fullBisDps.toFixed(1)} DPS</span> <span class="perf-value" style="color:var(--accent-bis, #63d471);">${sign}${gain.toFixed(1)}</span></span>`
+    );
+  } else if (fullBisError) {
+    badges.push(
+      `<span class="perf-badge"><span class="perf-value" style="color:var(--accent-upgrade);">Full set couldn't be simulated</span></span>`
+    );
+  }
+
+  els.upgradeStatus.innerHTML = badges.join(' <span style="opacity:0.35;">·</span> ');
 
   const rowStyle = "display:flex;align-items:center;gap:12px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.07);";
   const slotStyle = "flex:0 0 92px;opacity:0.75;font-size:0.85rem;";
@@ -838,8 +776,9 @@ function renderUpgradeResults(baselineDps, results) {
     <div style="margin-top:12px;">${rows}</div>
     <p class="panel-hint" style="margin-top:12px;">
       Each figure is what you'd gain from obtaining that single piece, with everything else left as it is.
-      They don't add up — the spell hit cap and set bonuses make gear non-linear.
-      A negative usually means swapping that piece would break a set bonus you're currently getting.
+      They deliberately don't sum to the full-set number above — the spell hit cap, stat diminishing and set
+      bonuses all make gear non-linear, so the whole set is usually worth less than the individual gains added together.
+      A negative usually means swapping that piece alone would break a set bonus you're currently getting.
     </p>
   `;
 
