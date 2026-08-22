@@ -109,6 +109,21 @@
     </div>
   </section>
 
+  <!-- ============ UPGRADE PRIORITY (hidden until a simulatable character is loaded) ============ -->
+  <section class="panel char-panel" id="upgradePanel" hidden aria-labelledby="upgradeHeading">
+    <div class="char-panel-inner">
+      <div class="char-id" style="flex:1 1 auto;min-width:0;">
+        <h2 id="upgradeHeading" class="char-name" style="font-size:1.15rem;">Upgrade Priority</h2>
+        <p class="panel-hint" style="margin:6px 0 0;">Simulates each piece from wowsims' recommended gear set into your current setup, one slot at a time, and reports what it's actually worth. Takes about half a minute.</p>
+        <div class="results-perf" id="upgradeStatus" style="margin-top:12px;"></div>
+        <div id="upgradeResults"></div>
+      </div>
+      <button type="button" class="btn btn-primary" id="upgradeBtn">
+        <span class="btn-label">Find My Upgrades</span>
+      </button>
+    </div>
+  </section>
+
   <!-- ============ STEP 2 — COMPARE GEAR ============ -->
   <section class="panel step-panel" id="comparePanel" hidden aria-labelledby="compareHeading">
     <div class="step-label"><span class="step-num">II</span><span>Compare Gear</span></div>
