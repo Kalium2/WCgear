@@ -166,6 +166,7 @@ const els = {
   upgradePanel: $("upgradePanel"),
   upgradeBtn: $("upgradeBtn"),
   upgradePhaseSelect: $("upgradePhaseSelect"),
+  upgradeSpecSelect: $("upgradeSpecSelect"),
   upgradeStatus: $("upgradeStatus"),
   upgradeResults: $("upgradeResults"),
 
@@ -221,6 +222,14 @@ async function init() {
   });
   els.phaseSelect.addEventListener("change", () => {
     els.upgradePhaseSelect.value = els.phaseSelect.value;
+  });
+
+  els.upgradeSpecSelect.addEventListener("change", () => {
+    els.specSelect.value = els.upgradeSpecSelect.value;
+    runAndRenderComparison({ scroll: false });
+  });
+  els.specSelect.addEventListener("change", () => {
+    els.upgradeSpecSelect.value = els.specSelect.value;
   });
 }
 
@@ -575,7 +584,7 @@ function renderCharacter() {
   els.upgradeStatus.innerHTML = "";
   els.upgradeResults.innerHTML = "";
 
-  populateSpecOptions(c.class);
+  populateSpecOptions(c.class, c.realmSpec);
 }
 
 /** Best/Median Performance Average tiering, matching Warcraft Logs'
@@ -603,7 +612,7 @@ function formatPerf(value) {
  *  detected class isn't one this tool supports yet, the compare form
  *  is disabled with an explanatory message instead of showing
  *  unrelated specs. */
-function populateSpecOptions(detectedClass) {
+function populateSpecOptions(detectedClass, detectedSpec) {
   const validSpecs = CLASS_SPEC_MAP[detectedClass];
   els.specSelect.innerHTML = "";
 
@@ -625,11 +634,36 @@ function populateSpecOptions(detectedClass) {
     els.specSelect.appendChild(opt);
   });
 
-  // Default to a spec that actually has data, if one exists among the
-  // valid options for this class — no reason to make the user land on
-  // an empty spec first when a real one is right there.
+  // Prefer the spec Warcraft Logs actually detected. This used to pick
+  // "the first spec with BiS data", which only looked like auto-detection
+  // because Destruction was the sole Warlock spec with data — once
+  // Affliction and Demonology were added, every Warlock defaulted to
+  // Affliction regardless of what they actually play.
+  const wanted = String(detectedSpec || "").trim().toLowerCase();
+  const detected = validSpecs.find((s) => s.label.toLowerCase() === wanted);
   const firstWithData = validSpecs.find((s) => hasBisData(s.value));
-  if (firstWithData) els.specSelect.value = firstWithData.value;
+
+  // Fall back to a spec with data only when the detected one has none —
+  // no reason to land the user on an empty spec when a real one exists.
+  const choice = (detected && hasBisData(detected.value)) ? detected : (firstWithData || detected);
+  if (choice) els.specSelect.value = choice.value;
+
+  syncUpgradeSpecOptions();
+}
+
+/** Mirrors the compare panel's spec options into the Upgrade Priority
+ *  panel. They must offer the same choices, because the sweep simulates
+ *  whatever the comparison recommends. */
+function syncUpgradeSpecOptions() {
+  els.upgradeSpecSelect.innerHTML = "";
+  [...els.specSelect.options].forEach((o) => {
+    const opt = document.createElement("option");
+    opt.value = o.value;
+    opt.textContent = o.textContent;
+    els.upgradeSpecSelect.appendChild(opt);
+  });
+  els.upgradeSpecSelect.disabled = els.specSelect.disabled;
+  els.upgradeSpecSelect.value = els.specSelect.value;
 }
 
 /** True if either phase's BiS dataset has an entry for this spec. */
@@ -669,8 +703,10 @@ async function onFindUpgrades() {
     // Make sure the comparison matches the phase selected here before
     // reading its recommendations, so the sweep can never be a phase
     // behind what the cards show.
-    if (els.phaseSelect.value !== els.upgradePhaseSelect.value) {
+    if (els.phaseSelect.value !== els.upgradePhaseSelect.value ||
+        els.specSelect.value !== els.upgradeSpecSelect.value) {
       els.phaseSelect.value = els.upgradePhaseSelect.value;
+      els.specSelect.value = els.upgradeSpecSelect.value;
       await runAndRenderComparison({ scroll: false });
     }
 
