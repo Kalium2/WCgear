@@ -949,7 +949,8 @@ async function runAndRenderComparison({ scroll } = {}) {
 
     const bisSet = state.bisData?.[phase]?.[specValue];
     if (!bisSet) {
-      showError(`No BiS data is available yet for ${specMeta.label} in ${phaseLabel(phase)}.`);
+            hideError();
+      els.resultsPanel.hidden = true;
       return;
     }
 
