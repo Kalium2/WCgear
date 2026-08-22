@@ -95,26 +95,12 @@
     </div>
   </section>
 
-  <!-- ============ SIMULATED DPS (hidden until a simulatable character is loaded) ============ -->
-  <section class="panel char-panel" id="simPanel" hidden aria-labelledby="simHeading">
-    <div class="char-panel-inner">
-      <div class="char-id">
-        <h2 id="simHeading" class="char-name" style="font-size:1.15rem;">Simulated DPS</h2>
-        <p class="panel-hint" style="margin:6px 0 0;">Runs your currently-equipped gear through wowsimtbc. Currently Destruction Warlock only — more specs coming as their rotations get added.</p>
-        <div class="results-perf" id="simResult" style="margin-top:12px;"></div>
-      </div>
-      <button type="button" class="btn btn-primary" id="simulateBtn">
-        <span class="btn-label">Run Simulation</span>
-      </button>
-    </div>
-  </section>
-
   <!-- ============ UPGRADE PRIORITY (hidden until a simulatable character is loaded) ============ -->
   <section class="panel char-panel" id="upgradePanel" hidden aria-labelledby="upgradeHeading">
     <div class="char-panel-inner">
       <div class="char-id" style="flex:1 1 auto;min-width:0;">
         <h2 id="upgradeHeading" class="char-name" style="font-size:1.15rem;">Upgrade Priority</h2>
-        <p class="panel-hint" style="margin:6px 0 0;">Simulates each recommended piece into your current gear, one slot at a time, and reports what it's actually worth. Takes about half a minute.</p>
+        <p class="panel-hint" style="margin:6px 0 0;">Runs your gear through wowsimtbc: your current DPS, what the full recommended set would give you, and what each individual piece is worth. Destruction Warlock only for now. Takes about half a minute.</p>
         <div class="field" style="margin-top:12px;max-width:200px;">
           <label for="upgradePhaseSelect">Evaluate for</label>
           <select id="upgradePhaseSelect">
