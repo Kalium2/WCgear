@@ -2235,6 +2235,1347 @@
           "enchant": 2672
         }
       ]
+    },
+    "protection_warrior": {
+      "_source": "wowsims-preset",
+      "_preset": "presets/warrior_protection/p3_bis.gear.json",
+      "head": [
+        {
+          "itemId": 33730,
+          "rank": 1,
+          "name": "Vengeful Gladiator's Plate Helm",
+          "source": "",
+          "enchant": 3003,
+          "gems": [
+            25896,
+            32200
+          ]
+        }
+      ],
+      "neck": [
+        {
+          "itemId": 33923,
+          "rank": 1,
+          "name": "Vindicator's Pendant of Triumph",
+          "source": "",
+          "gems": [
+            32200
+          ]
+        }
+      ],
+      "shoulder": [
+        {
+          "itemId": 30979,
+          "rank": 1,
+          "name": "Onslaught Shoulderblades",
+          "source": "",
+          "enchant": 2997,
+          "gems": [
+            32200,
+            32200
+          ]
+        }
+      ],
+      "back": [
+        {
+          "itemId": 34010,
+          "rank": 1,
+          "name": "Pepe's Shroud of Pacification",
+          "source": "",
+          "enchant": 368
+        }
+      ],
+      "chest": [
+        {
+          "itemId": 33728,
+          "rank": 1,
+          "name": "Vengeful Gladiator's Plate Chestpiece",
+          "source": "",
+          "enchant": 2661,
+          "gems": [
+            32200,
+            32200,
+            32200
+          ]
+        }
+      ],
+      "wrist": [
+        {
+          "itemId": 33813,
+          "rank": 1,
+          "name": "Vindicator's Plate Bracers",
+          "source": "",
+          "enchant": 2649,
+          "gems": [
+            32200
+          ]
+        }
+      ],
+      "hands": [
+        {
+          "itemId": 32280,
+          "rank": 1,
+          "name": "Gauntlets of Enforcement",
+          "source": "",
+          "enchant": 2613
+        }
+      ],
+      "waist": [
+        {
+          "itemId": 30106,
+          "rank": 1,
+          "name": "Belt of One-Hundred Deaths",
+          "source": "",
+          "gems": [
+            32200,
+            32200
+          ]
+        }
+      ],
+      "legs": [
+        {
+          "itemId": 30977,
+          "rank": 1,
+          "name": "Onslaught Greaves",
+          "source": "",
+          "enchant": 3013,
+          "gems": [
+            32200
+          ]
+        }
+      ],
+      "feet": [
+        {
+          "itemId": 33812,
+          "rank": 1,
+          "name": "Vindicator's Plate Greaves",
+          "source": "",
+          "enchant": 2940
+        }
+      ],
+      "finger": [
+        {
+          "itemId": 30834,
+          "rank": 1,
+          "name": "Shapeshifter's Signet",
+          "source": ""
+        },
+        {
+          "itemId": 29301,
+          "rank": 2,
+          "name": "Band of the Eternal Champion",
+          "source": ""
+        }
+      ],
+      "trinket": [
+        {
+          "itemId": 31858,
+          "rank": 1,
+          "name": "Darkmoon Card: Vengeance",
+          "source": ""
+        },
+        {
+          "itemId": 31859,
+          "rank": 2,
+          "name": "Darkmoon Card: Madness",
+          "source": ""
+        }
+      ],
+      "ranged": [
+        {
+          "itemId": 32253,
+          "rank": 1,
+          "name": "Legionkiller",
+          "source": ""
+        }
+      ],
+      "weaponConfig": "mainhand_offhand",
+      "mainhand": [
+        {
+          "itemId": 32254,
+          "rank": 1,
+          "name": "The Brutalizer",
+          "source": "",
+          "enchant": 2673
+        }
+      ],
+      "offhand": [
+        {
+          "itemId": 32375,
+          "rank": 1,
+          "name": "Bulwark of Azzinoth",
+          "source": "",
+          "enchant": 1071
+        }
+      ]
+    },
+    "protection_paladin": {
+      "_source": "wowsims-preset",
+      "_preset": "presets/paladin_protection/p3.gear.json",
+      "head": [
+        {
+          "itemId": 32521,
+          "rank": 1,
+          "name": "Faceplate of the Impenetrable",
+          "source": "",
+          "enchant": 3002,
+          "gems": [
+            25896,
+            32196
+          ]
+        }
+      ],
+      "neck": [
+        {
+          "itemId": 32362,
+          "rank": 1,
+          "name": "Pendant of Titans",
+          "source": ""
+        }
+      ],
+      "shoulder": [
+        {
+          "itemId": 30998,
+          "rank": 1,
+          "name": "Lightbringer Shoulderguards",
+          "source": "",
+          "enchant": 2991,
+          "gems": [
+            32200,
+            32196
+          ]
+        }
+      ],
+      "back": [
+        {
+          "itemId": 34010,
+          "rank": 1,
+          "name": "Pepe's Shroud of Pacification",
+          "source": "",
+          "enchant": 2622
+        }
+      ],
+      "chest": [
+        {
+          "itemId": 30991,
+          "rank": 1,
+          "name": "Lightbringer Chestguard",
+          "source": "",
+          "enchant": 2659,
+          "gems": [
+            32196,
+            32196,
+            32221
+          ]
+        }
+      ],
+      "wrist": [
+        {
+          "itemId": 32279,
+          "rank": 1,
+          "name": "The Seeker's Wristguards",
+          "source": "",
+          "enchant": 2650
+        }
+      ],
+      "hands": [
+        {
+          "itemId": 30985,
+          "rank": 1,
+          "name": "Lightbringer Handguards",
+          "source": "",
+          "enchant": 2613,
+          "gems": [
+            32196
+          ]
+        }
+      ],
+      "waist": [
+        {
+          "itemId": 32342,
+          "rank": 1,
+          "name": "Girdle of Mighty Resolve",
+          "source": "",
+          "gems": [
+            32200,
+            32200
+          ]
+        }
+      ],
+      "legs": [
+        {
+          "itemId": 30995,
+          "rank": 1,
+          "name": "Lightbringer Legguards",
+          "source": "",
+          "enchant": 2748,
+          "gems": [
+            32200
+          ]
+        }
+      ],
+      "feet": [
+        {
+          "itemId": 32245,
+          "rank": 1,
+          "name": "Tide-stomper's Greaves",
+          "source": "",
+          "enchant": 2940,
+          "gems": [
+            32200,
+            32200
+          ]
+        }
+      ],
+      "finger": [
+        {
+          "itemId": 32261,
+          "rank": 1,
+          "name": "Band of the Abyssal Lord",
+          "source": "",
+          "enchant": 2928
+        },
+        {
+          "itemId": 29172,
+          "rank": 2,
+          "name": "Ashyen's Gift",
+          "source": "",
+          "enchant": 2928
+        }
+      ],
+      "trinket": [
+        {
+          "itemId": 31858,
+          "rank": 1,
+          "name": "Darkmoon Card: Vengeance",
+          "source": ""
+        },
+        {
+          "itemId": 32489,
+          "rank": 2,
+          "name": "Ashtongue Talisman of Zeal",
+          "source": ""
+        }
+      ],
+      "ranged": [
+        {
+          "itemId": 32368,
+          "rank": 1,
+          "name": "Tome of the Lightbringer",
+          "source": ""
+        }
+      ],
+      "weaponConfig": "mainhand_offhand",
+      "mainhand": [
+        {
+          "itemId": 30910,
+          "rank": 1,
+          "name": "Tempest of Chaos",
+          "source": "",
+          "enchant": 2669
+        }
+      ],
+      "offhand": [
+        {
+          "itemId": 32375,
+          "rank": 1,
+          "name": "Bulwark of Azzinoth",
+          "source": "",
+          "enchant": 1071
+        }
+      ]
+    },
+    "guardian_druid": {
+      "_source": "wowsims-preset",
+      "_preset": "presets/druid_feralbear/p3.gear.json",
+      "head": [
+        {
+          "itemId": 31039,
+          "rank": 1,
+          "name": "Thunderheart Cover",
+          "source": "",
+          "enchant": 2999,
+          "gems": [
+            32212,
+            32409
+          ]
+        }
+      ],
+      "neck": [
+        {
+          "itemId": 32362,
+          "rank": 1,
+          "name": "Pendant of Titans",
+          "source": ""
+        }
+      ],
+      "shoulder": [
+        {
+          "itemId": 31048,
+          "rank": 1,
+          "name": "Thunderheart Pauldrons",
+          "source": "",
+          "enchant": 2978,
+          "gems": [
+            32220,
+            32200
+          ]
+        }
+      ],
+      "back": [
+        {
+          "itemId": 28660,
+          "rank": 1,
+          "name": "Gilded Thorium Cloak",
+          "source": "",
+          "enchant": 368
+        }
+      ],
+      "chest": [
+        {
+          "itemId": 31042,
+          "rank": 1,
+          "name": "Thunderheart Chestguard",
+          "source": "",
+          "enchant": 2661,
+          "gems": [
+            32212,
+            32220,
+            32194
+          ]
+        }
+      ],
+      "wrist": [
+        {
+          "itemId": 33881,
+          "rank": 1,
+          "name": "Vindicator's Dragonhide Bracers",
+          "source": "",
+          "enchant": 2649,
+          "gems": [
+            32194
+          ]
+        }
+      ],
+      "hands": [
+        {
+          "itemId": 31034,
+          "rank": 1,
+          "name": "Thunderheart Gauntlets",
+          "source": "",
+          "enchant": 2613,
+          "gems": [
+            32212
+          ]
+        }
+      ],
+      "waist": [
+        {
+          "itemId": 30106,
+          "rank": 1,
+          "name": "Belt of One-Hundred Deaths",
+          "source": "",
+          "gems": [
+            32194,
+            32212
+          ]
+        }
+      ],
+      "legs": [
+        {
+          "itemId": 31044,
+          "rank": 1,
+          "name": "Thunderheart Leggings",
+          "source": "",
+          "enchant": 3013,
+          "gems": [
+            32212
+          ]
+        }
+      ],
+      "feet": [
+        {
+          "itemId": 32593,
+          "rank": 1,
+          "name": "Treads of the Den Mother",
+          "source": "",
+          "enchant": 2940
+        }
+      ],
+      "finger": [
+        {
+          "itemId": 29279,
+          "rank": 1,
+          "name": "Violet Signet of the Great Protector",
+          "source": "",
+          "enchant": 2931
+        },
+        {
+          "itemId": 32266,
+          "rank": 2,
+          "name": "Ring of Deceitful Intent",
+          "source": "",
+          "enchant": 2931
+        }
+      ],
+      "trinket": [
+        {
+          "itemId": 32501,
+          "rank": 1,
+          "name": "Shadowmoon Insignia",
+          "source": ""
+        },
+        {
+          "itemId": 32658,
+          "rank": 2,
+          "name": "Badge of Tenacity",
+          "source": ""
+        }
+      ],
+      "ranged": [
+        {
+          "itemId": 32387,
+          "rank": 1,
+          "name": "Idol of the Raven Goddess",
+          "source": ""
+        }
+      ],
+      "weaponConfig": "mainhand_offhand",
+      "mainhand": [
+        {
+          "itemId": 30883,
+          "rank": 1,
+          "name": "Pillar of Ferocity",
+          "source": "",
+          "enchant": 2670
+        }
+      ]
+    },
+    "elemental_shaman": {
+      "_source": "wowsims-preset",
+      "_preset": "presets/shaman_elemental/p3.gear.json",
+      "head": [
+        {
+          "itemId": 31014,
+          "rank": 1,
+          "name": "Skyshatter Headguard",
+          "source": "",
+          "enchant": 3002,
+          "gems": [
+            34220,
+            32215
+          ]
+        }
+      ],
+      "neck": [
+        {
+          "itemId": 30015,
+          "rank": 1,
+          "name": "The Sun King's Talisman",
+          "source": ""
+        }
+      ],
+      "shoulder": [
+        {
+          "itemId": 31023,
+          "rank": 1,
+          "name": "Skyshatter Mantle",
+          "source": "",
+          "enchant": 2982,
+          "gems": [
+            32215,
+            32218
+          ]
+        }
+      ],
+      "back": [
+        {
+          "itemId": 32331,
+          "rank": 1,
+          "name": "Cloak of the Illidari Council",
+          "source": "",
+          "enchant": 2621
+        }
+      ],
+      "chest": [
+        {
+          "itemId": 31017,
+          "rank": 1,
+          "name": "Skyshatter Breastplate",
+          "source": "",
+          "enchant": 2661,
+          "gems": [
+            32196,
+            32196,
+            32196
+          ]
+        }
+      ],
+      "wrist": [
+        {
+          "itemId": 32586,
+          "rank": 1,
+          "name": "Bracers of Nimble Thought",
+          "source": "",
+          "enchant": 2650
+        }
+      ],
+      "hands": [
+        {
+          "itemId": 31008,
+          "rank": 1,
+          "name": "Skyshatter Gauntlets",
+          "source": "",
+          "enchant": 2937,
+          "gems": [
+            32218
+          ]
+        }
+      ],
+      "waist": [
+        {
+          "itemId": 32276,
+          "rank": 1,
+          "name": "Flashfire Girdle",
+          "source": ""
+        }
+      ],
+      "legs": [
+        {
+          "itemId": 30916,
+          "rank": 1,
+          "name": "Leggings of Channeled Elements",
+          "source": "",
+          "enchant": 2748,
+          "gems": [
+            32196,
+            32196,
+            32196
+          ]
+        }
+      ],
+      "feet": [
+        {
+          "itemId": 32352,
+          "rank": 1,
+          "name": "Naturewarden's Treads",
+          "source": "",
+          "enchant": 2940,
+          "gems": [
+            32196,
+            32196
+          ]
+        }
+      ],
+      "finger": [
+        {
+          "itemId": 32527,
+          "rank": 1,
+          "name": "Ring of Ancient Knowledge",
+          "source": "",
+          "enchant": 2928
+        },
+        {
+          "itemId": 29305,
+          "rank": 2,
+          "name": "Band of the Eternal Sage",
+          "source": "",
+          "enchant": 2928
+        }
+      ],
+      "trinket": [
+        {
+          "itemId": 32483,
+          "rank": 1,
+          "name": "The Skull of Gul'dan",
+          "source": ""
+        },
+        {
+          "itemId": 28785,
+          "rank": 2,
+          "name": "The Lightning Capacitor",
+          "source": ""
+        }
+      ],
+      "ranged": [
+        {
+          "itemId": 32330,
+          "rank": 1,
+          "name": "Totem of Ancestral Guidance",
+          "source": ""
+        }
+      ],
+      "weaponConfig": "mainhand_offhand",
+      "mainhand": [
+        {
+          "itemId": 32374,
+          "rank": 1,
+          "name": "Zhar'doom, Greatstaff of the Devourer",
+          "source": "",
+          "enchant": 2669
+        }
+      ]
+    },
+    "enhancement_shaman": {
+      "_source": "wowsims-preset",
+      "_preset": "presets/shaman_enhancement/p3.gear.json",
+      "head": [
+        {
+          "itemId": 32235,
+          "rank": 1,
+          "name": "Cursed Vision of Sargeras",
+          "source": "",
+          "enchant": 29192,
+          "gems": [
+            32409,
+            32193
+          ]
+        }
+      ],
+      "neck": [
+        {
+          "itemId": 32260,
+          "rank": 1,
+          "name": "Choker of Endless Nightmares",
+          "source": ""
+        }
+      ],
+      "shoulder": [
+        {
+          "itemId": 32575,
+          "rank": 1,
+          "name": "Shoulders of Lightning Reflexes",
+          "source": "",
+          "enchant": 28888
+        }
+      ],
+      "back": [
+        {
+          "itemId": 32323,
+          "rank": 1,
+          "name": "Shadowmoon Destroyer's Drape",
+          "source": "",
+          "enchant": 368
+        }
+      ],
+      "chest": [
+        {
+          "itemId": 30905,
+          "rank": 1,
+          "name": "Midnight Chestguard",
+          "source": "",
+          "enchant": 24003,
+          "gems": [
+            32211,
+            32193,
+            32217
+          ]
+        }
+      ],
+      "wrist": [
+        {
+          "itemId": 32574,
+          "rank": 1,
+          "name": "Bindings of Lightning Reflexes",
+          "source": "",
+          "enchant": 2647
+        }
+      ],
+      "hands": [
+        {
+          "itemId": 32234,
+          "rank": 1,
+          "name": "Fists of Mukoa",
+          "source": "",
+          "enchant": 684
+        }
+      ],
+      "waist": [
+        {
+          "itemId": 30106,
+          "rank": 1,
+          "name": "Belt of One-Hundred Deaths",
+          "source": "",
+          "gems": [
+            32193,
+            32193
+          ]
+        }
+      ],
+      "legs": [
+        {
+          "itemId": 30900,
+          "rank": 1,
+          "name": "Bow-stitched Leggings",
+          "source": "",
+          "enchant": 29535,
+          "gems": [
+            32193,
+            32217,
+            32211
+          ]
+        }
+      ],
+      "feet": [
+        {
+          "itemId": 32510,
+          "rank": 1,
+          "name": "Softstep Boots of Tracking",
+          "source": "",
+          "enchant": 28279
+        }
+      ],
+      "finger": [
+        {
+          "itemId": 29997,
+          "rank": 1,
+          "name": "Band of the Ranger-General",
+          "source": ""
+        },
+        {
+          "itemId": 32497,
+          "rank": 2,
+          "name": "Stormrage Signet Ring",
+          "source": ""
+        }
+      ],
+      "trinket": [
+        {
+          "itemId": 28830,
+          "rank": 1,
+          "name": "Dragonspine Trophy",
+          "source": ""
+        },
+        {
+          "itemId": 29383,
+          "rank": 2,
+          "name": "Bloodlust Brooch",
+          "source": ""
+        }
+      ],
+      "ranged": [
+        {
+          "itemId": 27815,
+          "rank": 1,
+          "name": "Totem of the Astral Winds",
+          "source": ""
+        }
+      ],
+      "weaponConfig": "mainhand_offhand",
+      "mainhand": [
+        {
+          "itemId": 32262,
+          "rank": 1,
+          "name": "Syphon of the Nathrezim",
+          "source": "",
+          "enchant": 22559
+        }
+      ],
+      "offhand": [
+        {
+          "itemId": 32262,
+          "rank": 1,
+          "name": "Syphon of the Nathrezim",
+          "source": "",
+          "enchant": 22559
+        }
+      ]
+    },
+    "balance_druid": {
+      "_source": "wowsims-preset",
+      "_preset": "presets/druid_balance/p3.gear.json",
+      "head": [
+        {
+          "itemId": 31040,
+          "rank": 1,
+          "name": "Thunderheart Headguard",
+          "source": "",
+          "enchant": 29191,
+          "gems": [
+            32218,
+            34220
+          ]
+        }
+      ],
+      "neck": [
+        {
+          "itemId": 30015,
+          "rank": 1,
+          "name": "The Sun King's Talisman",
+          "source": ""
+        }
+      ],
+      "shoulder": [
+        {
+          "itemId": 31049,
+          "rank": 1,
+          "name": "Thunderheart Shoulderpads",
+          "source": "",
+          "enchant": 28886,
+          "gems": [
+            32215,
+            32218
+          ]
+        }
+      ],
+      "back": [
+        {
+          "itemId": 32331,
+          "rank": 1,
+          "name": "Cloak of the Illidari Council",
+          "source": "",
+          "enchant": 33150
+        }
+      ],
+      "chest": [
+        {
+          "itemId": 31043,
+          "rank": 1,
+          "name": "Thunderheart Vest",
+          "source": "",
+          "enchant": 24003,
+          "gems": [
+            32196,
+            32196,
+            32196
+          ]
+        }
+      ],
+      "wrist": [
+        {
+          "itemId": 32586,
+          "rank": 1,
+          "name": "Bracers of Nimble Thought",
+          "source": "",
+          "enchant": 22534
+        }
+      ],
+      "hands": [
+        {
+          "itemId": 31035,
+          "rank": 1,
+          "name": "Thunderheart Handguards",
+          "source": "",
+          "enchant": 28272,
+          "gems": [
+            32218
+          ]
+        }
+      ],
+      "waist": [
+        {
+          "itemId": 30914,
+          "rank": 1,
+          "name": "Belt of the Crescent Moon",
+          "source": ""
+        }
+      ],
+      "legs": [
+        {
+          "itemId": 30916,
+          "rank": 1,
+          "name": "Leggings of Channeled Elements",
+          "source": "",
+          "enchant": 24274,
+          "gems": [
+            32196,
+            32196,
+            32196
+          ]
+        }
+      ],
+      "feet": [
+        {
+          "itemId": 32352,
+          "rank": 1,
+          "name": "Naturewarden's Treads",
+          "source": "",
+          "enchant": 35297,
+          "gems": [
+            32218,
+            32215
+          ]
+        }
+      ],
+      "finger": [
+        {
+          "itemId": 32527,
+          "rank": 1,
+          "name": "Ring of Ancient Knowledge",
+          "source": "",
+          "enchant": 22536
+        },
+        {
+          "itemId": 29305,
+          "rank": 2,
+          "name": "Band of the Eternal Sage",
+          "source": "",
+          "enchant": 22536
+        }
+      ],
+      "trinket": [
+        {
+          "itemId": 32486,
+          "rank": 1,
+          "name": "Ashtongue Talisman of Equilibrium",
+          "source": ""
+        },
+        {
+          "itemId": 32483,
+          "rank": 2,
+          "name": "The Skull of Gul'dan",
+          "source": ""
+        }
+      ],
+      "ranged": [
+        {
+          "itemId": 32387,
+          "rank": 1,
+          "name": "Idol of the Raven Goddess",
+          "source": ""
+        }
+      ],
+      "weaponConfig": "mainhand_offhand",
+      "mainhand": [
+        {
+          "itemId": 32374,
+          "rank": 1,
+          "name": "Zhar'doom, Greatstaff of the Devourer",
+          "source": "",
+          "enchant": 22560
+        }
+      ]
+    },
+    "feral_druid": {
+      "_source": "wowsims-preset",
+      "_preset": "presets/druid_feralcat/p3_6p.gear.json",
+      "head": [
+        {
+          "itemId": 8345,
+          "rank": 1,
+          "name": "Wolfshead Helm",
+          "source": "",
+          "enchant": 3003
+        }
+      ],
+      "neck": [
+        {
+          "itemId": 32260,
+          "rank": 1,
+          "name": "Choker of Endless Nightmares",
+          "source": ""
+        }
+      ],
+      "shoulder": [
+        {
+          "itemId": 31048,
+          "rank": 1,
+          "name": "Thunderheart Pauldrons",
+          "source": "",
+          "enchant": 2986,
+          "gems": [
+            32194,
+            32194
+          ]
+        }
+      ],
+      "back": [
+        {
+          "itemId": 29994,
+          "rank": 1,
+          "name": "Thalassian Wildercloak",
+          "source": "",
+          "enchant": 368
+        }
+      ],
+      "chest": [
+        {
+          "itemId": 31042,
+          "rank": 1,
+          "name": "Thunderheart Chestguard",
+          "source": "",
+          "enchant": 2661,
+          "gems": [
+            32194,
+            32194,
+            32194
+          ]
+        }
+      ],
+      "wrist": [
+        {
+          "itemId": 33881,
+          "rank": 1,
+          "name": "Vindicator's Dragonhide Bracers",
+          "source": "",
+          "enchant": 2647,
+          "gems": [
+            32194
+          ]
+        }
+      ],
+      "hands": [
+        {
+          "itemId": 31034,
+          "rank": 1,
+          "name": "Thunderheart Gauntlets",
+          "source": "",
+          "enchant": 2564,
+          "gems": [
+            32194
+          ]
+        }
+      ],
+      "waist": [
+        {
+          "itemId": 30106,
+          "rank": 1,
+          "name": "Belt of One-Hundred Deaths",
+          "source": "",
+          "gems": [
+            32194,
+            32194
+          ]
+        }
+      ],
+      "legs": [
+        {
+          "itemId": 31044,
+          "rank": 1,
+          "name": "Thunderheart Leggings",
+          "source": "",
+          "enchant": 3012,
+          "gems": [
+            32194
+          ]
+        }
+      ],
+      "feet": [
+        {
+          "itemId": 32366,
+          "rank": 1,
+          "name": "Shadowmaster's Boots",
+          "source": "",
+          "enchant": 2939,
+          "gems": [
+            32194,
+            32194
+          ]
+        }
+      ],
+      "finger": [
+        {
+          "itemId": 29301,
+          "rank": 1,
+          "name": "Band of the Eternal Champion",
+          "source": "",
+          "enchant": 2931
+        },
+        {
+          "itemId": 32335,
+          "rank": 2,
+          "name": "Unstoppable Aggressor's Ring",
+          "source": "",
+          "enchant": 2931
+        }
+      ],
+      "trinket": [
+        {
+          "itemId": 30627,
+          "rank": 1,
+          "name": "Tsunami Talisman",
+          "source": ""
+        },
+        {
+          "itemId": 29383,
+          "rank": 2,
+          "name": "Bloodlust Brooch",
+          "source": ""
+        }
+      ],
+      "ranged": [
+        {
+          "itemId": 32387,
+          "rank": 1,
+          "name": "Idol of the Raven Goddess",
+          "source": ""
+        }
+      ],
+      "weaponConfig": "mainhand_offhand",
+      "mainhand": [
+        {
+          "itemId": 33716,
+          "rank": 1,
+          "name": "Vengeful Gladiator's Staff",
+          "source": "",
+          "enchant": 2670
+        }
+      ]
+    },
+    "shadow_priest": {
+      "_source": "wowsims-preset",
+      "_preset": "presets/priest_dps/p3.gear.json",
+      "head": [
+        {
+          "itemId": 31064,
+          "rank": 1,
+          "name": "Hood of Absolution",
+          "source": "",
+          "enchant": 3002,
+          "gems": [
+            25893,
+            30600
+          ]
+        }
+      ],
+      "neck": [
+        {
+          "itemId": 30666,
+          "rank": 1,
+          "name": "Ritssyn's Lost Pendant",
+          "source": ""
+        }
+      ],
+      "shoulder": [
+        {
+          "itemId": 31070,
+          "rank": 1,
+          "name": "Shoulderpads of Absolution",
+          "source": "",
+          "enchant": 2982,
+          "gems": [
+            32196,
+            32196
+          ]
+        }
+      ],
+      "back": [
+        {
+          "itemId": 32590,
+          "rank": 1,
+          "name": "Nethervoid Cloak",
+          "source": "",
+          "enchant": 2621
+        }
+      ],
+      "chest": [
+        {
+          "itemId": 31065,
+          "rank": 1,
+          "name": "Shroud of Absolution",
+          "source": "",
+          "enchant": 2661,
+          "gems": [
+            32196,
+            32196,
+            32196
+          ]
+        }
+      ],
+      "wrist": [
+        {
+          "itemId": 32586,
+          "rank": 1,
+          "name": "Bracers of Nimble Thought",
+          "source": "",
+          "enchant": 2650
+        }
+      ],
+      "hands": [
+        {
+          "itemId": 31061,
+          "rank": 1,
+          "name": "Handguards of Absolution",
+          "source": "",
+          "enchant": 2937,
+          "gems": [
+            32196
+          ]
+        }
+      ],
+      "waist": [
+        {
+          "itemId": 32256,
+          "rank": 1,
+          "name": "Waistwrap of Infinity",
+          "source": ""
+        }
+      ],
+      "legs": [
+        {
+          "itemId": 30916,
+          "rank": 1,
+          "name": "Leggings of Channeled Elements",
+          "source": "",
+          "enchant": 2748,
+          "gems": [
+            32196,
+            32196,
+            32196
+          ]
+        }
+      ],
+      "feet": [
+        {
+          "itemId": 32239,
+          "rank": 1,
+          "name": "Slippers of the Seacaller",
+          "source": "",
+          "enchant": 2940,
+          "gems": [
+            32196,
+            32196
+          ]
+        }
+      ],
+      "finger": [
+        {
+          "itemId": 32527,
+          "rank": 1,
+          "name": "Ring of Ancient Knowledge",
+          "source": "",
+          "enchant": 2928
+        },
+        {
+          "itemId": 32527,
+          "rank": 2,
+          "name": "Ring of Ancient Knowledge",
+          "source": "",
+          "enchant": 2928
+        }
+      ],
+      "trinket": [
+        {
+          "itemId": 29370,
+          "rank": 1,
+          "name": "Icon of the Silver Crescent",
+          "source": ""
+        },
+        {
+          "itemId": 32483,
+          "rank": 2,
+          "name": "The Skull of Gul'dan",
+          "source": ""
+        }
+      ],
+      "ranged": [
+        {
+          "itemId": 29982,
+          "rank": 1,
+          "name": "Wand of the Forgotten Star",
+          "source": ""
+        }
+      ],
+      "weaponConfig": "mainhand_offhand",
+      "mainhand": [
+        {
+          "itemId": 32374,
+          "rank": 1,
+          "name": "Zhar'doom, Greatstaff of the Devourer",
+          "source": "",
+          "enchant": 2672
+        }
+      ]
     }
   },
   "phase4": {
@@ -4115,6 +5456,1183 @@
           "name": "Zhar'doom, Greatstaff of the Devourer",
           "source": "",
           "enchant": 2672
+        }
+      ]
+    },
+    "protection_warrior": {
+      "_source": "wowsims-preset",
+      "_preset": "presets/warrior_protection/p4_bis.gear.json",
+      "head": [
+        {
+          "itemId": 33730,
+          "rank": 1,
+          "name": "Vengeful Gladiator's Plate Helm",
+          "source": "",
+          "enchant": 3003,
+          "gems": [
+            32409,
+            32226
+          ]
+        }
+      ],
+      "neck": [
+        {
+          "itemId": 33296,
+          "rank": 1,
+          "name": "Brooch of Deftness",
+          "source": ""
+        }
+      ],
+      "shoulder": [
+        {
+          "itemId": 30979,
+          "rank": 1,
+          "name": "Onslaught Shoulderblades",
+          "source": "",
+          "enchant": 2997,
+          "gems": [
+            32200,
+            32200
+          ]
+        }
+      ],
+      "back": [
+        {
+          "itemId": 33484,
+          "rank": 1,
+          "name": "Dory's Embrace",
+          "source": "",
+          "enchant": 368
+        }
+      ],
+      "chest": [
+        {
+          "itemId": 33728,
+          "rank": 1,
+          "name": "Vengeful Gladiator's Plate Chestpiece",
+          "source": "",
+          "enchant": 2661,
+          "gems": [
+            32200,
+            32200,
+            32200
+          ]
+        }
+      ],
+      "wrist": [
+        {
+          "itemId": 33516,
+          "rank": 1,
+          "name": "Bracers of the Ancient Phalanx",
+          "source": "",
+          "enchant": 2649
+        }
+      ],
+      "hands": [
+        {
+          "itemId": 32280,
+          "rank": 1,
+          "name": "Gauntlets of Enforcement",
+          "source": "",
+          "enchant": 2613
+        }
+      ],
+      "waist": [
+        {
+          "itemId": 32333,
+          "rank": 1,
+          "name": "Girdle of Stability",
+          "source": "",
+          "gems": [
+            32212,
+            32226
+          ]
+        }
+      ],
+      "legs": [
+        {
+          "itemId": 30978,
+          "rank": 1,
+          "name": "Onslaught Legguards",
+          "source": "",
+          "enchant": 3013,
+          "gems": [
+            32212
+          ]
+        }
+      ],
+      "feet": [
+        {
+          "itemId": 32268,
+          "rank": 1,
+          "name": "Myrmidon's Treads",
+          "source": "",
+          "enchant": 2940,
+          "gems": [
+            32200,
+            32200
+          ]
+        }
+      ],
+      "finger": [
+        {
+          "itemId": 33496,
+          "rank": 1,
+          "name": "Signet of Primal Wrath",
+          "source": ""
+        },
+        {
+          "itemId": 29301,
+          "rank": 2,
+          "name": "Band of the Eternal Champion",
+          "source": ""
+        }
+      ],
+      "trinket": [
+        {
+          "itemId": 31858,
+          "rank": 1,
+          "name": "Darkmoon Card: Vengeance",
+          "source": ""
+        },
+        {
+          "itemId": 31859,
+          "rank": 2,
+          "name": "Darkmoon Card: Madness",
+          "source": ""
+        }
+      ],
+      "ranged": [
+        {
+          "itemId": 32253,
+          "rank": 1,
+          "name": "Legionkiller",
+          "source": ""
+        }
+      ],
+      "weaponConfig": "mainhand_offhand",
+      "mainhand": [
+        {
+          "itemId": 32369,
+          "rank": 1,
+          "name": "Blade of Savagery",
+          "source": "",
+          "enchant": 2673
+        }
+      ],
+      "offhand": [
+        {
+          "itemId": 32375,
+          "rank": 1,
+          "name": "Bulwark of Azzinoth",
+          "source": "",
+          "enchant": 1071
+        }
+      ]
+    },
+    "protection_paladin": {
+      "_source": "wowsims-preset",
+      "_preset": "presets/paladin_protection/p4.gear.json",
+      "head": [
+        {
+          "itemId": 32521,
+          "rank": 1,
+          "name": "Faceplate of the Impenetrable",
+          "source": "",
+          "enchant": 3002,
+          "gems": [
+            25896,
+            32196
+          ]
+        }
+      ],
+      "neck": [
+        {
+          "itemId": 32362,
+          "rank": 1,
+          "name": "Pendant of Titans",
+          "source": ""
+        }
+      ],
+      "shoulder": [
+        {
+          "itemId": 30998,
+          "rank": 1,
+          "name": "Lightbringer Shoulderguards",
+          "source": "",
+          "enchant": 2991,
+          "gems": [
+            32200,
+            32196
+          ]
+        }
+      ],
+      "back": [
+        {
+          "itemId": 33593,
+          "rank": 1,
+          "name": "Slikk's Cloak of Placation",
+          "source": "",
+          "enchant": 2622
+        }
+      ],
+      "chest": [
+        {
+          "itemId": 30991,
+          "rank": 1,
+          "name": "Lightbringer Chestguard",
+          "source": "",
+          "enchant": 2659,
+          "gems": [
+            32196,
+            32196,
+            32221
+          ]
+        }
+      ],
+      "wrist": [
+        {
+          "itemId": 32232,
+          "rank": 1,
+          "name": "Eternium Shell Bracers",
+          "source": "",
+          "enchant": 2650
+        }
+      ],
+      "hands": [
+        {
+          "itemId": 30985,
+          "rank": 1,
+          "name": "Lightbringer Handguards",
+          "source": "",
+          "enchant": 2613,
+          "gems": [
+            32196
+          ]
+        }
+      ],
+      "waist": [
+        {
+          "itemId": 32342,
+          "rank": 1,
+          "name": "Girdle of Mighty Resolve",
+          "source": "",
+          "gems": [
+            32200,
+            32200
+          ]
+        }
+      ],
+      "legs": [
+        {
+          "itemId": 30995,
+          "rank": 1,
+          "name": "Lightbringer Legguards",
+          "source": "",
+          "enchant": 2748,
+          "gems": [
+            32200
+          ]
+        }
+      ],
+      "feet": [
+        {
+          "itemId": 32245,
+          "rank": 1,
+          "name": "Tide-stomper's Greaves",
+          "source": "",
+          "enchant": 2940,
+          "gems": [
+            32200,
+            32200
+          ]
+        }
+      ],
+      "finger": [
+        {
+          "itemId": 32261,
+          "rank": 1,
+          "name": "Band of the Abyssal Lord",
+          "source": "",
+          "enchant": 2928
+        },
+        {
+          "itemId": 29172,
+          "rank": 2,
+          "name": "Ashyen's Gift",
+          "source": "",
+          "enchant": 2928
+        }
+      ],
+      "trinket": [
+        {
+          "itemId": 31858,
+          "rank": 1,
+          "name": "Darkmoon Card: Vengeance",
+          "source": ""
+        },
+        {
+          "itemId": 33829,
+          "rank": 2,
+          "name": "Hex Shrunken Head",
+          "source": ""
+        }
+      ],
+      "ranged": [
+        {
+          "itemId": 33504,
+          "rank": 1,
+          "name": "Libram of Divine Purpose",
+          "source": ""
+        }
+      ],
+      "weaponConfig": "mainhand_offhand",
+      "mainhand": [
+        {
+          "itemId": 30910,
+          "rank": 1,
+          "name": "Tempest of Chaos",
+          "source": "",
+          "enchant": 2669
+        }
+      ],
+      "offhand": [
+        {
+          "itemId": 32375,
+          "rank": 1,
+          "name": "Bulwark of Azzinoth",
+          "source": "",
+          "enchant": 1071
+        }
+      ]
+    },
+    "guardian_druid": {
+      "_source": "wowsims-preset",
+      "_preset": "presets/druid_feralbear/p4.gear.json",
+      "head": [
+        {
+          "itemId": 33672,
+          "rank": 1,
+          "name": "Vengeful Gladiator's Dragonhide Helm",
+          "source": "",
+          "enchant": 2999,
+          "gems": [
+            32409,
+            32220
+          ]
+        }
+      ],
+      "neck": [
+        {
+          "itemId": 33296,
+          "rank": 1,
+          "name": "Brooch of Deftness",
+          "source": ""
+        }
+      ],
+      "shoulder": [
+        {
+          "itemId": 31048,
+          "rank": 1,
+          "name": "Thunderheart Pauldrons",
+          "source": "",
+          "enchant": 2978,
+          "gems": [
+            32194,
+            32194
+          ]
+        }
+      ],
+      "back": [
+        {
+          "itemId": 33593,
+          "rank": 1,
+          "name": "Slikk's Cloak of Placation",
+          "source": "",
+          "enchant": 368
+        }
+      ],
+      "chest": [
+        {
+          "itemId": 31042,
+          "rank": 1,
+          "name": "Thunderheart Chestguard",
+          "source": "",
+          "enchant": 2661,
+          "gems": [
+            32212,
+            32220,
+            32194
+          ]
+        }
+      ],
+      "wrist": [
+        {
+          "itemId": 33881,
+          "rank": 1,
+          "name": "Vindicator's Dragonhide Bracers",
+          "source": "",
+          "enchant": 2649,
+          "gems": [
+            32194
+          ]
+        }
+      ],
+      "hands": [
+        {
+          "itemId": 31034,
+          "rank": 1,
+          "name": "Thunderheart Gauntlets",
+          "source": "",
+          "enchant": 2613,
+          "gems": [
+            32212
+          ]
+        }
+      ],
+      "waist": [
+        {
+          "itemId": 30106,
+          "rank": 1,
+          "name": "Belt of One-Hundred Deaths",
+          "source": "",
+          "gems": [
+            32194,
+            32212
+          ]
+        }
+      ],
+      "legs": [
+        {
+          "itemId": 31044,
+          "rank": 1,
+          "name": "Thunderheart Leggings",
+          "source": "",
+          "enchant": 3013,
+          "gems": [
+            32212
+          ]
+        }
+      ],
+      "feet": [
+        {
+          "itemId": 32593,
+          "rank": 1,
+          "name": "Treads of the Den Mother",
+          "source": "",
+          "enchant": 2940
+        }
+      ],
+      "finger": [
+        {
+          "itemId": 29279,
+          "rank": 1,
+          "name": "Violet Signet of the Great Protector",
+          "source": "",
+          "enchant": 2931
+        },
+        {
+          "itemId": 29301,
+          "rank": 2,
+          "name": "Band of the Eternal Champion",
+          "source": "",
+          "enchant": 2931
+        }
+      ],
+      "trinket": [
+        {
+          "itemId": 32501,
+          "rank": 1,
+          "name": "Shadowmoon Insignia",
+          "source": ""
+        },
+        {
+          "itemId": 33832,
+          "rank": 2,
+          "name": "Battlemaster's Determination",
+          "source": ""
+        }
+      ],
+      "ranged": [
+        {
+          "itemId": 32387,
+          "rank": 1,
+          "name": "Idol of the Raven Goddess",
+          "source": ""
+        }
+      ],
+      "weaponConfig": "mainhand_offhand",
+      "mainhand": [
+        {
+          "itemId": 30883,
+          "rank": 1,
+          "name": "Pillar of Ferocity",
+          "source": "",
+          "enchant": 2670
+        }
+      ]
+    },
+    "elemental_shaman": {
+      "_source": "wowsims-preset",
+      "_preset": "presets/shaman_elemental/p4.gear.json",
+      "head": [
+        {
+          "itemId": 31014,
+          "rank": 1,
+          "name": "Skyshatter Headguard",
+          "source": "",
+          "enchant": 3002,
+          "gems": [
+            34220,
+            32215
+          ]
+        }
+      ],
+      "neck": [
+        {
+          "itemId": 33281,
+          "rank": 1,
+          "name": "Brooch of Nature's Mercy",
+          "source": ""
+        }
+      ],
+      "shoulder": [
+        {
+          "itemId": 31023,
+          "rank": 1,
+          "name": "Skyshatter Mantle",
+          "source": "",
+          "enchant": 2982,
+          "gems": [
+            32215,
+            32218
+          ]
+        }
+      ],
+      "back": [
+        {
+          "itemId": 32331,
+          "rank": 1,
+          "name": "Cloak of the Illidari Council",
+          "source": "",
+          "enchant": 2621
+        }
+      ],
+      "chest": [
+        {
+          "itemId": 31017,
+          "rank": 1,
+          "name": "Skyshatter Breastplate",
+          "source": "",
+          "enchant": 2661,
+          "gems": [
+            32196,
+            32196,
+            32196
+          ]
+        }
+      ],
+      "wrist": [
+        {
+          "itemId": 32586,
+          "rank": 1,
+          "name": "Bracers of Nimble Thought",
+          "source": "",
+          "enchant": 2650
+        }
+      ],
+      "hands": [
+        {
+          "itemId": 31008,
+          "rank": 1,
+          "name": "Skyshatter Gauntlets",
+          "source": "",
+          "enchant": 2937,
+          "gems": [
+            32218
+          ]
+        }
+      ],
+      "waist": [
+        {
+          "itemId": 32276,
+          "rank": 1,
+          "name": "Flashfire Girdle",
+          "source": ""
+        }
+      ],
+      "legs": [
+        {
+          "itemId": 30916,
+          "rank": 1,
+          "name": "Leggings of Channeled Elements",
+          "source": "",
+          "enchant": 2748,
+          "gems": [
+            32196,
+            32196,
+            32196
+          ]
+        }
+      ],
+      "feet": [
+        {
+          "itemId": 32352,
+          "rank": 1,
+          "name": "Naturewarden's Treads",
+          "source": "",
+          "enchant": 2940,
+          "gems": [
+            32196,
+            32196
+          ]
+        }
+      ],
+      "finger": [
+        {
+          "itemId": 32527,
+          "rank": 1,
+          "name": "Ring of Ancient Knowledge",
+          "source": "",
+          "enchant": 2928
+        },
+        {
+          "itemId": 32527,
+          "rank": 2,
+          "name": "Ring of Ancient Knowledge",
+          "source": "",
+          "enchant": 2928
+        }
+      ],
+      "trinket": [
+        {
+          "itemId": 32483,
+          "rank": 1,
+          "name": "The Skull of Gul'dan",
+          "source": ""
+        },
+        {
+          "itemId": 33829,
+          "rank": 2,
+          "name": "Hex Shrunken Head",
+          "source": ""
+        }
+      ],
+      "ranged": [
+        {
+          "itemId": 32330,
+          "rank": 1,
+          "name": "Totem of Ancestral Guidance",
+          "source": ""
+        }
+      ],
+      "weaponConfig": "mainhand_offhand",
+      "mainhand": [
+        {
+          "itemId": 32374,
+          "rank": 1,
+          "name": "Zhar'doom, Greatstaff of the Devourer",
+          "source": "",
+          "enchant": 2669
+        }
+      ]
+    },
+    "enhancement_shaman": {
+      "_source": "wowsims-preset",
+      "_preset": "presets/shaman_enhancement/p4.gear.json",
+      "head": [
+        {
+          "itemId": 32235,
+          "rank": 1,
+          "name": "Cursed Vision of Sargeras",
+          "source": "",
+          "enchant": 29192,
+          "gems": [
+            32409,
+            32217
+          ]
+        }
+      ],
+      "neck": [
+        {
+          "itemId": 32260,
+          "rank": 1,
+          "name": "Choker of Endless Nightmares",
+          "source": ""
+        }
+      ],
+      "shoulder": [
+        {
+          "itemId": 32581,
+          "rank": 1,
+          "name": "Swiftstrike Shoulders",
+          "source": "",
+          "enchant": 28888
+        }
+      ],
+      "back": [
+        {
+          "itemId": 32323,
+          "rank": 1,
+          "name": "Shadowmoon Destroyer's Drape",
+          "source": "",
+          "enchant": 368
+        }
+      ],
+      "chest": [
+        {
+          "itemId": 30905,
+          "rank": 1,
+          "name": "Midnight Chestguard",
+          "source": "",
+          "enchant": 24003,
+          "gems": [
+            32211,
+            32193,
+            32217
+          ]
+        }
+      ],
+      "wrist": [
+        {
+          "itemId": 30863,
+          "rank": 1,
+          "name": "Deadly Cuffs",
+          "source": "",
+          "enchant": 2647,
+          "gems": [
+            32217
+          ]
+        }
+      ],
+      "hands": [
+        {
+          "itemId": 32234,
+          "rank": 1,
+          "name": "Fists of Mukoa",
+          "source": "",
+          "enchant": 684
+        }
+      ],
+      "waist": [
+        {
+          "itemId": 30106,
+          "rank": 1,
+          "name": "Belt of One-Hundred Deaths",
+          "source": "",
+          "gems": [
+            32193,
+            32211
+          ]
+        }
+      ],
+      "legs": [
+        {
+          "itemId": 30900,
+          "rank": 1,
+          "name": "Bow-stitched Leggings",
+          "source": "",
+          "enchant": 29535,
+          "gems": [
+            32193,
+            32217,
+            32211
+          ]
+        }
+      ],
+      "feet": [
+        {
+          "itemId": 32510,
+          "rank": 1,
+          "name": "Softstep Boots of Tracking",
+          "source": "",
+          "enchant": 28279
+        }
+      ],
+      "finger": [
+        {
+          "itemId": 32497,
+          "rank": 1,
+          "name": "Stormrage Signet Ring",
+          "source": ""
+        },
+        {
+          "itemId": 33496,
+          "rank": 2,
+          "name": "Signet of Primal Wrath",
+          "source": ""
+        }
+      ],
+      "trinket": [
+        {
+          "itemId": 33831,
+          "rank": 1,
+          "name": "Berserker's Call",
+          "source": ""
+        },
+        {
+          "itemId": 28830,
+          "rank": 2,
+          "name": "Dragonspine Trophy",
+          "source": ""
+        }
+      ],
+      "ranged": [
+        {
+          "itemId": 33507,
+          "rank": 1,
+          "name": "Stonebreaker's Totem",
+          "source": ""
+        }
+      ],
+      "weaponConfig": "mainhand_offhand",
+      "mainhand": [
+        {
+          "itemId": 32262,
+          "rank": 1,
+          "name": "Syphon of the Nathrezim",
+          "source": "",
+          "enchant": 22559
+        }
+      ],
+      "offhand": [
+        {
+          "itemId": 32262,
+          "rank": 1,
+          "name": "Syphon of the Nathrezim",
+          "source": "",
+          "enchant": 33307
+        }
+      ]
+    },
+    "balance_druid": {
+      "_source": "wowsims-preset",
+      "_preset": "presets/druid_balance/p4.gear.json",
+      "head": [
+        {
+          "itemId": 31040,
+          "rank": 1,
+          "name": "Thunderheart Headguard",
+          "source": "",
+          "enchant": 29191,
+          "gems": [
+            32218,
+            34220
+          ]
+        }
+      ],
+      "neck": [
+        {
+          "itemId": 33281,
+          "rank": 1,
+          "name": "Brooch of Nature's Mercy",
+          "source": ""
+        }
+      ],
+      "shoulder": [
+        {
+          "itemId": 31049,
+          "rank": 1,
+          "name": "Thunderheart Shoulderpads",
+          "source": "",
+          "enchant": 28886,
+          "gems": [
+            32215,
+            32218
+          ]
+        }
+      ],
+      "back": [
+        {
+          "itemId": 32331,
+          "rank": 1,
+          "name": "Cloak of the Illidari Council",
+          "source": "",
+          "enchant": 33150
+        }
+      ],
+      "chest": [
+        {
+          "itemId": 31043,
+          "rank": 1,
+          "name": "Thunderheart Vest",
+          "source": "",
+          "enchant": 24003,
+          "gems": [
+            32196,
+            32196,
+            32196
+          ]
+        }
+      ],
+      "wrist": [
+        {
+          "itemId": 32586,
+          "rank": 1,
+          "name": "Bracers of Nimble Thought",
+          "source": "",
+          "enchant": 22534
+        }
+      ],
+      "hands": [
+        {
+          "itemId": 31035,
+          "rank": 1,
+          "name": "Thunderheart Handguards",
+          "source": "",
+          "enchant": 28272,
+          "gems": [
+            32218
+          ]
+        }
+      ],
+      "waist": [
+        {
+          "itemId": 30914,
+          "rank": 1,
+          "name": "Belt of the Crescent Moon",
+          "source": ""
+        }
+      ],
+      "legs": [
+        {
+          "itemId": 30916,
+          "rank": 1,
+          "name": "Leggings of Channeled Elements",
+          "source": "",
+          "enchant": 24274,
+          "gems": [
+            32196,
+            32196,
+            32196
+          ]
+        }
+      ],
+      "feet": [
+        {
+          "itemId": 32352,
+          "rank": 1,
+          "name": "Naturewarden's Treads",
+          "source": "",
+          "enchant": 35297,
+          "gems": [
+            32218,
+            32215
+          ]
+        }
+      ],
+      "finger": [
+        {
+          "itemId": 32527,
+          "rank": 1,
+          "name": "Ring of Ancient Knowledge",
+          "source": "",
+          "enchant": 22536
+        },
+        {
+          "itemId": 33497,
+          "rank": 2,
+          "name": "Mana Attuned Band",
+          "source": "",
+          "enchant": 22536
+        }
+      ],
+      "trinket": [
+        {
+          "itemId": 32483,
+          "rank": 1,
+          "name": "The Skull of Gul'dan",
+          "source": ""
+        },
+        {
+          "itemId": 33829,
+          "rank": 2,
+          "name": "Hex Shrunken Head",
+          "source": ""
+        }
+      ],
+      "ranged": [
+        {
+          "itemId": 32387,
+          "rank": 1,
+          "name": "Idol of the Raven Goddess",
+          "source": ""
+        }
+      ],
+      "weaponConfig": "mainhand_offhand",
+      "mainhand": [
+        {
+          "itemId": 32374,
+          "rank": 1,
+          "name": "Zhar'doom, Greatstaff of the Devourer",
+          "source": "",
+          "enchant": 22560
+        }
+      ]
+    },
+    "feral_druid": {
+      "_source": "wowsims-preset",
+      "_preset": "presets/druid_feralcat/p4_6p.gear.json",
+      "head": [
+        {
+          "itemId": 8345,
+          "rank": 1,
+          "name": "Wolfshead Helm",
+          "source": "",
+          "enchant": 3003
+        }
+      ],
+      "neck": [
+        {
+          "itemId": 32260,
+          "rank": 1,
+          "name": "Choker of Endless Nightmares",
+          "source": ""
+        }
+      ],
+      "shoulder": [
+        {
+          "itemId": 31048,
+          "rank": 1,
+          "name": "Thunderheart Pauldrons",
+          "source": "",
+          "enchant": 2986,
+          "gems": [
+            32194,
+            32194
+          ]
+        }
+      ],
+      "back": [
+        {
+          "itemId": 29994,
+          "rank": 1,
+          "name": "Thalassian Wildercloak",
+          "source": "",
+          "enchant": 368
+        }
+      ],
+      "chest": [
+        {
+          "itemId": 31042,
+          "rank": 1,
+          "name": "Thunderheart Chestguard",
+          "source": "",
+          "enchant": 2661,
+          "gems": [
+            32194,
+            32194,
+            32194
+          ]
+        }
+      ],
+      "wrist": [
+        {
+          "itemId": 33881,
+          "rank": 1,
+          "name": "Vindicator's Dragonhide Bracers",
+          "source": "",
+          "enchant": 2647,
+          "gems": [
+            32194
+          ]
+        }
+      ],
+      "hands": [
+        {
+          "itemId": 31034,
+          "rank": 1,
+          "name": "Thunderheart Gauntlets",
+          "source": "",
+          "enchant": 2564,
+          "gems": [
+            32194
+          ]
+        }
+      ],
+      "waist": [
+        {
+          "itemId": 30106,
+          "rank": 1,
+          "name": "Belt of One-Hundred Deaths",
+          "source": "",
+          "gems": [
+            32194,
+            32194
+          ]
+        }
+      ],
+      "legs": [
+        {
+          "itemId": 31044,
+          "rank": 1,
+          "name": "Thunderheart Leggings",
+          "source": "",
+          "enchant": 3012,
+          "gems": [
+            32194
+          ]
+        }
+      ],
+      "feet": [
+        {
+          "itemId": 32366,
+          "rank": 1,
+          "name": "Shadowmaster's Boots",
+          "source": "",
+          "enchant": 2939,
+          "gems": [
+            32194,
+            32194
+          ]
+        }
+      ],
+      "finger": [
+        {
+          "itemId": 29301,
+          "rank": 1,
+          "name": "Band of the Eternal Champion",
+          "source": "",
+          "enchant": 2931
+        },
+        {
+          "itemId": 33496,
+          "rank": 2,
+          "name": "Signet of Primal Wrath",
+          "source": "",
+          "enchant": 2931
+        }
+      ],
+      "trinket": [
+        {
+          "itemId": 30627,
+          "rank": 1,
+          "name": "Tsunami Talisman",
+          "source": ""
+        },
+        {
+          "itemId": 33831,
+          "rank": 2,
+          "name": "Berserker's Call",
+          "source": ""
+        }
+      ],
+      "ranged": [
+        {
+          "itemId": 32387,
+          "rank": 1,
+          "name": "Idol of the Raven Goddess",
+          "source": ""
+        }
+      ],
+      "weaponConfig": "mainhand_offhand",
+      "mainhand": [
+        {
+          "itemId": 33716,
+          "rank": 1,
+          "name": "Vengeful Gladiator's Staff",
+          "source": "",
+          "enchant": 2670
         }
       ]
     }
