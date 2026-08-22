@@ -730,23 +730,28 @@ async function pollUpgradeSweep(jobId) {
 function renderUpgradeResults({ baselineDps, fullBisDps, fullBisError, results }) {
   // Three levels of answer: where you are now, where the full recommended
   // set would put you, and what each individual piece contributes.
+  // nowrap keeps each badge's label and figure on one line; the flex row
+  // then breaks between whole badges instead of mid-phrase.
+  const badgeStyle = "white-space:nowrap;";
   const badges = [
-    `<span class="perf-badge"><span class="perf-label">Current gear</span> <span class="perf-value perf-tier-gold">${baselineDps.toFixed(1)} DPS</span></span>`,
+    `<span class="perf-badge" style="${badgeStyle}"><span class="perf-label">Current gear</span> <span class="perf-value perf-tier-gold">${baselineDps.toFixed(1)} DPS</span></span>`,
   ];
 
   if (fullBisDps != null) {
     const gain = fullBisDps - baselineDps;
     const sign = gain >= 0 ? "+" : "";
+    const gainColour = gain >= 0 ? "var(--accent-bis, #63d471)" : "var(--accent-upgrade)";
     badges.push(
-      `<span class="perf-badge"><span class="perf-label">Full recommended set</span> <span class="perf-value perf-tier-gold">${fullBisDps.toFixed(1)} DPS</span> <span class="perf-value" style="color:var(--accent-bis, #63d471);">${sign}${gain.toFixed(1)}</span></span>`
+      `<span class="perf-badge" style="${badgeStyle}"><span class="perf-label">Full recommended set</span> <span class="perf-value perf-tier-gold">${fullBisDps.toFixed(1)} DPS</span> <span class="perf-value" style="color:${gainColour};">${sign}${gain.toFixed(1)}</span></span>`
     );
   } else if (fullBisError) {
     badges.push(
-      `<span class="perf-badge"><span class="perf-value" style="color:var(--accent-upgrade);">Full set couldn't be simulated</span></span>`
+      `<span class="perf-badge" style="${badgeStyle}"><span class="perf-value" style="color:var(--accent-upgrade);">Full set couldn't be simulated</span></span>`
     );
   }
 
-  els.upgradeStatus.innerHTML = badges.join(' <span style="opacity:0.35;">·</span> ');
+  els.upgradeStatus.innerHTML =
+    `<div style="display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 22px;">${badges.join("")}</div>`;
 
   const rowStyle = "display:flex;align-items:center;gap:12px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.07);";
   const slotStyle = "flex:0 0 92px;opacity:0.75;font-size:0.85rem;";
