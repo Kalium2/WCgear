@@ -100,7 +100,7 @@
     <div class="char-panel-inner">
       <div class="char-id" style="flex:1 1 auto;min-width:0;">
         <h2 id="upgradeHeading" class="char-name" style="font-size:1.15rem;">Upgrade Priority</h2>
-        <p class="panel-hint" style="margin:6px 0 0;">Runs your gear through wowsimtbc: your current DPS, what the full recommended set would give you, and what each individual piece is worth. Destruction Warlock only for now. Takes about half a minute.</p>
+        <p class="panel-hint" style="margin:6px 0 0;">Runs your gear through wowsimtbc: your current DPS, what the full recommended set would give you, and what each individual piece is worth. Destruction Warlock only for now.</p>
         <div class="field" style="margin-top:12px;max-width:200px;">
           <label for="upgradePhaseSelect">Evaluate for</label>
           <select id="upgradePhaseSelect">
@@ -121,7 +121,7 @@
   <section class="panel step-panel" id="comparePanel" hidden aria-labelledby="compareHeading">
     <div class="step-label"><span class="step-num">II</span><span>Compare Gear</span></div>
     <h2 id="compareHeading" class="panel-title">Check against Best-in-Slot</h2>
-    <p class="panel-hint">Same loaded gear, any phase or spec combination — no refetch needed.</p>
+    <p class="panel-hint">Your recent Warcraft Log gear compared to a BiS list.</p>
 
     <form id="compareForm" class="compare-form" autocomplete="off">
       <div class="field">
@@ -161,7 +161,7 @@
 </main>
 
 <footer class="site-footer">
-  <p>Item data enriched via the Blizzard Game Data API where available. BiS lists are manually curated and may lag behind live changes. Simulated DPS is computed by wowsimtbc.</p>
+  <p>Item data enriched via the Warcraft Logs, Wowhead and/or Blizzard Game Data API where available. BiS lists are manually curated and may lag behind live changes. Simulated DPS is computed by wowsimtbc(https://www.wowsims.com/tbc/).</p>
 </footer>
 
 <script src="app.js"></script>
