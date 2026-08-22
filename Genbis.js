@@ -36,6 +36,13 @@ const path = require("path");
 const { loadGameDatabase, getItem } = require("./gamedb");
 
 const LIVE_BIS_URL = "https://kalium2.github.io/WCgear/bis.json";
+
+/** Human-owned corrections, applied last. This script READS this file and
+ *  never writes it — that's the whole point. Generated blocks are
+ *  machine-owned and freely regenerable; anything you disagree with goes
+ *  here instead of being edited into bis.json, where the next run would
+ *  silently overwrite it. Lives in the repo so it's editable on GitHub. */
+const OVERRIDES_URL = "https://kalium2.github.io/WCgear/bis-overrides.json";
 const OUT_FILE = path.join(__dirname, "generated-bis.json");
 
 /** What to generate. Extend as more specs get a working sim. */
@@ -108,6 +115,35 @@ function buildSpecBlock(presetItems, presetFile) {
   return block;
 }
 
+/**
+ * Applies human overrides on top of whatever was generated. Merge is at
+ * SLOT level: an override for "head" replaces that slot's whole ranked
+ * list, leaving every other slot alone. Also works for weaponConfig and
+ * for adding a slot the preset left empty.
+ */
+function applyOverrides(bis, overrides) {
+  const applied = [];
+
+  for (const [phase, specs] of Object.entries(overrides || {})) {
+    if (phase.startsWith("_")) continue; // _readme and friends
+
+    for (const [spec, block] of Object.entries(specs || {})) {
+      if (!bis[phase]) bis[phase] = {};
+      if (!bis[phase][spec]) bis[phase][spec] = {};
+      const target = bis[phase][spec];
+      const isCurated = !target._source;
+
+      for (const [key, value] of Object.entries(block)) {
+        if (key.startsWith("_")) continue;
+        target[key] = value;
+        applied.push(`${phase}/${spec}/${key}${isCurated ? "  (NOTE: overriding a hand-curated block)" : ""}`);
+      }
+    }
+  }
+
+  return applied;
+}
+
 (async () => {
   await loadGameDatabase();
 
@@ -145,6 +181,31 @@ function buildSpecBlock(presetItems, presetFile) {
     const slots = Object.keys(block).filter((k) => !k.startsWith("_") && k !== "weaponConfig").length;
     console.log(`  WRITE ${job.phase}/${job.spec} — ${slots} slots from ${job.preset}`);
     written++;
+  }
+
+  // Overrides go on last so regeneration can never clobber a human decision.
+  let overrides = null;
+  try {
+    const ores = await fetch(OVERRIDES_URL);
+    if (ores.ok) {
+      overrides = await ores.json();
+    } else if (ores.status === 404) {
+      console.log("\nNo bis-overrides.json published yet — skipping overrides.");
+    } else {
+      console.log(`\nCould not read overrides (HTTP ${ores.status}) — skipping.`);
+    }
+  } catch (err) {
+    console.log(`\nCould not read overrides (${err.message}) — skipping.`);
+  }
+
+  if (overrides) {
+    const applied = applyOverrides(bis, overrides);
+    if (applied.length) {
+      console.log(`\nApplied ${applied.length} override(s):`);
+      applied.forEach((a) => console.log("  " + a));
+    } else {
+      console.log("\nOverrides file found but contained no entries.");
+    }
   }
 
   fs.writeFileSync(OUT_FILE, JSON.stringify(bis, null, 2) + "\n");
