@@ -1,5 +1,11 @@
 "use strict";
 
+/* Bump this whenever app.js changes. Check it in the browser console to
+   confirm which build is actually deployed — GitHub Pages and browser
+   caches have repeatedly made this ambiguous. */
+const BUILD_ID = "2026-08-21c spec-selector";
+console.log("WCgear build:", BUILD_ID);
+
 /* ================================================================
    CONFIGURATION
    ================================================================
@@ -621,6 +627,7 @@ function populateSpecOptions(detectedClass, detectedSpec) {
     els.checkBtn.disabled = true;
     els.specUnsupportedNote.textContent = `This tool doesn't have Best-in-Slot data for ${detectedClass || "this class"} yet — only Arms Warrior, Destruction Warlock, and Beast Mastery Hunter are currently supported.`;
     els.specUnsupportedNote.hidden = false;
+    syncUpgradeSpecOptions(); // keep the upgrade panel in step on this path too
     return;
   }
 
@@ -655,6 +662,10 @@ function populateSpecOptions(detectedClass, detectedSpec) {
  *  panel. They must offer the same choices, because the sweep simulates
  *  whatever the comparison recommends. */
 function syncUpgradeSpecOptions() {
+  // If a stale index.html is cached this element won't exist. Bail quietly
+  // rather than throwing, which would break renderCharacter entirely.
+  if (!els.upgradeSpecSelect || !els.specSelect) return;
+
   els.upgradeSpecSelect.innerHTML = "";
   [...els.specSelect.options].forEach((o) => {
     const opt = document.createElement("option");
