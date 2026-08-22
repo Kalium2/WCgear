@@ -114,6 +114,10 @@ const ALL_SPECS = [
   { value: "elemental_shaman", label: "Elemental Shaman", cls: "Shaman" },
   { value: "enhancement_shaman", label: "Enhancement Shaman", cls: "Shaman" },
   { value: "restoration_shaman", label: "Restoration Shaman", cls: "Shaman" },
+  { value: "balance_druid", label: "Balance Druid", cls: "Druid" },
+  { value: "feral_druid", label: "Feral Druid (Cat)", cls: "Druid" },
+  { value: "guardian_druid", label: "Feral Druid (Bear)", cls: "Druid" },
+  { value: "restoration_druid", label: "Restoration Druid", cls: "Druid" },
 ];
 
 const CLASS_COLOR_VAR = {
