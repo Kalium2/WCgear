@@ -898,8 +898,12 @@ function buildSweepTargets() {
     if (slot === undefined) continue;
 
     // Nothing to test if the slot is already BiS or has no recommendation.
-    const itemId = row.recommendedId;
-    if (!itemId) continue;
+      const itemId = row.recommendedId;
+      if (!itemId) continue;
+      // Already wearing it. compareSingleSlot and resolveMultiSlot both set
+      // recommendedId === equippedId for a satisfied slot, so without this the
+      // sweep runs a full 3000-iteration sim swapping an item for itself.
+      if (row.equippedId && row.equippedId === itemId) continue;
 
     // Slot 14 collision: prefer the weapon config this spec's BiS set
     // actually uses. Two-Hand wins if it has a recommendation, since a
