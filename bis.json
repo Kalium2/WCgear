@@ -584,16 +584,16 @@
           "source": "Kaz'rogal - Hyjal Summit"
         },
         {
-          "itemId": 32367,
+          "itemId": 30916,
           "rank": 2,
-          "name": "Leggings of Devastation",
-          "source": "Mother Shahraz - Black Temple"
+          "name": "Leggings of Channeled Elements",
+          "source": "Kaz'rogal - Hyjal Summit
         },
         {
-          "itemId": 31053,
+          "itemId": 32367,
           "rank": 3,
-          "name": "Leggings of the Malefic",
-          "source": "The Illidari Council - Black Temple"
+          "name": "Leggings of Devastation",
+          "source": "Mother Shahraz - Black Temple"
         }
       ],
       "feet": [
