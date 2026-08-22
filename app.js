@@ -168,6 +168,7 @@ const els = {
   simResult: $("simResult"),
   upgradePanel: $("upgradePanel"),
   upgradeBtn: $("upgradeBtn"),
+  upgradePhaseSelect: $("upgradePhaseSelect"),
   upgradeStatus: $("upgradeStatus"),
   upgradeResults: $("upgradeResults"),
 
@@ -213,6 +214,18 @@ async function init() {
   els.compareForm.addEventListener("submit", onCheckGear);
   els.simulateBtn.addEventListener("click", onRunSimulation);
   els.upgradeBtn.addEventListener("click", onFindUpgrades);
+
+  // The two phase controls are kept in lockstep on purpose. The sweep
+  // simulates whatever the gear check recommends, so if they could drift
+  // apart the panel would be reporting DPS for a different phase than the
+  // cards below are showing.
+  els.upgradePhaseSelect.addEventListener("change", () => {
+    els.phaseSelect.value = els.upgradePhaseSelect.value;
+    runAndRenderComparison({ scroll: false });
+  });
+  els.phaseSelect.addEventListener("change", () => {
+    els.upgradePhaseSelect.value = els.phaseSelect.value;
+  });
 }
 
 /* ================================================================
@@ -727,9 +740,17 @@ async function onFindUpgrades() {
       return;
     }
 
+    // Make sure the comparison matches the phase selected here before
+    // reading its recommendations, so the sweep can never be a phase
+    // behind what the cards show.
+    if (els.phaseSelect.value !== els.upgradePhaseSelect.value) {
+      els.phaseSelect.value = els.upgradePhaseSelect.value;
+      await runAndRenderComparison({ scroll: false });
+    }
+
     const targets = buildSweepTargets();
     if (targets.length === 0) {
-      throw new Error("Run a gear check first — there are no recommended items to simulate yet.");
+      throw new Error("Nothing to simulate — either run a gear check first, or you're already best-in-slot everywhere for this phase.");
     }
 
     const startRes = await fetch(`${WCL_API_URL}/api/upgrade-sweep`, {
@@ -789,10 +810,11 @@ function renderUpgradeResults(baselineDps, results) {
   const itemStyle = "flex:1 1 auto;min-width:0;";
   const valStyle = "flex:0 0 auto;font-weight:600;font-variant-numeric:tabular-nums;";
 
-  // Wowhead's tooltip script (loaded in index.html with renameLinks on)
-  // turns a bare item link into the real item name, icon and tooltip, so
-  // there's no need to run these through the enrichment pipeline.
-  const itemLink = (id) => `<a href="https://www.wowhead.com/tbc/item=${id}">Item ${id}</a>`;
+  // Same link shape the result cards use, so Wowhead's script supplies
+  // the icon, the quality-coloured name and the full tooltip. The "Item
+  // NNNNN" text is only a fallback shown before the script rewrites it.
+  const itemLink = (id) =>
+    `<a class="item-chip-link" href="https://www.wowhead.com/tbc/item=${id}" target="_blank" rel="noopener">Item ${id}</a>`;
 
   const rows = (results || []).map((r) => {
     if (r.error) {
@@ -815,6 +837,13 @@ function renderUpgradeResults(baselineDps, results) {
       A negative usually means swapping that piece would break a set bonus you're currently getting.
     </p>
   `;
+
+  // These rows are injected long after Wowhead's initial page scan, so
+  // without this the links stay as bare "Item 32374" text — no icon, no
+  // name, no quality colour. Same call the result cards already make.
+  if (window.$WowheadPower?.refreshLinks) {
+    window.$WowheadPower.refreshLinks();
+  }
 }
 
 function setUpgradeLoading(loading) {
