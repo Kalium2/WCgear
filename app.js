@@ -687,6 +687,7 @@ async function onFindUpgrades() {
         reportCode: state.character.reportCode,
         fightId: state.character.fightId,
         phase: els.phaseSelect.value,
+        spec: els.specSelect.value,
         targets,
       }),
     });
