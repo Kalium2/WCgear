@@ -817,6 +817,21 @@ function buildSweepTargets() {
   const comparison = state.lastComparison;
   if (!comparison) return [];
 
+  // Generated bis.json entries carry their own gems/enchant (see
+  // genbis.js). Where present we send them, so the backend doesn't have
+  // to borrow gemming from a wowsims preset — that inference silently
+  // understated any item with more sockets than the preset's equivalent.
+  const bisSet = state.bisData?.[els.phaseSelect.value]?.[els.specSelect.value] || {};
+  const gearById = new Map();
+  for (const val of Object.values(bisSet)) {
+    if (!Array.isArray(val)) continue;
+    for (const entry of val) {
+      if (entry?.itemId && (entry.gems || entry.enchant)) {
+        gearById.set(entry.itemId, { gems: entry.gems, enchant: entry.enchant });
+      }
+    }
+  }
+
   const bySlot = new Map();
   const rows = [...(comparison.weapons || []), ...(comparison.armor || [])];
 
@@ -832,7 +847,7 @@ function buildSweepTargets() {
     // actually uses. Two-Hand wins if it has a recommendation, since a
     // staff spec leaves Main Hand empty rather than the other way round.
     if (bySlot.has(slot) && row.label === "Main Hand") continue;
-    bySlot.set(slot, { slot, itemId });
+    bySlot.set(slot, { slot, itemId, ...(gearById.get(itemId) || {}) });
   }
 
   return [...bySlot.values()];
