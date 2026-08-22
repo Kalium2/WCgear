@@ -81,6 +81,12 @@ const CLASS_SPEC_MAP = {
     { value: "elemental_shaman", label: "Elemental" },
     { value: "enhancement_shaman", label: "Enhancement" },
     { value: "restoration_shaman", label: "Restoration" },
+  ], 
+   Druid: [
+    { value: "balance_druid", label: "Balance", aliases: ["moonkin", "boomkin"] },
+    { value: "feral_druid", label: "Feral (Cat)", aliases: ["feral", "feral combat", "cat"] },
+    { value: "guardian_druid", label: "Feral (Bear)", aliases: ["guardian", "bear", "feral tank"] },
+    { value: "restoration_druid", label: "Restoration", aliases: ["resto"] },
   ],
 };
 
@@ -625,7 +631,7 @@ function populateSpecOptions(detectedClass, detectedSpec) {
   if (!validSpecs || validSpecs.length === 0) {
     els.specSelect.disabled = true;
     els.checkBtn.disabled = true;
-    els.specUnsupportedNote.textContent = `This tool doesn't have Best-in-Slot data for ${detectedClass || "this class"} yet — only Arms Warrior, Destruction Warlock, and Beast Mastery Hunter are currently supported.`;
+    els.specUnsupportedNote.textContent = `Best-in-Slot data for ${detectedClass || "this class"} isn't available yet — it's on the curation roadmap. Warrior, Paladin, Hunter, Priest, Shaman, Druid and Warlock are covered.`;
     els.specUnsupportedNote.hidden = false;
     syncUpgradeSpecOptions(); // keep the upgrade panel in step on this path too
     return;
@@ -647,14 +653,15 @@ function populateSpecOptions(detectedClass, detectedSpec) {
   // Affliction and Demonology were added, every Warlock defaulted to
   // Affliction regardless of what they actually play.
   const wanted = String(detectedSpec || "").trim().toLowerCase();
-  const detected = validSpecs.find((s) => s.label.toLowerCase() === wanted);
+  const detected = validSpecs.find(
+    (s) => s.label.toLowerCase() === wanted || (s.aliases || []).some((a) => a.toLowerCase() === wanted)
+  );
   const firstWithData = validSpecs.find((s) => hasBisData(s.value));
-
-  // Fall back to a spec with data only when the detected one has none —
-  // no reason to land the user on an empty spec when a real one exists.
-  const choice = (detected && hasBisData(detected.value)) ? detected : (firstWithData || detected);
+  // Honour what Warcraft Logs detected, even when that spec has no BiS data —
+  // showing a Resto Shaman an Elemental list is worse than showing them nothing.
+  // Fall back only when detection itself failed (unrecognised or missing spec).
+  const choice = detected || firstWithData || validSpecs[0];
   if (choice) els.specSelect.value = choice.value;
-
   syncUpgradeSpecOptions();
 }
 
