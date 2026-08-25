@@ -3,7 +3,7 @@
 /* Bump this whenever app.js changes. Check it in the browser console to
    confirm which build is actually deployed — GitHub Pages and browser
    caches have repeatedly made this ambiguous. */
-const BUILD_ID = "2026-08-21c spec-selector";
+const BUILD_ID = "2026-08-25a settings+swapcell";
 console.log("WCgear build:", BUILD_ID);
 
 /* ================================================================
@@ -81,8 +81,8 @@ const CLASS_SPEC_MAP = {
     { value: "elemental_shaman", label: "Elemental" },
     { value: "enhancement_shaman", label: "Enhancement" },
     { value: "restoration_shaman", label: "Restoration" },
-  ], 
-   Druid: [
+  ],
+  Druid: [
     { value: "balance_druid", label: "Balance", aliases: ["moonkin", "boomkin"] },
     { value: "feral_druid", label: "Feral (Cat)", aliases: ["feral", "feral combat", "cat"] },
     { value: "guardian_druid", label: "Feral (Bear)", aliases: ["guardian", "bear", "feral tank"] },
@@ -157,7 +157,6 @@ const state = {
    DOM
    ================================================================ */
 const $ = (id) => document.getElementById(id);
-
 const els = {
   reportForm: $("reportForm"),
   reportUrlInput: $("reportUrl"),
@@ -168,7 +167,6 @@ const els = {
   changeReportBtn: $("changeReportBtn"),
   fetchError: $("fetchError"),
   demoNote: $("demoNote"),
-
   charPanel: $("charPanel"),
   charHeading: $("charHeading"),
   charClassPill: $("charClassPill"),
@@ -178,14 +176,12 @@ const els = {
   charBestPerf: $("charBestPerf"),
   charMedPerf: $("charMedPerf"),
   refetchBtn: $("refetchBtn"),
-
   upgradePanel: $("upgradePanel"),
   upgradeBtn: $("upgradeBtn"),
   upgradePhaseSelect: $("upgradePhaseSelect"),
   upgradeSpecSelect: $("upgradeSpecSelect"),
   upgradeStatus: $("upgradeStatus"),
   upgradeResults: $("upgradeResults"),
-
   comparePanel: $("comparePanel"),
   compareForm: $("compareForm"),
   phaseSelect: $("phaseSelect"),
@@ -193,13 +189,11 @@ const els = {
   specWarning: $("specWarning"),
   specUnsupportedNote: $("specUnsupportedNote"),
   checkBtn: $("checkBtn"),
-
   resultsPanel: $("resultsPanel"),
   resultsSummary: $("resultsSummary"),
   resultsPerf: $("resultsPerf"),
   weaponResults: $("weaponResults"),
   armorResults: $("armorResults"),
-
   loadedEmptyState: $("loadedEmptyState"),
 };
 
@@ -239,7 +233,6 @@ async function init() {
   els.phaseSelect.addEventListener("change", () => {
     els.upgradePhaseSelect.value = els.phaseSelect.value;
   });
-
   els.upgradeSpecSelect.addEventListener("change", () => {
     els.specSelect.value = els.upgradeSpecSelect.value;
     runAndRenderComparison({ scroll: false });
@@ -279,7 +272,6 @@ async function onLoadReport(evt) {
     state.reportCode = parsed.reportCode;
     state.fightId = fightId;
     state.roster = roster;
-
     populateCharSelect(roster);
     els.reportForm.hidden = true;
     els.charSelectForm.hidden = false;
@@ -341,6 +333,7 @@ async function onFetchCharacter(evt) {
     // onFindUpgrades() resolves any disagreement in that control's favour,
     // the sweep would silently drag the comparison to the wrong phase.
     els.upgradePhaseSelect.value = els.phaseSelect.value;
+
     try {
       await runAndRenderComparison({ scroll: false });
     } catch (autoRunErr) {
@@ -427,14 +420,12 @@ async function fetchRosterFromWorker(parsed) {
   if (parsed.fightId) params.set("fightId", parsed.fightId);
   const url = `${WCL_API_URL}/api/roster?${params.toString()}`;
   const res = await fetch(url, { cache: "no-store" });
-
   if (res.status === 404) {
     throw new Error("That report doesn't have any readable fights. Check the URL and try again.");
   }
   if (!res.ok) {
     throw new Error(await extractWorkerErrorMessage(res, "We couldn't load that report. Please try again."));
   }
-
   const data = await res.json();
   return { fightId: data.fightId, roster: data.roster || [] };
 }
@@ -461,19 +452,16 @@ async function fetchCharacterFromWorker(name, resolved) {
   const params = new URLSearchParams({ name, reportCode: resolved.reportCode, fightId: resolved.fightId });
   const url = `${WCL_API_URL}/api/character?${params.toString()}`;
   const res = await fetch(url, { cache: "no-store" });
-
   if (res.status === 404) {
     throw new Error("Character not found in that report. Check the character name and report URL.");
   }
   if (!res.ok) {
     throw new Error(await extractWorkerErrorMessage(res, "We couldn't retrieve this character. Please try again."));
   }
-
   const data = await res.json();
   if (!data.gear || Object.keys(data.gear).length === 0) {
     throw new Error("No gear data is available for this character in that report.");
   }
-
   return {
     character: {
       name: data.name,
@@ -555,13 +543,10 @@ const TEST_FIXTURES = {
 
 async function fetchCharacterDemo(name, resolved) {
   await sleep(650);
-
   if (name.trim().toLowerCase() === "notfound") {
     throw new Error("Character not found in that report. Check the character name and report URL.");
   }
-
   const fixture = TEST_FIXTURES[name.trim().toLowerCase()] || TEST_FIXTURES.testarms;
-
   return {
     character: {
       name,
@@ -592,14 +577,12 @@ function renderCharacter() {
   els.charBestPerf.innerHTML = formatPerf(c.bestPerfAvg);
   els.charMedPerf.innerHTML = formatPerf(c.medPerfAvg);
   els.charPanel.hidden = false;
-
   // Simulation is only available for classes sim.js actually has a
   // rotation built for (Destruction Warlock, currently) — hide the
   // panel entirely rather than show a button that will always 400.
   els.upgradePanel.hidden = !c.simulatable;
   els.upgradeStatus.innerHTML = "";
   els.upgradeResults.innerHTML = "";
-
   populateSpecOptions(c.class, c.realmSpec);
 }
 
@@ -618,9 +601,6 @@ function formatPerf(value) {
   return `<span class="perf-tier-${tier}">${value.toFixed(1)}</span>`;
 }
 
-/** Show every MVP spec, but mark the ones matching the detected class —
- *  the dropdown itself isn't filtered yet (that's post-MVP, section 44),
- *  it just gives a visual hint. */
 /** Populates the spec dropdown with ONLY the specs valid for the
  *  detected class (requirement 2.1 — this previously showed every
  *  spec and just decorated the matching one with a checkmark, which
@@ -644,6 +624,7 @@ function populateSpecOptions(detectedClass, detectedSpec) {
   els.specSelect.disabled = false;
   els.checkBtn.disabled = false;
   els.specUnsupportedNote.hidden = true;
+
   validSpecs.forEach((spec) => {
     const opt = document.createElement("option");
     opt.value = spec.value;
@@ -676,7 +657,6 @@ function syncUpgradeSpecOptions() {
   // If a stale index.html is cached this element won't exist. Bail quietly
   // rather than throwing, which would break renderCharacter entirely.
   if (!els.upgradeSpecSelect || !els.specSelect) return;
-
   els.upgradeSpecSelect.innerHTML = "";
   [...els.specSelect.options].forEach((o) => {
     const opt = document.createElement("option");
@@ -749,6 +729,8 @@ async function onFindUpgrades() {
         targets,
         overrides: window.WCGearSettings ? window.WCGearSettings.forRequest() : null,
       }),
+    });
+
     const start = await startRes.json().catch(() => ({}));
     if (!startRes.ok || start.error) {
       throw new Error(start.error || "Could not start the upgrade sweep.");
@@ -772,7 +754,7 @@ async function onFindUpgrades() {
 }
 
 async function pollUpgradeSweep(jobId) {
-  const deadline = Date.now() + 5 * 60 * 1000;
+  const deadline = Date.now() + 10 * 60 * 1000;
   while (Date.now() < deadline) {
     await sleep(1500);
     const res = await fetch(`${WCL_API_URL}/api/upgrade-sweep/${encodeURIComponent(jobId)}`);
@@ -820,7 +802,7 @@ function renderUpgradeResults({ baselineDps, fullBisDps, fullBisError, results }
   // Same link shape the result cards use, so Wowhead's script supplies
   // the icon, the quality-coloured name and the full tooltip. The "Item
   // NNNNN" text is only a fallback shown before the script rewrites it.
-   const itemLink = (id) =>
+  const itemLink = (id) =>
     `<a class="item-chip-link" href="https://www.wowhead.com/tbc/item=${id}" target="_blank" rel="noopener">Item ${id}</a>`;
 
   // Equipped > recommended > delta. "+0.6 DPS" reads very differently once you
@@ -863,6 +845,11 @@ function renderUpgradeResults({ baselineDps, fullBisDps, fullBisError, results }
   // name, no quality colour. Same call the result cards already make.
   if (window.$WowheadPower?.refreshLinks) {
     window.$WowheadPower.refreshLinks();
+  }
+
+  // Settings changed since the last run? That warning is now stale.
+  if (window.WCGearSettings?.clearStaleFlag) {
+    window.WCGearSettings.clearStaleFlag();
   }
 }
 
@@ -910,17 +897,17 @@ function buildSweepTargets() {
     if (slot === undefined) continue;
 
     // Nothing to test if the slot is already BiS or has no recommendation.
-      const itemId = row.recommendedId;
-      if (!itemId) continue;
+    const itemId = row.recommendedId;
+    if (!itemId) continue;
 
-      // Commit to the weapon build this BiS set actually uses. Without this a
-      // twohand set still sends its Off Hand row and the sim wields a two-hander
-      // AND an off-hand - an impossible set-up that returns a large fake gain.
-      // The Compare panel still shows all three rows on purpose (req 5.1); this
-      // only governs what gets simulated.
-      const wc = bisSet && bisSet.weaponConfig;
-      if (wc === "twohand" && (row.label === "Main Hand" || row.label === "Off Hand")) continue;
-      if (wc === "mainhand_offhand" && row.label === "Two-Hand") continue;
+    // Commit to the weapon build this BiS set actually uses. Without this a
+    // twohand set still sends its Off Hand row and the sim wields a two-hander
+    // AND an off-hand - an impossible set-up that returns a large fake gain.
+    // The Compare panel still shows all three rows on purpose (req 5.1); this
+    // only governs what gets simulated.
+    const wc = bisSet && bisSet.weaponConfig;
+    if (wc === "twohand" && (row.label === "Main Hand" || row.label === "Off Hand")) continue;
+    if (wc === "mainhand_offhand" && row.label === "Two-Hand") continue;
 
     // Slot 14 collision: prefer the weapon config this spec's BiS set
     // actually uses. Two-Hand wins if it has a recommendation, since a
@@ -954,23 +941,20 @@ async function onCheckGear(evt) {
  *  automatic run that fires right after a character is fetched, so
  *  there's exactly one place this logic lives (requirement 3/4/8). */
 let comparisonInFlight = false;
-
 async function runAndRenderComparison({ scroll } = {}) {
   if (els.specSelect.disabled) return; // unsupported class — nothing valid to compare
   if (comparisonInFlight) return; // guards against a manual Check Gear click racing the auto-run
   comparisonInFlight = true;
   els.checkBtn.disabled = true;
-
   try {
     const phase = els.phaseSelect.value;
     const specValue = els.specSelect.value;
     const specMeta = ALL_SPECS.find((s) => s.value === specValue);
-
     renderSpecWarning(specMeta);
 
     const bisSet = state.bisData?.[phase]?.[specValue];
     if (!bisSet) {
-            hideError();
+      hideError();
       els.resultsPanel.hidden = true;
       return;
     }
@@ -978,7 +962,6 @@ async function runAndRenderComparison({ scroll } = {}) {
     const results = runComparison(state.gear, bisSet);
     const itemIds = collectItemIds(results);
     const enrichment = await fetchItemEnrichment(itemIds);
-
     renderResults(results, phase, specMeta, enrichment);
     els.loadedEmptyState.hidden = true;
     els.resultsPanel.hidden = false;
@@ -1037,7 +1020,6 @@ async function fetchItemEnrichment(itemIds) {
       }
     })
   );
-
   return merged;
 }
 
@@ -1064,7 +1046,6 @@ function buildTestEnrichment(itemIds) {
       });
     });
   });
-
   const result = {};
   itemIds.forEach((id) => {
     if (byId.has(id)) result[id] = { name: byId.get(id), icon: null, quality: "epic", itemLevel: null };
@@ -1172,6 +1153,7 @@ function compareSingleSlot(label, equippedIds, bisRanked) {
       alternatives: ranked,
     };
   }
+
   return {
     label, state: "upgrade", equippedId, recommendedId: best.itemId,
     equippedRankNote: equippedRank != null && equippedRank <= SINGLE_SLOT_LABEL_THRESHOLD ? `${ordinal(equippedRank)} BiS` : null,
@@ -1183,11 +1165,13 @@ function compareSingleSlot(label, equippedIds, bisRanked) {
 
 /**
  * Generic multi-slot ranking system (section 19).
+ *
  * Given the items currently equipped in a category and a ranked BiS
  * list, assigns each equipped BiS item to its own position (best rank
  * first), then fills any remaining positions with the next-highest
  * ranked BiS items the character doesn't already own — never
  * recommending a duplicate of something already equipped.
+ *
  * Multi-slot items (trinket, finger): rank 1 or 2 both count as
  * "satisfied" — no upgrade suggested, since these categories have
  * two physical positions and getting the 2nd-best pick is a
@@ -1200,7 +1184,6 @@ function resolveMultiSlot(equippedIds, bisRanked, slotCount) {
   const ranked = [...bisRanked].sort((a, b) => a.rank - b.rank);
   const rankOf = new Map(ranked.map((b) => [b.itemId, b.rank]));
   const ownedSet = new Set(equippedIds);
-
   const isSatisfied = (id) => rankOf.has(id) && rankOf.get(id) <= MULTI_SLOT_SATISFIED_THRESHOLD;
 
   // Rank 1/2 equipped items are each a full BiS match — every one seats
@@ -1229,10 +1212,12 @@ function resolveMultiSlot(equippedIds, bisRanked, slotCount) {
 
   const remainingSlots = slotCount - positions.length;
   let candidateIndex = 0;
+
   for (let i = 0; i < remainingSlots; i++) {
     const equippedForThis = equippedNeedingUpgrade.shift() ?? null;
     const equippedRank = equippedForThis != null ? rankOf.get(equippedForThis) : null;
     const candidate = availableCandidates[candidateIndex];
+
     if (candidate) {
       candidateIndex++;
       positions.push({
@@ -1263,6 +1248,7 @@ function ordinal(n) {
 /* ================================================================
    RENDER — RESULTS
    ================================================================ */
+
 /** Filters out whichever weapon row doesn't apply to how this
  *  character is actually built — a Two-Hand user's empty Main Hand/
  *  Off Hand rows (and vice versa) exist for display context, but
@@ -1283,6 +1269,7 @@ function renderResults(results, phase, specMeta, enrichment) {
   // Remembered so the upgrade sweep can simulate exactly the items these
   // cards recommend — see buildSweepTargets().
   state.lastComparison = results;
+
   const applicable = filterApplicableResults(results, state.gear);
   const tally = { bis: 0, upgrade: 0, unknown: 0 };
   applicable.forEach((r) => tally[r.state]++);
@@ -1427,6 +1414,7 @@ function renderItemChip(itemId, sourceLabel, enrichment, dropSource, rankNote, i
 /* ================================================================
    HELPERS
    ================================================================ */
+
 /** Buttons disable during processing but stay visually static —
  *  no spinner/animated indicator, per UI requirement 1.1. */
 function setFetchLoading(loading) {
@@ -1443,6 +1431,7 @@ function showError(msg) {
   els.fetchError.textContent = msg;
   els.fetchError.hidden = false;
 }
+
 function hideError() {
   els.fetchError.hidden = true;
 }
