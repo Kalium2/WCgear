@@ -320,7 +320,7 @@ function baselineStats() {
  * @param item        the database item record
  * @param candidates  [{ name, className, specKey, gear, details }]
  * @param ctx         { reportCode, fightId, phase, mode }
- * @param resolveTarget(className, slot, itemId, displacedItem) -> { id, enchant, gems }
+ * @param resolveTarget(candidate, slot, itemId, displacedItem) -> { id, enchant, gems }
  *                    supplied by the route layer so gemming/enchant resolution
  *                    stays in ONE place (buildSweepTargets) and cannot drift
  *                    between the sweep and the loot check. `displacedItem` lets
@@ -381,7 +381,7 @@ async function runLootCheck({ item, candidates, ctx, resolveTarget, onProgress }
       // slots are open to it.
       const perSlot = [];
       for (const slot of itemSlots) {
-        const target = resolveTarget(cand.className, slot, item.id, current.items[slot] || {});
+        const target = resolveTarget(cand, slot, item.id, current.items[slot] || {});
 
         // A two-hander UNEQUIPS the off-hand. Without this the sim runs an
         // impossible set-up - two-hander plus off-hand - and inflates the
