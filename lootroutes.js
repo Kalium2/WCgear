@@ -135,37 +135,44 @@ function registerLootRoutes(app, deps) {
 
       const { allPlayers, fightId } = await resolveFightAndPlayers(reportCode, fightIdParam);
 
-      const candidates = [];
-      const excluded = [];
-
-      for (const p of allPlayers) {
+      // The WHOLE roster comes back, flagged - the tool does not decide who is
+      // in contention. Eligibility is reported as information the council reads,
+      // not as a filter applied on their behalf, which is the stated design
+      // philosophy: give people the data and let them decide.
+      const roster = allPlayers.map((p) => {
         const className = p.type || "Unknown";
         const wclSpec = p.specs && p.specs[0] ? p.specs[0].spec : null;
-        const entry = { name: p.name, className, wclSpec };
-
-        const equip = canEquip(className, item);
-        if (!equip.ok) { excluded.push({ ...entry, reason: equip.reason }); continue; }
-
         const specKey = specKeyFromWcl(wclSpec, className);
+        const spec = specKey ? resolveSpec(specKey) : null;
+        const equip = canEquip(className, item);
+
+        const reasons = [];
         if (!specKey) {
-          excluded.push({
-            ...entry,
-            reason: wclSpec
-              ? `no simulation for ${wclSpec} ${className} yet`
-              : `Warcraft Logs reported no spec for this ${className}`,
-          });
-          continue;
+          reasons.push(wclSpec
+            ? `no simulation for ${wclSpec} ${className} yet`
+            : `Warcraft Logs reported no spec for this ${className}`);
         }
+        if (!equip.ok) reasons.push(equip.reason);
 
-        const spec = resolveSpec(specKey);
-        candidates.push({ ...entry, specKey, specLabel: (spec && spec.label) || specKey });
-      }
+        return {
+          name: p.name,
+          className,
+          wclSpec,
+          specKey: specKey || null,
+          specLabel: (spec && spec.label) || wclSpec || className,
+          simulatable: Boolean(specKey),
+          equippable: equip.ok,
+          reason: reasons.join("; "),
+        };
+      });
 
-      candidates.sort((a, b) => a.name.localeCompare(b.name));
-      excluded.sort((a, b) => a.name.localeCompare(b.name));
+      // Usable candidates first, then people we could sim but who cannot wear
+      // it, then everyone else - alphabetical within each band.
+      const band = (r) => (r.simulatable && r.equippable ? 0 : r.simulatable ? 1 : 2);
+      roster.sort((a, b) => band(a) - band(b) || a.name.localeCompare(b.name));
 
       res.set("Cache-Control", "no-store");
-      res.json({ fightId, item: summariseItem(item), candidates, excluded });
+      res.json({ fightId, item: summariseItem(item), roster });
     } catch (err) {
       console.error(err);
       res.status(err.status || 502).json({ error: err.status ? err.message : "Could not build a candidate list." });
