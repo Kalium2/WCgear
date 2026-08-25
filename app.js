@@ -747,8 +747,8 @@ async function onFindUpgrades() {
         phase: els.phaseSelect.value,
         spec: els.specSelect.value,
         targets,
+        overrides: window.WCGearSettings ? window.WCGearSettings.forRequest() : null,
       }),
-    });
     const start = await startRes.json().catch(() => ({}));
     if (!startRes.ok || start.error) {
       throw new Error(start.error || "Could not start the upgrade sweep.");
