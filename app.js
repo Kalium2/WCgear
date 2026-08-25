@@ -820,12 +820,24 @@ function renderUpgradeResults({ baselineDps, fullBisDps, fullBisError, results }
   // Same link shape the result cards use, so Wowhead's script supplies
   // the icon, the quality-coloured name and the full tooltip. The "Item
   // NNNNN" text is only a fallback shown before the script rewrites it.
-  const itemLink = (id) =>
+   const itemLink = (id) =>
     `<a class="item-chip-link" href="https://www.wowhead.com/tbc/item=${id}" target="_blank" rel="noopener">Item ${id}</a>`;
+
+  // Equipped > recommended > delta. "+0.6 DPS" reads very differently once you
+  // can see what it replaces: a small gain over an epic is a different
+  // proposition from a small gain over a blue.
+  const arrowStyle = "opacity:0.45;margin:0 7px;";
+  const emptyStyle = "opacity:0.5;";
+  const swapCell = (r) => {
+    const from = r.equippedItemId ? itemLink(r.equippedItemId) : `<span style="${emptyStyle}">Empty</span>`;
+    const extra = r.replacedOffHandItemId
+      ? ` <span style="${emptyStyle}">+ ${itemLink(r.replacedOffHandItemId)}</span>` : "";
+    return `${from}${extra}<span style="${arrowStyle}">→</span>${itemLink(r.recommendedItemId)}`;
+  };
 
   const rows = (results || []).map((r) => {
     if (r.error) {
-      return `<div style="${rowStyle}"><span style="${slotStyle}">${escapeHtml(r.slotName)}</span><span style="${itemStyle}">${itemLink(r.recommendedItemId)}</span><span style="${valStyle};opacity:0.6;">couldn't simulate</span></div>`;
+      return `<div style="${rowStyle}"><span style="${slotStyle}">${escapeHtml(r.slotName)}</span><span style="${itemStyle}">${swapCell(r)}</span><span style="${valStyle};opacity:0.6;">couldn't simulate</span></div>`;
     }
     if (r.alreadyEquipped) {
       return `<div style="${rowStyle}"><span style="${slotStyle}">${escapeHtml(r.slotName)}</span><span style="${itemStyle}">${itemLink(r.recommendedItemId)}</span><span style="${valStyle};opacity:0.6;">already equipped</span></div>`;
@@ -833,7 +845,7 @@ function renderUpgradeResults({ baselineDps, fullBisDps, fullBisError, results }
     const d = r.delta;
     const colour = d > 0.05 ? "var(--accent-bis, #63d471)" : d < -0.05 ? "var(--accent-upgrade)" : "inherit";
     const sign = d >= 0 ? "+" : "";
-    return `<div style="${rowStyle}"><span style="${slotStyle}">${escapeHtml(r.slotName)}</span><span style="${itemStyle}">${itemLink(r.recommendedItemId)}</span><span style="${valStyle};color:${colour};">${sign}${d.toFixed(1)} DPS</span></div>`;
+    return `<div style="${rowStyle}"><span style="${slotStyle}">${escapeHtml(r.slotName)}</span><span style="${itemStyle}">${swapCell(r)}</span><span style="${valStyle};color:${colour};">${sign}${d.toFixed(1)} DPS</span></div>`;
   }).join("");
 
   els.upgradeResults.innerHTML = `
