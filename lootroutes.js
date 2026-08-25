@@ -32,15 +32,68 @@ function pruneLootJobs() {
 
 /**
  * Warcraft Logs reports a spec label and a class; our keys are
- * "<label with underscores>_<class>", all lowercase - the same convention
- * isSimulatableSpec asserts in server.js.
+ * "<stem>_<class>", lowercase.
+ *
+ * The naive version of this built ONE candidate key and gave up. That silently
+ * hid every Hunter: WCL spells multi-word specs without a space
+ * ("BeastMastery"), which produced "beastmastery_hunter" and matched nothing,
+ * so a spec with a perfectly good working sim was reported as unsupported.
+ * Every other working spec is a single word, which is why nothing else broke
+ * and why it went unnoticed.
+ *
+ * So: try every plausible spelling and keep the first that resolves. Cheap,
+ * and it stops the same trap being reset by the next multi-word spec added
+ * (Feral Combat, Beast Mastery, Shadow Priest...).
  */
+const SPEC_ALIASES = {
+  beastmastery: ["beast_mastery"],
+  beastmaster: ["beast_mastery"],
+  moonkin: ["balance"],
+  boomkin: ["balance"],
+  feralcombat: ["feral", "feral_cat", "feral_combat"],
+  feral: ["feral_cat", "feral_combat"],
+  cat: ["feral", "feral_cat"],
+  guardian: ["feral_bear", "bear"],
+  resto: ["restoration"],
+  combat: ["combat"],
+};
+
+// Log an unmatched spec ONCE so the server reports coverage gaps itself,
+// rather than a whole class quietly disappearing from every shortlist.
+const loggedUnmatched = new Set();
+
 function specKeyFromWcl(specLabel, className) {
-  if (!specLabel || !className) return null;
-  const key =
-    String(specLabel).trim().toLowerCase().replace(/\s+/g, "_") +
-    "_" + String(className).trim().toLowerCase();
-  return specIsSimulatable(key) ? key : null;
+  if (!className) return null;
+  const cls = String(className).trim().toLowerCase().replace(/[^a-z0-9]/g, "");
+  const raw = String(specLabel || "").trim();
+  if (!raw || !cls) return null;
+
+  const stems = new Set();
+  const tidy = (s) => s.toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, "");
+
+  stems.add(tidy(raw));                                          // "Beast Mastery" -> beast_mastery
+  stems.add(tidy(raw.replace(/([a-z0-9])([A-Z])/g, "$1_$2")));    // "BeastMastery"  -> beast_mastery
+  stems.add(raw.toLowerCase().replace(/[^a-z0-9]/g, ""));         // -> beastmastery
+
+  for (const s of Array.from(stems)) {
+    for (const alias of SPEC_ALIASES[s.replace(/_/g, "")] || []) stems.add(alias);
+  }
+
+  for (const stem of stems) {
+    if (!stem) continue;
+    const key = stem + "_" + cls;
+    if (specIsSimulatable(key)) return key;
+  }
+
+  const tag = raw + "/" + className;
+  if (!loggedUnmatched.has(tag)) {
+    loggedUnmatched.add(tag);
+    console.log(
+      `lootcheck: no sim for spec "${raw}" (${className}) - tried ` +
+      Array.from(stems).map((s) => s + "_" + cls).join(", ")
+    );
+  }
+  return null;
 }
 
 function registerLootRoutes(app, deps) {
@@ -49,13 +102,19 @@ function registerLootRoutes(app, deps) {
     mapCombatantGearToSlots,
     buildSweepTargets,
     PRESET_BY_CLASS_PHASE,
+    presetPathFor,
     allItemsMap,
   } = deps;
 
   const presetCache = new Map();
 
-  function loadPreset(className, phaseKey) {
-    const rel = (PRESET_BY_CLASS_PHASE[className] || {})[phaseKey];
+  // Spec-keyed where server.js offers it, class-keyed otherwise. Without the
+  // spec key a Fury warrior borrows the Arms gemming reference - Arms is a
+  // two-hander build and Fury dual-wields, so those sets are not interchangeable.
+  function loadPreset(specKey, className, phaseKey) {
+    const rel = presetPathFor
+      ? presetPathFor(specKey, className, phaseKey)
+      : (PRESET_BY_CLASS_PHASE[className] || {})[phaseKey];
     if (!rel) return { items: [] };
     if (presetCache.has(rel)) return presetCache.get(rel);
     let parsed = { items: [] };
@@ -76,8 +135,8 @@ function registerLootRoutes(app, deps) {
    * the same known, documented caveat the sweep carries.
    */
   function makeResolveTarget(phaseKey) {
-    return function resolveTarget(className, slot, itemId, displaced) {
-      const preset = loadPreset(className, phaseKey);
+    return function resolveTarget(candidate, slot, itemId, displaced) {
+      const preset = loadPreset(candidate.specKey, candidate.className, phaseKey);
       const built = buildSweepTargets([{ slot, itemId }], preset)[slot] || { id: itemId, enchant: 0, gems: [] };
 
       if (!built.gems || !built.gems.length) {
