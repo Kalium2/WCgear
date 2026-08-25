@@ -18,7 +18,7 @@ const {
   searchItems, summariseItem, slotsForItem, canEquip,
   resolveSpec, specIsSimulatable, runLootCheck,
 } = require("./lootcheck");
-const { getItem } = require("./gamedb");
+const { getItem, loadGameDatabase } = require("./gamedb");
 
 const JOB_TTL_MS = 30 * 60 * 1000;
 const lootJobs = new Map();
@@ -96,8 +96,14 @@ function registerLootRoutes(app, deps) {
   // Item search - drives the "what dropped?" box.
   // -------------------------------------------------------------------------
 
-  app.get("/api/item-search", (req, res) => {
+  // Every route that touches the item database must await it first. The
+  // database is LAZY - allItems() returns an empty Map and getItem() returns
+  // undefined until something has loaded it. On a freshly restarted server
+  // that made item search silently return no results until an unrelated
+  // simulation happened to warm it.
+  app.get("/api/item-search", async (req, res) => {
     try {
+      await loadGameDatabase();
       const { q, limit } = req.query;
       const results = searchItems(allItemsMap(), q, Math.min(Number(limit) || 20, 50));
       res.set("Cache-Control", "public, max-age=3600");
@@ -120,6 +126,7 @@ function registerLootRoutes(app, deps) {
 
   app.get("/api/loot-candidates", async (req, res) => {
     try {
+      await loadGameDatabase();
       const { itemId, reportCode, fightId: fightIdParam } = req.query;
       if (!itemId || !reportCode) return res.status(400).json({ error: "Missing item ID or report code." });
 
@@ -173,6 +180,7 @@ function registerLootRoutes(app, deps) {
   app.post("/api/loot-check", async (req, res) => {
     try {
       pruneLootJobs();
+      await loadGameDatabase();
 
       const { itemId, reportCode, fightId: fightIdParam, phase, mode, candidates } = req.body || {};
       if (!itemId || !reportCode) return res.status(400).json({ error: "Missing item ID or report code." });
