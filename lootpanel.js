@@ -22,10 +22,8 @@
   var el = {};
   var lootState = {
     item: null,
-    candidates: [],
-    excluded: [],
+    roster: [],
     selected: {},
-    mode: "actual",
     running: false,
     searchSeq: 0,
   };
@@ -120,23 +118,16 @@
     '  </div>',
     '  <label for="lcPhase">Evaluate for</label>',
     '  <select id="lcPhase"><option value="phase3">Phase 3</option><option value="phase4">Phase 4</option></select>',
-    '  <label for="lcMode">Settings</label>',
-    '  <select id="lcMode"><option value="actual">Actual</option><option value="standardised">Standardised</option></select>',
-    '  <p class="lc-modenote" id="lcModeNote"></p>',
     '</div>',
 
     '<div id="lcChosen" class="lc-chosen" hidden></div>',
+    '<p id="lcPick" class="lc-sub" hidden>Pick who is in contention.</p>',
     '<div id="lcCands" class="lc-cands"></div>',
     '<div id="lcExcluded"></div>',
     '<button id="lcGo" class="lc-go" type="button" disabled>Compare candidates</button>',
     '<p id="lcStatus" class="lc-status"></p>',
     '<div id="lcOut" class="lc-out"></div>',
   ].join("");
-
-  var MODE_NOTES = {
-    actual: "Actual: each player's own build and race. Today every player still uses the wowsims default for their spec, so both modes return identical numbers \u2014 the choice will start to matter once builds are editable.",
-    standardised: "Standardised: the same assumptions applied to everyone. Today that is identical to Actual, because no player has customised anything yet.",
-  };
 
   // -------------------------------------------------------------------------
   // Setup
@@ -158,7 +149,7 @@
     if (after && after.parentNode) after.parentNode.insertBefore(panel, after.nextSibling);
     else document.body.appendChild(panel);
 
-    ["lcSearch", "lcResults", "lcChosen", "lcCands", "lcExcluded", "lcGo", "lcStatus", "lcOut", "lcPhase", "lcMode", "lcModeNote"]
+    ["lcSearch", "lcResults", "lcChosen", "lcPick", "lcCands", "lcExcluded", "lcGo", "lcStatus", "lcOut", "lcPhase"]
       .forEach(function (id) { el[id] = document.getElementById(id); });
 
     el.lcSearch.addEventListener("input", debounce(onSearch, 220));
@@ -167,10 +158,6 @@
       if (!el.lcResults.contains(e.target) && e.target !== el.lcSearch) el.lcResults.hidden = true;
     });
     el.lcGo.addEventListener("click", onRun);
-    el.lcMode.addEventListener("change", function () {
-      lootState.mode = el.lcMode.value;
-      el.lcModeNote.textContent = MODE_NOTES[lootState.mode];
-    });
     el.lcPhase.addEventListener("change", function () { if (lootState.item) loadCandidates(lootState.item.id); });
 
     // Mirror the Compare panel's phase, which carries the auto-detected value.
@@ -183,7 +170,6 @@
       sync();
     }
 
-    el.lcModeNote.textContent = MODE_NOTES.actual;
     watchForReport();
   }
 
@@ -268,12 +254,12 @@
       .then(function (res) {
         if (!res.ok) throw new Error(res.d && res.d.error ? res.d.error : "Could not build a candidate list.");
         lootState.item = res.d.item;
-        lootState.candidates = res.d.candidates || [];
-        lootState.excluded = res.d.excluded || [];
+        lootState.roster = res.d.roster || [];
+        // Nobody is pre-selected. The council decides who is in contention;
+        // the tool's job is to say who COULD be, not to shortlist for them.
         lootState.selected = {};
-        lootState.candidates.forEach(function (c) { lootState.selected[c.name] = true; });
         renderChosen();
-        renderCandidates();
+        renderRoster();
         setStatus("");
       })
       .catch(function (err) { setStatus(err.message, true); });
@@ -289,15 +275,21 @@
     refreshWowhead();
   }
 
-  function renderCandidates() {
-    var cands = lootState.candidates;
+  function isPickable(r) { return r.simulatable && r.equippable; }
 
-    if (!cands.length) {
-      el.lcCands.innerHTML = '<p class="lc-sub" style="margin:0">Nobody in this report can be simulated for that item.</p>';
+  function renderRoster() {
+    var roster = lootState.roster;
+    var pickable = roster.filter(isPickable);
+    var rest = roster.filter(function (r) { return !isPickable(r); });
+
+    el.lcPick.hidden = !roster.length;
+
+    if (!pickable.length) {
+      el.lcCands.innerHTML = '<p class="lc-sub" style="margin:0">Nobody in this report can be simulated for that item yet.</p>';
     } else {
-      el.lcCands.innerHTML = cands.map(function (c) {
-        return '<label class="on" data-name="' + esc(c.name) + '">' +
-          '<input type="checkbox" checked data-name="' + esc(c.name) + '">' +
+      el.lcCands.innerHTML = pickable.map(function (c) {
+        return '<label data-name="' + esc(c.name) + '">' +
+          '<input type="checkbox" data-name="' + esc(c.name) + '">' +
           esc(c.name) + '<span class="lc-spec">' + esc(c.specLabel) + "</span></label>";
       }).join("");
       Array.prototype.forEach.call(el.lcCands.querySelectorAll("input[type=checkbox]"), function (box) {
@@ -311,15 +303,15 @@
       });
     }
 
-    // Excluded players are shown, never dropped. A council that cannot see who
-    // was left out has no way to know the tool is silent about someone rather
-    // than having ruled them out.
-    if (lootState.excluded.length) {
+    // The rest of the roster stays visible with its reason. A council that
+    // cannot see who was left out has no way to tell "the tool is silent about
+    // this person" apart from "the tool ruled them out".
+    if (rest.length) {
       el.lcExcluded.innerHTML =
-        '<details class="lc-excluded"><summary>' + lootState.excluded.length +
-        " not considered</summary><ul>" +
-        lootState.excluded.map(function (x) {
-          return "<li>" + esc(x.name) + " \u2014 " + esc(x.reason) + "</li>";
+        '<details class="lc-excluded"><summary>' + rest.length +
+        " others in this raid</summary><ul>" +
+        rest.map(function (x) {
+          return "<li>" + esc(x.name) + " \u2014 " + esc(x.reason || "not available") + "</li>";
         }).join("") + "</ul></details>";
     } else {
       el.lcExcluded.innerHTML = "";
@@ -329,15 +321,15 @@
   }
 
   function selectedNames() {
-    return lootState.candidates
-      .filter(function (c) { return lootState.selected[c.name]; })
+    return lootState.roster
+      .filter(function (c) { return isPickable(c) && lootState.selected[c.name]; })
       .map(function (c) { return { name: c.name, specKey: c.specKey }; });
   }
 
   function updateGo() {
     var n = selectedNames().length;
     el.lcGo.disabled = lootState.running || !lootState.item || n === 0 || n > 8;
-    el.lcGo.textContent = n > 1 ? "Compare " + n + " candidates" : n === 1 ? "Check 1 candidate" : "Compare candidates";
+    el.lcGo.textContent = n > 1 ? "Compare " + n + " candidates" : n === 1 ? "Check 1 candidate" : "Pick who to compare";
     if (n > 8) setStatus("Pick at most 8 candidates.", true);
   }
 
@@ -364,7 +356,6 @@
         reportCode: ctx.reportCode,
         fightId: ctx.fightId,
         phase: currentPhase(),
-        mode: el.lcMode.value,
         candidates: picked,
       }),
     })
@@ -407,7 +398,6 @@
     var results = job.results || [];
     var ok = results.filter(function (r) { return r.status === "ok"; });
     var peak = ok.reduce(function (m, r) { return Math.max(m, Math.abs(r.delta)); }, 0) || 1;
-    var modeLabel = job.mode === "standardised" ? "Standardised" : "Actual";
 
     var rows = results.map(function (r) {
       if (r.status !== "ok") {
@@ -433,7 +423,7 @@
     }).join("");
 
     el.lcOut.innerHTML = rows +
-      '<p class="lc-note"><strong>' + modeLabel + " settings \u00b7 " + esc(phaseLabel(job.phase)) + ".</strong> " +
+      '<p class="lc-note"><strong>' + esc(phaseLabel(job.phase)) + " \u00b7 each player on their logged spec.</strong> " +
       "Each figure is the DPS that player would gain from this one item, with everything else they wear left as it is. " +
       "Runs share a fixed random seed, so two candidates a few DPS apart are genuinely a few DPS apart rather than noise. " +
       "A negative usually means the item breaks a set bonus they currently have.</p>";
