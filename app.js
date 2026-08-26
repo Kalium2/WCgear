@@ -79,7 +79,9 @@ const CLASS_SPEC_MAP = {
   ],
   Shaman: [
     { value: "elemental_shaman", label: "Elemental" },
-    { value: "enhancement_shaman", label: "Enhancement" },
+    { value: "enhancement_shaman", label: "Enhancement (IWT)" },
+    { value: "enhancement_ils_shaman", label: "Enhancement (ILS)" },
+    { value: "enhancement_ele_shaman", label: "Enhancement (Sub-Ele)" },
     { value: "restoration_shaman", label: "Restoration" },
   ],
   Druid: [
@@ -112,8 +114,9 @@ const ALL_SPECS = [
   { value: "discipline_priest", label: "Discipline Priest", cls: "Priest" },
   { value: "shadow_priest", label: "Shadow Priest", cls: "Priest" },
   { value: "elemental_shaman", label: "Elemental Shaman", cls: "Shaman" },
-  { value: "enhancement_shaman", label: "Enhancement Shaman", cls: "Shaman" },
-  { value: "restoration_shaman", label: "Restoration Shaman", cls: "Shaman" },
+  { value: "enhancement_shaman", label: "Enhancement Shaman (IWT)", cls: "Shaman" },
+  { value: "enhancement_ils_shaman", label: "Enhancement Shaman (ILS)", cls: "Shaman" },
+  { value: "enhancement_ele_shaman", label: "Enhancement Shaman (Sub-Ele)", cls: "Shaman" },  { value: "restoration_shaman", label: "Restoration Shaman", cls: "Shaman" },
   { value: "balance_druid", label: "Balance Druid", cls: "Druid" },
   { value: "feral_druid", label: "Feral Druid (Cat)", cls: "Druid" },
   { value: "guardian_druid", label: "Feral Druid (Bear)", cls: "Druid" },
