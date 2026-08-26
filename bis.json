@@ -2060,8 +2060,8 @@
           "source": ""
         }
       ],
-      "weaponConfig": "mainhand_offhand",
-      "mainhand": [
+      "weaponConfig": "twohand",
+      "twohand": [
         {
           "itemId": 32374,
           "rank": 1,
@@ -2225,8 +2225,8 @@
           "source": ""
         }
       ],
-      "weaponConfig": "mainhand_offhand",
-      "mainhand": [
+      "weaponConfig": "twohand",
+      "twohand": [
         {
           "itemId": 32374,
           "rank": 1,
@@ -2740,8 +2740,8 @@
           "source": ""
         }
       ],
-      "weaponConfig": "mainhand_offhand",
-      "mainhand": [
+      "weaponConfig": "twohand",
+      "twohand": [
         {
           "itemId": 30883,
           "rank": 1,
@@ -2905,8 +2905,8 @@
           "source": ""
         }
       ],
-      "weaponConfig": "mainhand_offhand",
-      "mainhand": [
+      "weaponConfig": "twohand",
+      "twohand": [
         {
           "itemId": 32374,
           "rank": 1,
@@ -3235,8 +3235,8 @@
           "source": ""
         }
       ],
-      "weaponConfig": "mainhand_offhand",
-      "mainhand": [
+      "weaponConfig": "twohand",
+      "twohand": [
         {
           "itemId": 32374,
           "rank": 1,
@@ -3401,8 +3401,8 @@
           "source": ""
         }
       ],
-      "weaponConfig": "mainhand_offhand",
-      "mainhand": [
+      "weaponConfig": "twohand",
+      "twohand": [
         {
           "itemId": 33716,
           "rank": 1,
@@ -3566,8 +3566,8 @@
           "source": ""
         }
       ],
-      "weaponConfig": "mainhand_offhand",
-      "mainhand": [
+      "weaponConfig": "twohand",
+      "twohand": [
         {
           "itemId": 32374,
           "rank": 1,
@@ -3737,8 +3737,8 @@
           "enchant": 2724
         }
       ],
-      "weaponConfig": "mainhand_offhand",
-      "mainhand": [
+      "weaponConfig": "twohand",
+      "twohand": [
         {
           "itemId": 29993,
           "rank": 1,
@@ -3911,8 +3911,8 @@
           "enchant": 2724
         }
       ],
-      "weaponConfig": "mainhand_offhand",
-      "mainhand": [
+      "weaponConfig": "twohand",
+      "twohand": [
         {
           "itemId": 29993,
           "rank": 1,
@@ -4081,8 +4081,8 @@
           "enchant": 2724
         }
       ],
-      "weaponConfig": "mainhand_offhand",
-      "mainhand": [
+      "weaponConfig": "twohand",
+      "twohand": [
         {
           "itemId": 29993,
           "rank": 1,
@@ -4609,8 +4609,8 @@
           "enchant": 2724
         }
       ],
-      "weaponConfig": "mainhand_offhand",
-      "mainhand": [
+      "weaponConfig": "twohand",
+      "twohand": [
         {
           "itemId": 29993,
           "rank": 1,
@@ -4785,8 +4785,8 @@
           "enchant": 2724
         }
       ],
-      "weaponConfig": "mainhand_offhand",
-      "mainhand": [
+      "weaponConfig": "twohand",
+      "twohand": [
         {
           "itemId": 29993,
           "rank": 1,
@@ -5158,6 +5158,336 @@
           "name": "Blade of Infamy",
           "source": "",
           "enchant": 3222
+        }
+      ]
+    },
+    "enhancement_ils_shaman": {
+      "_source": "wowsims-preset",
+      "_preset": "presets/shaman_enhancement/p3.gear.json",
+      "head": [
+        {
+          "itemId": 32235,
+          "rank": 1,
+          "name": "Cursed Vision of Sargeras",
+          "source": "",
+          "enchant": 29192,
+          "gems": [
+            32409,
+            32193
+          ]
+        }
+      ],
+      "neck": [
+        {
+          "itemId": 32260,
+          "rank": 1,
+          "name": "Choker of Endless Nightmares",
+          "source": ""
+        }
+      ],
+      "shoulder": [
+        {
+          "itemId": 32575,
+          "rank": 1,
+          "name": "Shoulders of Lightning Reflexes",
+          "source": "",
+          "enchant": 28888
+        }
+      ],
+      "back": [
+        {
+          "itemId": 32323,
+          "rank": 1,
+          "name": "Shadowmoon Destroyer's Drape",
+          "source": "",
+          "enchant": 368
+        }
+      ],
+      "chest": [
+        {
+          "itemId": 30905,
+          "rank": 1,
+          "name": "Midnight Chestguard",
+          "source": "",
+          "enchant": 24003,
+          "gems": [
+            32211,
+            32193,
+            32217
+          ]
+        }
+      ],
+      "wrist": [
+        {
+          "itemId": 32574,
+          "rank": 1,
+          "name": "Bindings of Lightning Reflexes",
+          "source": "",
+          "enchant": 2647
+        }
+      ],
+      "hands": [
+        {
+          "itemId": 32234,
+          "rank": 1,
+          "name": "Fists of Mukoa",
+          "source": "",
+          "enchant": 684
+        }
+      ],
+      "waist": [
+        {
+          "itemId": 30106,
+          "rank": 1,
+          "name": "Belt of One-Hundred Deaths",
+          "source": "",
+          "gems": [
+            32193,
+            32193
+          ]
+        }
+      ],
+      "legs": [
+        {
+          "itemId": 30900,
+          "rank": 1,
+          "name": "Bow-stitched Leggings",
+          "source": "",
+          "enchant": 29535,
+          "gems": [
+            32193,
+            32217,
+            32211
+          ]
+        }
+      ],
+      "feet": [
+        {
+          "itemId": 32510,
+          "rank": 1,
+          "name": "Softstep Boots of Tracking",
+          "source": "",
+          "enchant": 28279
+        }
+      ],
+      "finger": [
+        {
+          "itemId": 29997,
+          "rank": 1,
+          "name": "Band of the Ranger-General",
+          "source": ""
+        },
+        {
+          "itemId": 32497,
+          "rank": 2,
+          "name": "Stormrage Signet Ring",
+          "source": ""
+        }
+      ],
+      "trinket": [
+        {
+          "itemId": 28830,
+          "rank": 1,
+          "name": "Dragonspine Trophy",
+          "source": ""
+        },
+        {
+          "itemId": 29383,
+          "rank": 2,
+          "name": "Bloodlust Brooch",
+          "source": ""
+        }
+      ],
+      "ranged": [
+        {
+          "itemId": 27815,
+          "rank": 1,
+          "name": "Totem of the Astral Winds",
+          "source": ""
+        }
+      ],
+      "weaponConfig": "mainhand_offhand",
+      "mainhand": [
+        {
+          "itemId": 32262,
+          "rank": 1,
+          "name": "Syphon of the Nathrezim",
+          "source": "",
+          "enchant": 22559
+        }
+      ],
+      "offhand": [
+        {
+          "itemId": 32262,
+          "rank": 1,
+          "name": "Syphon of the Nathrezim",
+          "source": "",
+          "enchant": 22559
+        }
+      ]
+    },
+    "enhancement_ele_shaman": {
+      "_source": "wowsims-preset",
+      "_preset": "presets/shaman_enhancement/p3.gear.json",
+      "head": [
+        {
+          "itemId": 32235,
+          "rank": 1,
+          "name": "Cursed Vision of Sargeras",
+          "source": "",
+          "enchant": 29192,
+          "gems": [
+            32409,
+            32193
+          ]
+        }
+      ],
+      "neck": [
+        {
+          "itemId": 32260,
+          "rank": 1,
+          "name": "Choker of Endless Nightmares",
+          "source": ""
+        }
+      ],
+      "shoulder": [
+        {
+          "itemId": 32575,
+          "rank": 1,
+          "name": "Shoulders of Lightning Reflexes",
+          "source": "",
+          "enchant": 28888
+        }
+      ],
+      "back": [
+        {
+          "itemId": 32323,
+          "rank": 1,
+          "name": "Shadowmoon Destroyer's Drape",
+          "source": "",
+          "enchant": 368
+        }
+      ],
+      "chest": [
+        {
+          "itemId": 30905,
+          "rank": 1,
+          "name": "Midnight Chestguard",
+          "source": "",
+          "enchant": 24003,
+          "gems": [
+            32211,
+            32193,
+            32217
+          ]
+        }
+      ],
+      "wrist": [
+        {
+          "itemId": 32574,
+          "rank": 1,
+          "name": "Bindings of Lightning Reflexes",
+          "source": "",
+          "enchant": 2647
+        }
+      ],
+      "hands": [
+        {
+          "itemId": 32234,
+          "rank": 1,
+          "name": "Fists of Mukoa",
+          "source": "",
+          "enchant": 684
+        }
+      ],
+      "waist": [
+        {
+          "itemId": 30106,
+          "rank": 1,
+          "name": "Belt of One-Hundred Deaths",
+          "source": "",
+          "gems": [
+            32193,
+            32193
+          ]
+        }
+      ],
+      "legs": [
+        {
+          "itemId": 30900,
+          "rank": 1,
+          "name": "Bow-stitched Leggings",
+          "source": "",
+          "enchant": 29535,
+          "gems": [
+            32193,
+            32217,
+            32211
+          ]
+        }
+      ],
+      "feet": [
+        {
+          "itemId": 32510,
+          "rank": 1,
+          "name": "Softstep Boots of Tracking",
+          "source": "",
+          "enchant": 28279
+        }
+      ],
+      "finger": [
+        {
+          "itemId": 29997,
+          "rank": 1,
+          "name": "Band of the Ranger-General",
+          "source": ""
+        },
+        {
+          "itemId": 32497,
+          "rank": 2,
+          "name": "Stormrage Signet Ring",
+          "source": ""
+        }
+      ],
+      "trinket": [
+        {
+          "itemId": 28830,
+          "rank": 1,
+          "name": "Dragonspine Trophy",
+          "source": ""
+        },
+        {
+          "itemId": 29383,
+          "rank": 2,
+          "name": "Bloodlust Brooch",
+          "source": ""
+        }
+      ],
+      "ranged": [
+        {
+          "itemId": 27815,
+          "rank": 1,
+          "name": "Totem of the Astral Winds",
+          "source": ""
+        }
+      ],
+      "weaponConfig": "mainhand_offhand",
+      "mainhand": [
+        {
+          "itemId": 32262,
+          "rank": 1,
+          "name": "Syphon of the Nathrezim",
+          "source": "",
+          "enchant": 22559
+        }
+      ],
+      "offhand": [
+        {
+          "itemId": 32262,
+          "rank": 1,
+          "name": "Syphon of the Nathrezim",
+          "source": "",
+          "enchant": 22559
         }
       ]
     }
@@ -6866,8 +7196,8 @@
           ]
         }
       ],
-      "weaponConfig": "mainhand_offhand",
-      "mainhand": [
+      "weaponConfig": "twohand",
+      "twohand": [
         {
           "itemId": 32374,
           "rank": 1,
@@ -7032,8 +7362,8 @@
           ]
         }
       ],
-      "weaponConfig": "mainhand_offhand",
-      "mainhand": [
+      "weaponConfig": "twohand",
+      "twohand": [
         {
           "itemId": 32374,
           "rank": 1,
@@ -7545,8 +7875,8 @@
           "source": ""
         }
       ],
-      "weaponConfig": "mainhand_offhand",
-      "mainhand": [
+      "weaponConfig": "twohand",
+      "twohand": [
         {
           "itemId": 30883,
           "rank": 1,
@@ -7710,8 +8040,8 @@
           "source": ""
         }
       ],
-      "weaponConfig": "mainhand_offhand",
-      "mainhand": [
+      "weaponConfig": "twohand",
+      "twohand": [
         {
           "itemId": 32374,
           "rank": 1,
@@ -8043,8 +8373,8 @@
           "source": ""
         }
       ],
-      "weaponConfig": "mainhand_offhand",
-      "mainhand": [
+      "weaponConfig": "twohand",
+      "twohand": [
         {
           "itemId": 32374,
           "rank": 1,
@@ -8209,8 +8539,8 @@
           "source": ""
         }
       ],
-      "weaponConfig": "mainhand_offhand",
-      "mainhand": [
+      "weaponConfig": "twohand",
+      "twohand": [
         {
           "itemId": 33716,
           "rank": 1,
@@ -8378,8 +8708,8 @@
           "enchant": 2724
         }
       ],
-      "weaponConfig": "mainhand_offhand",
-      "mainhand": [
+      "weaponConfig": "twohand",
+      "twohand": [
         {
           "itemId": 29993,
           "rank": 1,
@@ -8552,8 +8882,8 @@
           "enchant": 2724
         }
       ],
-      "weaponConfig": "mainhand_offhand",
-      "mainhand": [
+      "weaponConfig": "twohand",
+      "twohand": [
         {
           "itemId": 29993,
           "rank": 1,
@@ -8722,8 +9052,8 @@
           "enchant": 2724
         }
       ],
-      "weaponConfig": "mainhand_offhand",
-      "mainhand": [
+      "weaponConfig": "twohand",
+      "twohand": [
         {
           "itemId": 29993,
           "rank": 1,
@@ -9248,8 +9578,8 @@
           "enchant": 2724
         }
       ],
-      "weaponConfig": "mainhand_offhand",
-      "mainhand": [
+      "weaponConfig": "twohand",
+      "twohand": [
         {
           "itemId": 29993,
           "rank": 1,
@@ -9424,8 +9754,8 @@
           "enchant": 2724
         }
       ],
-      "weaponConfig": "mainhand_offhand",
-      "mainhand": [
+      "weaponConfig": "twohand",
+      "twohand": [
         {
           "itemId": 29993,
           "rank": 1,
@@ -9795,6 +10125,342 @@
           "name": "Dagger of Bad Mojo",
           "source": "",
           "enchant": 3222
+        }
+      ]
+    },
+    "enhancement_ils_shaman": {
+      "_source": "wowsims-preset",
+      "_preset": "presets/shaman_enhancement/p4.gear.json",
+      "head": [
+        {
+          "itemId": 32235,
+          "rank": 1,
+          "name": "Cursed Vision of Sargeras",
+          "source": "",
+          "enchant": 29192,
+          "gems": [
+            32409,
+            32217
+          ]
+        }
+      ],
+      "neck": [
+        {
+          "itemId": 32260,
+          "rank": 1,
+          "name": "Choker of Endless Nightmares",
+          "source": ""
+        }
+      ],
+      "shoulder": [
+        {
+          "itemId": 32581,
+          "rank": 1,
+          "name": "Swiftstrike Shoulders",
+          "source": "",
+          "enchant": 28888
+        }
+      ],
+      "back": [
+        {
+          "itemId": 32323,
+          "rank": 1,
+          "name": "Shadowmoon Destroyer's Drape",
+          "source": "",
+          "enchant": 368
+        }
+      ],
+      "chest": [
+        {
+          "itemId": 30905,
+          "rank": 1,
+          "name": "Midnight Chestguard",
+          "source": "",
+          "enchant": 24003,
+          "gems": [
+            32211,
+            32193,
+            32217
+          ]
+        }
+      ],
+      "wrist": [
+        {
+          "itemId": 30863,
+          "rank": 1,
+          "name": "Deadly Cuffs",
+          "source": "",
+          "enchant": 2647,
+          "gems": [
+            32217
+          ]
+        }
+      ],
+      "hands": [
+        {
+          "itemId": 32234,
+          "rank": 1,
+          "name": "Fists of Mukoa",
+          "source": "",
+          "enchant": 684
+        }
+      ],
+      "waist": [
+        {
+          "itemId": 30106,
+          "rank": 1,
+          "name": "Belt of One-Hundred Deaths",
+          "source": "",
+          "gems": [
+            32193,
+            32211
+          ]
+        }
+      ],
+      "legs": [
+        {
+          "itemId": 30900,
+          "rank": 1,
+          "name": "Bow-stitched Leggings",
+          "source": "",
+          "enchant": 29535,
+          "gems": [
+            32193,
+            32217,
+            32211
+          ]
+        }
+      ],
+      "feet": [
+        {
+          "itemId": 32510,
+          "rank": 1,
+          "name": "Softstep Boots of Tracking",
+          "source": "",
+          "enchant": 28279
+        }
+      ],
+      "finger": [
+        {
+          "itemId": 32497,
+          "rank": 1,
+          "name": "Stormrage Signet Ring",
+          "source": ""
+        },
+        {
+          "itemId": 33496,
+          "rank": 2,
+          "name": "Signet of Primal Wrath",
+          "source": ""
+        }
+      ],
+      "trinket": [
+        {
+          "itemId": 33831,
+          "rank": 1,
+          "name": "Berserker's Call",
+          "source": ""
+        },
+        {
+          "itemId": 28830,
+          "rank": 2,
+          "name": "Dragonspine Trophy",
+          "source": ""
+        }
+      ],
+      "ranged": [
+        {
+          "itemId": 33507,
+          "rank": 1,
+          "name": "Stonebreaker's Totem",
+          "source": ""
+        }
+      ],
+      "weaponConfig": "mainhand_offhand",
+      "mainhand": [
+        {
+          "itemId": 32262,
+          "rank": 1,
+          "name": "Syphon of the Nathrezim",
+          "source": "",
+          "enchant": 22559
+        }
+      ],
+      "offhand": [
+        {
+          "itemId": 32262,
+          "rank": 1,
+          "name": "Syphon of the Nathrezim",
+          "source": "",
+          "enchant": 33307
+        }
+      ]
+    },
+    "enhancement_ele_shaman": {
+      "_source": "wowsims-preset",
+      "_preset": "presets/shaman_enhancement/p4.gear.json",
+      "head": [
+        {
+          "itemId": 32235,
+          "rank": 1,
+          "name": "Cursed Vision of Sargeras",
+          "source": "",
+          "enchant": 29192,
+          "gems": [
+            32409,
+            32217
+          ]
+        }
+      ],
+      "neck": [
+        {
+          "itemId": 32260,
+          "rank": 1,
+          "name": "Choker of Endless Nightmares",
+          "source": ""
+        }
+      ],
+      "shoulder": [
+        {
+          "itemId": 32581,
+          "rank": 1,
+          "name": "Swiftstrike Shoulders",
+          "source": "",
+          "enchant": 28888
+        }
+      ],
+      "back": [
+        {
+          "itemId": 32323,
+          "rank": 1,
+          "name": "Shadowmoon Destroyer's Drape",
+          "source": "",
+          "enchant": 368
+        }
+      ],
+      "chest": [
+        {
+          "itemId": 30905,
+          "rank": 1,
+          "name": "Midnight Chestguard",
+          "source": "",
+          "enchant": 24003,
+          "gems": [
+            32211,
+            32193,
+            32217
+          ]
+        }
+      ],
+      "wrist": [
+        {
+          "itemId": 30863,
+          "rank": 1,
+          "name": "Deadly Cuffs",
+          "source": "",
+          "enchant": 2647,
+          "gems": [
+            32217
+          ]
+        }
+      ],
+      "hands": [
+        {
+          "itemId": 32234,
+          "rank": 1,
+          "name": "Fists of Mukoa",
+          "source": "",
+          "enchant": 684
+        }
+      ],
+      "waist": [
+        {
+          "itemId": 30106,
+          "rank": 1,
+          "name": "Belt of One-Hundred Deaths",
+          "source": "",
+          "gems": [
+            32193,
+            32211
+          ]
+        }
+      ],
+      "legs": [
+        {
+          "itemId": 30900,
+          "rank": 1,
+          "name": "Bow-stitched Leggings",
+          "source": "",
+          "enchant": 29535,
+          "gems": [
+            32193,
+            32217,
+            32211
+          ]
+        }
+      ],
+      "feet": [
+        {
+          "itemId": 32510,
+          "rank": 1,
+          "name": "Softstep Boots of Tracking",
+          "source": "",
+          "enchant": 28279
+        }
+      ],
+      "finger": [
+        {
+          "itemId": 32497,
+          "rank": 1,
+          "name": "Stormrage Signet Ring",
+          "source": ""
+        },
+        {
+          "itemId": 33496,
+          "rank": 2,
+          "name": "Signet of Primal Wrath",
+          "source": ""
+        }
+      ],
+      "trinket": [
+        {
+          "itemId": 33831,
+          "rank": 1,
+          "name": "Berserker's Call",
+          "source": ""
+        },
+        {
+          "itemId": 28830,
+          "rank": 2,
+          "name": "Dragonspine Trophy",
+          "source": ""
+        }
+      ],
+      "ranged": [
+        {
+          "itemId": 33507,
+          "rank": 1,
+          "name": "Stonebreaker's Totem",
+          "source": ""
+        }
+      ],
+      "weaponConfig": "mainhand_offhand",
+      "mainhand": [
+        {
+          "itemId": 32262,
+          "rank": 1,
+          "name": "Syphon of the Nathrezim",
+          "source": "",
+          "enchant": 22559
+        }
+      ],
+      "offhand": [
+        {
+          "itemId": 32262,
+          "rank": 1,
+          "name": "Syphon of the Nathrezim",
+          "source": "",
+          "enchant": 33307
         }
       ]
     }
