@@ -3576,6 +3576,1590 @@
           "enchant": 2672
         }
       ]
+    },
+    "survival_hunter": {
+      "_source": "wowsims-preset",
+      "_preset": "presets/hunter_dps/phase_3/sv/2h_6p.gear.json",
+      "head": [
+        {
+          "itemId": 31003,
+          "rank": 1,
+          "name": "Gronnstalker's Helmet",
+          "source": "",
+          "enchant": 3003,
+          "gems": [
+            32194,
+            32409
+          ]
+        }
+      ],
+      "neck": [
+        {
+          "itemId": 30017,
+          "rank": 1,
+          "name": "Telonicus's Pendant of Mayhem",
+          "source": ""
+        }
+      ],
+      "shoulder": [
+        {
+          "itemId": 31006,
+          "rank": 1,
+          "name": "Gronnstalker's Spaulders",
+          "source": "",
+          "enchant": 2986,
+          "gems": [
+            32194,
+            32194
+          ]
+        }
+      ],
+      "back": [
+        {
+          "itemId": 29994,
+          "rank": 1,
+          "name": "Thalassian Wildercloak",
+          "source": "",
+          "enchant": 368
+        }
+      ],
+      "chest": [
+        {
+          "itemId": 31004,
+          "rank": 1,
+          "name": "Gronnstalker's Chestguard",
+          "source": "",
+          "enchant": 2661,
+          "gems": [
+            32194,
+            32226,
+            32226
+          ]
+        }
+      ],
+      "wrist": [
+        {
+          "itemId": 32324,
+          "rank": 1,
+          "name": "Insidious Bands",
+          "source": "",
+          "enchant": 1593,
+          "gems": [
+            32194
+          ]
+        }
+      ],
+      "hands": [
+        {
+          "itemId": 31001,
+          "rank": 1,
+          "name": "Gronnstalker's Gloves",
+          "source": "",
+          "enchant": 2564,
+          "gems": [
+            32194
+          ]
+        }
+      ],
+      "waist": [
+        {
+          "itemId": 30879,
+          "rank": 1,
+          "name": "Don Alejandro's Money Belt",
+          "source": "",
+          "gems": [
+            32194,
+            32194
+          ]
+        }
+      ],
+      "legs": [
+        {
+          "itemId": 30900,
+          "rank": 1,
+          "name": "Bow-stitched Leggings",
+          "source": "",
+          "enchant": 3012,
+          "gems": [
+            32194,
+            32194,
+            32194
+          ]
+        }
+      ],
+      "feet": [
+        {
+          "itemId": 32366,
+          "rank": 1,
+          "name": "Shadowmaster's Boots",
+          "source": "",
+          "enchant": 2657,
+          "gems": [
+            32194,
+            32194
+          ]
+        }
+      ],
+      "finger": [
+        {
+          "itemId": 29301,
+          "rank": 1,
+          "name": "Band of the Eternal Champion",
+          "source": ""
+        },
+        {
+          "itemId": 28791,
+          "rank": 2,
+          "name": "Ring of the Recalcitrant",
+          "source": ""
+        }
+      ],
+      "trinket": [
+        {
+          "itemId": 32505,
+          "rank": 1,
+          "name": "Madness of the Betrayer",
+          "source": ""
+        },
+        {
+          "itemId": 28830,
+          "rank": 2,
+          "name": "Dragonspine Trophy",
+          "source": ""
+        }
+      ],
+      "ranged": [
+        {
+          "itemId": 30906,
+          "rank": 1,
+          "name": "Bristleblitz Striker",
+          "source": "",
+          "enchant": 2724
+        }
+      ],
+      "weaponConfig": "mainhand_offhand",
+      "mainhand": [
+        {
+          "itemId": 29993,
+          "rank": 1,
+          "name": "Twinblade of the Phoenix",
+          "source": "",
+          "enchant": 2670,
+          "gems": [
+            32194,
+            32194,
+            32194
+          ]
+        }
+      ]
+    },
+    "beast_mastery_hunter@2h_6p": {
+      "_source": "wowsims-preset",
+      "_preset": "presets/hunter_dps/phase_3/bm/2h_6p.gear.json",
+      "head": [
+        {
+          "itemId": 32235,
+          "rank": 1,
+          "name": "Cursed Vision of Sargeras",
+          "source": "",
+          "enchant": 3003,
+          "gems": [
+            32409,
+            32194
+          ]
+        }
+      ],
+      "neck": [
+        {
+          "itemId": 32591,
+          "rank": 1,
+          "name": "Choker of Serrated Blades",
+          "source": ""
+        }
+      ],
+      "shoulder": [
+        {
+          "itemId": 31006,
+          "rank": 1,
+          "name": "Gronnstalker's Spaulders",
+          "source": "",
+          "enchant": 2717,
+          "gems": [
+            32194,
+            32194
+          ]
+        }
+      ],
+      "back": [
+        {
+          "itemId": 29994,
+          "rank": 1,
+          "name": "Thalassian Wildercloak",
+          "source": "",
+          "enchant": 368
+        }
+      ],
+      "chest": [
+        {
+          "itemId": 31004,
+          "rank": 1,
+          "name": "Gronnstalker's Chestguard",
+          "source": "",
+          "enchant": 2661,
+          "gems": [
+            32194,
+            32226,
+            32226
+          ]
+        }
+      ],
+      "wrist": [
+        {
+          "itemId": 32324,
+          "rank": 1,
+          "name": "Insidious Bands",
+          "source": "",
+          "enchant": 1593,
+          "gems": [
+            32222
+          ]
+        }
+      ],
+      "hands": [
+        {
+          "itemId": 31001,
+          "rank": 1,
+          "name": "Gronnstalker's Gloves",
+          "source": "",
+          "enchant": 2564,
+          "gems": [
+            32194
+          ]
+        }
+      ],
+      "waist": [
+        {
+          "itemId": 30879,
+          "rank": 1,
+          "name": "Don Alejandro's Money Belt",
+          "source": "",
+          "gems": [
+            32194,
+            32194
+          ]
+        }
+      ],
+      "legs": [
+        {
+          "itemId": 31005,
+          "rank": 1,
+          "name": "Gronnstalker's Leggings",
+          "source": "",
+          "enchant": 3012,
+          "gems": [
+            32194
+          ]
+        }
+      ],
+      "feet": [
+        {
+          "itemId": 32366,
+          "rank": 1,
+          "name": "Shadowmaster's Boots",
+          "source": "",
+          "enchant": 2657,
+          "gems": [
+            32194,
+            32222
+          ]
+        }
+      ],
+      "finger": [
+        {
+          "itemId": 29301,
+          "rank": 1,
+          "name": "Band of the Eternal Champion",
+          "source": ""
+        },
+        {
+          "itemId": 32497,
+          "rank": 2,
+          "name": "Stormrage Signet Ring",
+          "source": ""
+        }
+      ],
+      "trinket": [
+        {
+          "itemId": 32505,
+          "rank": 1,
+          "name": "Madness of the Betrayer",
+          "source": ""
+        },
+        {
+          "itemId": 28830,
+          "rank": 2,
+          "name": "Dragonspine Trophy",
+          "source": ""
+        }
+      ],
+      "ranged": [
+        {
+          "itemId": 30906,
+          "rank": 1,
+          "name": "Bristleblitz Striker",
+          "source": "",
+          "enchant": 2724
+        }
+      ],
+      "weaponConfig": "mainhand_offhand",
+      "mainhand": [
+        {
+          "itemId": 29993,
+          "rank": 1,
+          "name": "Twinblade of the Phoenix",
+          "source": "",
+          "enchant": 2670,
+          "gems": [
+            32194,
+            32194,
+            32194
+          ]
+        }
+      ]
+    },
+    "beast_mastery_hunter@2h_9p": {
+      "_source": "wowsims-preset",
+      "_preset": "presets/hunter_dps/phase_3/bm/2h_9p.gear.json",
+      "head": [
+        {
+          "itemId": 32235,
+          "rank": 1,
+          "name": "Cursed Vision of Sargeras",
+          "source": "",
+          "enchant": 3003,
+          "gems": [
+            32409,
+            32194
+          ]
+        }
+      ],
+      "neck": [
+        {
+          "itemId": 32591,
+          "rank": 1,
+          "name": "Choker of Serrated Blades",
+          "source": ""
+        }
+      ],
+      "shoulder": [
+        {
+          "itemId": 31006,
+          "rank": 1,
+          "name": "Gronnstalker's Spaulders",
+          "source": "",
+          "enchant": 2986,
+          "gems": [
+            32194,
+            32194
+          ]
+        }
+      ],
+      "back": [
+        {
+          "itemId": 32323,
+          "rank": 1,
+          "name": "Shadowmoon Destroyer's Drape",
+          "source": "",
+          "enchant": 368
+        }
+      ],
+      "chest": [
+        {
+          "itemId": 31004,
+          "rank": 1,
+          "name": "Gronnstalker's Chestguard",
+          "source": "",
+          "enchant": 2661,
+          "gems": [
+            32194,
+            32226,
+            32226
+          ]
+        }
+      ],
+      "wrist": [
+        {
+          "itemId": 32324,
+          "rank": 1,
+          "name": "Insidious Bands",
+          "source": "",
+          "enchant": 1593,
+          "gems": [
+            32220
+          ]
+        }
+      ],
+      "hands": [
+        {
+          "itemId": 31001,
+          "rank": 1,
+          "name": "Gronnstalker's Gloves",
+          "source": "",
+          "enchant": 2564,
+          "gems": [
+            32194
+          ]
+        }
+      ],
+      "waist": [
+        {
+          "itemId": 32346,
+          "rank": 1,
+          "name": "Boneweave Girdle",
+          "source": ""
+        }
+      ],
+      "legs": [
+        {
+          "itemId": 31005,
+          "rank": 1,
+          "name": "Gronnstalker's Leggings",
+          "source": "",
+          "enchant": 3012,
+          "gems": [
+            32194
+          ]
+        }
+      ],
+      "feet": [
+        {
+          "itemId": 32366,
+          "rank": 1,
+          "name": "Shadowmaster's Boots",
+          "source": "",
+          "enchant": 2657,
+          "gems": [
+            32194,
+            32220
+          ]
+        }
+      ],
+      "finger": [
+        {
+          "itemId": 29301,
+          "rank": 1,
+          "name": "Band of the Eternal Champion",
+          "source": ""
+        },
+        {
+          "itemId": 32497,
+          "rank": 2,
+          "name": "Stormrage Signet Ring",
+          "source": ""
+        }
+      ],
+      "trinket": [
+        {
+          "itemId": 32505,
+          "rank": 1,
+          "name": "Madness of the Betrayer",
+          "source": ""
+        },
+        {
+          "itemId": 28830,
+          "rank": 2,
+          "name": "Dragonspine Trophy",
+          "source": ""
+        }
+      ],
+      "ranged": [
+        {
+          "itemId": 30906,
+          "rank": 1,
+          "name": "Bristleblitz Striker",
+          "source": "",
+          "enchant": 2724
+        }
+      ],
+      "weaponConfig": "mainhand_offhand",
+      "mainhand": [
+        {
+          "itemId": 29993,
+          "rank": 1,
+          "name": "Twinblade of the Phoenix",
+          "source": "",
+          "enchant": 2670,
+          "gems": [
+            32194,
+            32194,
+            32194
+          ]
+        }
+      ]
+    },
+    "beast_mastery_hunter@dw_6p": {
+      "_source": "wowsims-preset",
+      "_preset": "presets/hunter_dps/phase_3/bm/dw_6p.gear.json",
+      "head": [
+        {
+          "itemId": 32235,
+          "rank": 1,
+          "name": "Cursed Vision of Sargeras",
+          "source": "",
+          "enchant": 3003,
+          "gems": [
+            32409,
+            32194
+          ]
+        }
+      ],
+      "neck": [
+        {
+          "itemId": 32591,
+          "rank": 1,
+          "name": "Choker of Serrated Blades",
+          "source": ""
+        }
+      ],
+      "shoulder": [
+        {
+          "itemId": 31006,
+          "rank": 1,
+          "name": "Gronnstalker's Spaulders",
+          "source": "",
+          "enchant": 2717,
+          "gems": [
+            32194,
+            32194
+          ]
+        }
+      ],
+      "back": [
+        {
+          "itemId": 29994,
+          "rank": 1,
+          "name": "Thalassian Wildercloak",
+          "source": "",
+          "enchant": 368
+        }
+      ],
+      "chest": [
+        {
+          "itemId": 31004,
+          "rank": 1,
+          "name": "Gronnstalker's Chestguard",
+          "source": "",
+          "enchant": 2661,
+          "gems": [
+            32194,
+            32226,
+            32226
+          ]
+        }
+      ],
+      "wrist": [
+        {
+          "itemId": 32324,
+          "rank": 1,
+          "name": "Insidious Bands",
+          "source": "",
+          "enchant": 1593,
+          "gems": [
+            32222
+          ]
+        }
+      ],
+      "hands": [
+        {
+          "itemId": 31001,
+          "rank": 1,
+          "name": "Gronnstalker's Gloves",
+          "source": "",
+          "enchant": 2564,
+          "gems": [
+            32194
+          ]
+        }
+      ],
+      "waist": [
+        {
+          "itemId": 30879,
+          "rank": 1,
+          "name": "Don Alejandro's Money Belt",
+          "source": "",
+          "gems": [
+            32194,
+            32194
+          ]
+        }
+      ],
+      "legs": [
+        {
+          "itemId": 31005,
+          "rank": 1,
+          "name": "Gronnstalker's Leggings",
+          "source": "",
+          "enchant": 3012,
+          "gems": [
+            32194
+          ]
+        }
+      ],
+      "feet": [
+        {
+          "itemId": 32366,
+          "rank": 1,
+          "name": "Shadowmaster's Boots",
+          "source": "",
+          "enchant": 2657,
+          "gems": [
+            32194,
+            32222
+          ]
+        }
+      ],
+      "finger": [
+        {
+          "itemId": 29301,
+          "rank": 1,
+          "name": "Band of the Eternal Champion",
+          "source": ""
+        },
+        {
+          "itemId": 32497,
+          "rank": 2,
+          "name": "Stormrage Signet Ring",
+          "source": ""
+        }
+      ],
+      "trinket": [
+        {
+          "itemId": 32505,
+          "rank": 1,
+          "name": "Madness of the Betrayer",
+          "source": ""
+        },
+        {
+          "itemId": 28830,
+          "rank": 2,
+          "name": "Dragonspine Trophy",
+          "source": ""
+        }
+      ],
+      "ranged": [
+        {
+          "itemId": 30906,
+          "rank": 1,
+          "name": "Bristleblitz Striker",
+          "source": "",
+          "enchant": 2724
+        }
+      ],
+      "weaponConfig": "mainhand_offhand",
+      "mainhand": [
+        {
+          "itemId": 30901,
+          "rank": 1,
+          "name": "Boundless Agony",
+          "source": "",
+          "enchant": 3222
+        }
+      ],
+      "offhand": [
+        {
+          "itemId": 30881,
+          "rank": 1,
+          "name": "Blade of Infamy",
+          "source": "",
+          "enchant": 3222
+        }
+      ]
+    },
+    "beast_mastery_hunter@dw_9p": {
+      "_source": "wowsims-preset",
+      "_preset": "presets/hunter_dps/phase_3/bm/dw_9p.gear.json",
+      "head": [
+        {
+          "itemId": 32235,
+          "rank": 1,
+          "name": "Cursed Vision of Sargeras",
+          "source": "",
+          "enchant": 3003,
+          "gems": [
+            32409,
+            32194
+          ]
+        }
+      ],
+      "neck": [
+        {
+          "itemId": 32591,
+          "rank": 1,
+          "name": "Choker of Serrated Blades",
+          "source": ""
+        }
+      ],
+      "shoulder": [
+        {
+          "itemId": 31006,
+          "rank": 1,
+          "name": "Gronnstalker's Spaulders",
+          "source": "",
+          "enchant": 2986,
+          "gems": [
+            32194,
+            32194
+          ]
+        }
+      ],
+      "back": [
+        {
+          "itemId": 32323,
+          "rank": 1,
+          "name": "Shadowmoon Destroyer's Drape",
+          "source": "",
+          "enchant": 368
+        }
+      ],
+      "chest": [
+        {
+          "itemId": 31004,
+          "rank": 1,
+          "name": "Gronnstalker's Chestguard",
+          "source": "",
+          "enchant": 2661,
+          "gems": [
+            32194,
+            32226,
+            32226
+          ]
+        }
+      ],
+      "wrist": [
+        {
+          "itemId": 32324,
+          "rank": 1,
+          "name": "Insidious Bands",
+          "source": "",
+          "enchant": 1593,
+          "gems": [
+            32220
+          ]
+        }
+      ],
+      "hands": [
+        {
+          "itemId": 31001,
+          "rank": 1,
+          "name": "Gronnstalker's Gloves",
+          "source": "",
+          "enchant": 2564,
+          "gems": [
+            32194
+          ]
+        }
+      ],
+      "waist": [
+        {
+          "itemId": 32346,
+          "rank": 1,
+          "name": "Boneweave Girdle",
+          "source": ""
+        }
+      ],
+      "legs": [
+        {
+          "itemId": 31005,
+          "rank": 1,
+          "name": "Gronnstalker's Leggings",
+          "source": "",
+          "enchant": 3012,
+          "gems": [
+            32194
+          ]
+        }
+      ],
+      "feet": [
+        {
+          "itemId": 32366,
+          "rank": 1,
+          "name": "Shadowmaster's Boots",
+          "source": "",
+          "enchant": 2657,
+          "gems": [
+            32194,
+            32220
+          ]
+        }
+      ],
+      "finger": [
+        {
+          "itemId": 29301,
+          "rank": 1,
+          "name": "Band of the Eternal Champion",
+          "source": ""
+        },
+        {
+          "itemId": 32497,
+          "rank": 2,
+          "name": "Stormrage Signet Ring",
+          "source": ""
+        }
+      ],
+      "trinket": [
+        {
+          "itemId": 32505,
+          "rank": 1,
+          "name": "Madness of the Betrayer",
+          "source": ""
+        },
+        {
+          "itemId": 28830,
+          "rank": 2,
+          "name": "Dragonspine Trophy",
+          "source": ""
+        }
+      ],
+      "ranged": [
+        {
+          "itemId": 30906,
+          "rank": 1,
+          "name": "Bristleblitz Striker",
+          "source": "",
+          "enchant": 2724
+        }
+      ],
+      "weaponConfig": "mainhand_offhand",
+      "mainhand": [
+        {
+          "itemId": 30901,
+          "rank": 1,
+          "name": "Boundless Agony",
+          "source": "",
+          "enchant": 3222
+        }
+      ],
+      "offhand": [
+        {
+          "itemId": 30881,
+          "rank": 1,
+          "name": "Blade of Infamy",
+          "source": "",
+          "enchant": 3222
+        }
+      ]
+    },
+    "survival_hunter@2h_6p": {
+      "_source": "wowsims-preset",
+      "_preset": "presets/hunter_dps/phase_3/sv/2h_6p.gear.json",
+      "head": [
+        {
+          "itemId": 31003,
+          "rank": 1,
+          "name": "Gronnstalker's Helmet",
+          "source": "",
+          "enchant": 3003,
+          "gems": [
+            32194,
+            32409
+          ]
+        }
+      ],
+      "neck": [
+        {
+          "itemId": 30017,
+          "rank": 1,
+          "name": "Telonicus's Pendant of Mayhem",
+          "source": ""
+        }
+      ],
+      "shoulder": [
+        {
+          "itemId": 31006,
+          "rank": 1,
+          "name": "Gronnstalker's Spaulders",
+          "source": "",
+          "enchant": 2986,
+          "gems": [
+            32194,
+            32194
+          ]
+        }
+      ],
+      "back": [
+        {
+          "itemId": 29994,
+          "rank": 1,
+          "name": "Thalassian Wildercloak",
+          "source": "",
+          "enchant": 368
+        }
+      ],
+      "chest": [
+        {
+          "itemId": 31004,
+          "rank": 1,
+          "name": "Gronnstalker's Chestguard",
+          "source": "",
+          "enchant": 2661,
+          "gems": [
+            32194,
+            32226,
+            32226
+          ]
+        }
+      ],
+      "wrist": [
+        {
+          "itemId": 32324,
+          "rank": 1,
+          "name": "Insidious Bands",
+          "source": "",
+          "enchant": 1593,
+          "gems": [
+            32194
+          ]
+        }
+      ],
+      "hands": [
+        {
+          "itemId": 31001,
+          "rank": 1,
+          "name": "Gronnstalker's Gloves",
+          "source": "",
+          "enchant": 2564,
+          "gems": [
+            32194
+          ]
+        }
+      ],
+      "waist": [
+        {
+          "itemId": 30879,
+          "rank": 1,
+          "name": "Don Alejandro's Money Belt",
+          "source": "",
+          "gems": [
+            32194,
+            32194
+          ]
+        }
+      ],
+      "legs": [
+        {
+          "itemId": 30900,
+          "rank": 1,
+          "name": "Bow-stitched Leggings",
+          "source": "",
+          "enchant": 3012,
+          "gems": [
+            32194,
+            32194,
+            32194
+          ]
+        }
+      ],
+      "feet": [
+        {
+          "itemId": 32366,
+          "rank": 1,
+          "name": "Shadowmaster's Boots",
+          "source": "",
+          "enchant": 2657,
+          "gems": [
+            32194,
+            32194
+          ]
+        }
+      ],
+      "finger": [
+        {
+          "itemId": 29301,
+          "rank": 1,
+          "name": "Band of the Eternal Champion",
+          "source": ""
+        },
+        {
+          "itemId": 28791,
+          "rank": 2,
+          "name": "Ring of the Recalcitrant",
+          "source": ""
+        }
+      ],
+      "trinket": [
+        {
+          "itemId": 32505,
+          "rank": 1,
+          "name": "Madness of the Betrayer",
+          "source": ""
+        },
+        {
+          "itemId": 28830,
+          "rank": 2,
+          "name": "Dragonspine Trophy",
+          "source": ""
+        }
+      ],
+      "ranged": [
+        {
+          "itemId": 30906,
+          "rank": 1,
+          "name": "Bristleblitz Striker",
+          "source": "",
+          "enchant": 2724
+        }
+      ],
+      "weaponConfig": "mainhand_offhand",
+      "mainhand": [
+        {
+          "itemId": 29993,
+          "rank": 1,
+          "name": "Twinblade of the Phoenix",
+          "source": "",
+          "enchant": 2670,
+          "gems": [
+            32194,
+            32194,
+            32194
+          ]
+        }
+      ]
+    },
+    "survival_hunter@2h_9p": {
+      "_source": "wowsims-preset",
+      "_preset": "presets/hunter_dps/phase_3/sv/2h_9p.gear.json",
+      "head": [
+        {
+          "itemId": 31003,
+          "rank": 1,
+          "name": "Gronnstalker's Helmet",
+          "source": "",
+          "enchant": 3003,
+          "gems": [
+            32194,
+            32409
+          ]
+        }
+      ],
+      "neck": [
+        {
+          "itemId": 30017,
+          "rank": 1,
+          "name": "Telonicus's Pendant of Mayhem",
+          "source": ""
+        }
+      ],
+      "shoulder": [
+        {
+          "itemId": 31006,
+          "rank": 1,
+          "name": "Gronnstalker's Spaulders",
+          "source": "",
+          "enchant": 2997,
+          "gems": [
+            32194,
+            32194
+          ]
+        }
+      ],
+      "back": [
+        {
+          "itemId": 29994,
+          "rank": 1,
+          "name": "Thalassian Wildercloak",
+          "source": "",
+          "enchant": 368
+        }
+      ],
+      "chest": [
+        {
+          "itemId": 31004,
+          "rank": 1,
+          "name": "Gronnstalker's Chestguard",
+          "source": "",
+          "enchant": 2661,
+          "gems": [
+            32194,
+            32220,
+            32220
+          ]
+        }
+      ],
+      "wrist": [
+        {
+          "itemId": 32324,
+          "rank": 1,
+          "name": "Insidious Bands",
+          "source": "",
+          "enchant": 1593,
+          "gems": [
+            32194
+          ]
+        }
+      ],
+      "hands": [
+        {
+          "itemId": 31001,
+          "rank": 1,
+          "name": "Gronnstalker's Gloves",
+          "source": "",
+          "enchant": 2564,
+          "gems": [
+            32194
+          ]
+        }
+      ],
+      "waist": [
+        {
+          "itemId": 30040,
+          "rank": 1,
+          "name": "Belt of Deep Shadow",
+          "source": "",
+          "gems": [
+            32212,
+            32212
+          ]
+        }
+      ],
+      "legs": [
+        {
+          "itemId": 30900,
+          "rank": 1,
+          "name": "Bow-stitched Leggings",
+          "source": "",
+          "enchant": 3012,
+          "gems": [
+            32194,
+            32194,
+            32194
+          ]
+        }
+      ],
+      "feet": [
+        {
+          "itemId": 32366,
+          "rank": 1,
+          "name": "Shadowmaster's Boots",
+          "source": "",
+          "enchant": 2657,
+          "gems": [
+            32194,
+            32194
+          ]
+        }
+      ],
+      "finger": [
+        {
+          "itemId": 29301,
+          "rank": 1,
+          "name": "Band of the Eternal Champion",
+          "source": ""
+        },
+        {
+          "itemId": 30052,
+          "rank": 2,
+          "name": "Ring of Lethality",
+          "source": ""
+        }
+      ],
+      "trinket": [
+        {
+          "itemId": 32505,
+          "rank": 1,
+          "name": "Madness of the Betrayer",
+          "source": ""
+        },
+        {
+          "itemId": 28830,
+          "rank": 2,
+          "name": "Dragonspine Trophy",
+          "source": ""
+        }
+      ],
+      "ranged": [
+        {
+          "itemId": 30906,
+          "rank": 1,
+          "name": "Bristleblitz Striker",
+          "source": "",
+          "enchant": 2724
+        }
+      ],
+      "weaponConfig": "mainhand_offhand",
+      "mainhand": [
+        {
+          "itemId": 29993,
+          "rank": 1,
+          "name": "Twinblade of the Phoenix",
+          "source": "",
+          "enchant": 2670,
+          "gems": [
+            32194,
+            32194,
+            32194
+          ]
+        }
+      ]
+    },
+    "survival_hunter@dw_6p": {
+      "_source": "wowsims-preset",
+      "_preset": "presets/hunter_dps/phase_3/sv/dw_6p.gear.json",
+      "head": [
+        {
+          "itemId": 31003,
+          "rank": 1,
+          "name": "Gronnstalker's Helmet",
+          "source": "",
+          "enchant": 3003,
+          "gems": [
+            32194,
+            32409
+          ]
+        }
+      ],
+      "neck": [
+        {
+          "itemId": 30017,
+          "rank": 1,
+          "name": "Telonicus's Pendant of Mayhem",
+          "source": ""
+        }
+      ],
+      "shoulder": [
+        {
+          "itemId": 31006,
+          "rank": 1,
+          "name": "Gronnstalker's Spaulders",
+          "source": "",
+          "enchant": 2986,
+          "gems": [
+            32194,
+            32194
+          ]
+        }
+      ],
+      "back": [
+        {
+          "itemId": 29994,
+          "rank": 1,
+          "name": "Thalassian Wildercloak",
+          "source": "",
+          "enchant": 368
+        }
+      ],
+      "chest": [
+        {
+          "itemId": 31004,
+          "rank": 1,
+          "name": "Gronnstalker's Chestguard",
+          "source": "",
+          "enchant": 2661,
+          "gems": [
+            32194,
+            32226,
+            32226
+          ]
+        }
+      ],
+      "wrist": [
+        {
+          "itemId": 32324,
+          "rank": 1,
+          "name": "Insidious Bands",
+          "source": "",
+          "enchant": 1593,
+          "gems": [
+            32194
+          ]
+        }
+      ],
+      "hands": [
+        {
+          "itemId": 31001,
+          "rank": 1,
+          "name": "Gronnstalker's Gloves",
+          "source": "",
+          "enchant": 2564,
+          "gems": [
+            32194
+          ]
+        }
+      ],
+      "waist": [
+        {
+          "itemId": 30879,
+          "rank": 1,
+          "name": "Don Alejandro's Money Belt",
+          "source": "",
+          "gems": [
+            32194,
+            32194
+          ]
+        }
+      ],
+      "legs": [
+        {
+          "itemId": 30900,
+          "rank": 1,
+          "name": "Bow-stitched Leggings",
+          "source": "",
+          "enchant": 3012,
+          "gems": [
+            32194,
+            32194,
+            32194
+          ]
+        }
+      ],
+      "feet": [
+        {
+          "itemId": 32366,
+          "rank": 1,
+          "name": "Shadowmaster's Boots",
+          "source": "",
+          "enchant": 2657,
+          "gems": [
+            32194,
+            32194
+          ]
+        }
+      ],
+      "finger": [
+        {
+          "itemId": 29301,
+          "rank": 1,
+          "name": "Band of the Eternal Champion",
+          "source": ""
+        },
+        {
+          "itemId": 28791,
+          "rank": 2,
+          "name": "Ring of the Recalcitrant",
+          "source": ""
+        }
+      ],
+      "trinket": [
+        {
+          "itemId": 32505,
+          "rank": 1,
+          "name": "Madness of the Betrayer",
+          "source": ""
+        },
+        {
+          "itemId": 28830,
+          "rank": 2,
+          "name": "Dragonspine Trophy",
+          "source": ""
+        }
+      ],
+      "ranged": [
+        {
+          "itemId": 30906,
+          "rank": 1,
+          "name": "Bristleblitz Striker",
+          "source": "",
+          "enchant": 2724
+        }
+      ],
+      "weaponConfig": "mainhand_offhand",
+      "mainhand": [
+        {
+          "itemId": 30881,
+          "rank": 1,
+          "name": "Blade of Infamy",
+          "source": "",
+          "enchant": 3222
+        }
+      ],
+      "offhand": [
+        {
+          "itemId": 30881,
+          "rank": 1,
+          "name": "Blade of Infamy",
+          "source": "",
+          "enchant": 3222
+        }
+      ]
+    },
+    "survival_hunter@dw_9p": {
+      "_source": "wowsims-preset",
+      "_preset": "presets/hunter_dps/phase_3/sv/dw_9p.gear.json",
+      "head": [
+        {
+          "itemId": 31003,
+          "rank": 1,
+          "name": "Gronnstalker's Helmet",
+          "source": "",
+          "enchant": 3003,
+          "gems": [
+            32194,
+            32409
+          ]
+        }
+      ],
+      "neck": [
+        {
+          "itemId": 30017,
+          "rank": 1,
+          "name": "Telonicus's Pendant of Mayhem",
+          "source": ""
+        }
+      ],
+      "shoulder": [
+        {
+          "itemId": 31006,
+          "rank": 1,
+          "name": "Gronnstalker's Spaulders",
+          "source": "",
+          "enchant": 2997,
+          "gems": [
+            32194,
+            32194
+          ]
+        }
+      ],
+      "back": [
+        {
+          "itemId": 29994,
+          "rank": 1,
+          "name": "Thalassian Wildercloak",
+          "source": "",
+          "enchant": 368
+        }
+      ],
+      "chest": [
+        {
+          "itemId": 31004,
+          "rank": 1,
+          "name": "Gronnstalker's Chestguard",
+          "source": "",
+          "enchant": 2661,
+          "gems": [
+            32194,
+            32220,
+            32220
+          ]
+        }
+      ],
+      "wrist": [
+        {
+          "itemId": 32324,
+          "rank": 1,
+          "name": "Insidious Bands",
+          "source": "",
+          "enchant": 1593,
+          "gems": [
+            32194
+          ]
+        }
+      ],
+      "hands": [
+        {
+          "itemId": 31001,
+          "rank": 1,
+          "name": "Gronnstalker's Gloves",
+          "source": "",
+          "enchant": 2564,
+          "gems": [
+            32194
+          ]
+        }
+      ],
+      "waist": [
+        {
+          "itemId": 30040,
+          "rank": 1,
+          "name": "Belt of Deep Shadow",
+          "source": "",
+          "gems": [
+            32212,
+            32212
+          ]
+        }
+      ],
+      "legs": [
+        {
+          "itemId": 30900,
+          "rank": 1,
+          "name": "Bow-stitched Leggings",
+          "source": "",
+          "enchant": 3012,
+          "gems": [
+            32194,
+            32194,
+            32194
+          ]
+        }
+      ],
+      "feet": [
+        {
+          "itemId": 32366,
+          "rank": 1,
+          "name": "Shadowmaster's Boots",
+          "source": "",
+          "enchant": 2657,
+          "gems": [
+            32194,
+            32194
+          ]
+        }
+      ],
+      "finger": [
+        {
+          "itemId": 29301,
+          "rank": 1,
+          "name": "Band of the Eternal Champion",
+          "source": ""
+        },
+        {
+          "itemId": 30052,
+          "rank": 2,
+          "name": "Ring of Lethality",
+          "source": ""
+        }
+      ],
+      "trinket": [
+        {
+          "itemId": 32505,
+          "rank": 1,
+          "name": "Madness of the Betrayer",
+          "source": ""
+        },
+        {
+          "itemId": 28830,
+          "rank": 2,
+          "name": "Dragonspine Trophy",
+          "source": ""
+        }
+      ],
+      "ranged": [
+        {
+          "itemId": 30906,
+          "rank": 1,
+          "name": "Bristleblitz Striker",
+          "source": "",
+          "enchant": 2724
+        }
+      ],
+      "weaponConfig": "mainhand_offhand",
+      "mainhand": [
+        {
+          "itemId": 30881,
+          "rank": 1,
+          "name": "Blade of Infamy",
+          "source": "",
+          "enchant": 3222
+        }
+      ],
+      "offhand": [
+        {
+          "itemId": 30881,
+          "rank": 1,
+          "name": "Blade of Infamy",
+          "source": "",
+          "enchant": 3222
+        }
+      ]
     }
   },
   "phase4": {
@@ -6633,6 +8217,1584 @@
           "name": "Vengeful Gladiator's Staff",
           "source": "",
           "enchant": 2670
+        }
+      ]
+    },
+    "survival_hunter": {
+      "_source": "wowsims-preset",
+      "_preset": "presets/hunter_dps/phase_4/sv/2h_6p.gear.json",
+      "head": [
+        {
+          "itemId": 32235,
+          "rank": 1,
+          "name": "Cursed Vision of Sargeras",
+          "source": "",
+          "enchant": 3003,
+          "gems": [
+            32409,
+            32194
+          ]
+        }
+      ],
+      "neck": [
+        {
+          "itemId": 30017,
+          "rank": 1,
+          "name": "Telonicus's Pendant of Mayhem",
+          "source": ""
+        }
+      ],
+      "shoulder": [
+        {
+          "itemId": 31006,
+          "rank": 1,
+          "name": "Gronnstalker's Spaulders",
+          "source": "",
+          "enchant": 2986,
+          "gems": [
+            32194,
+            32194
+          ]
+        }
+      ],
+      "back": [
+        {
+          "itemId": 29994,
+          "rank": 1,
+          "name": "Thalassian Wildercloak",
+          "source": "",
+          "enchant": 368
+        }
+      ],
+      "chest": [
+        {
+          "itemId": 31004,
+          "rank": 1,
+          "name": "Gronnstalker's Chestguard",
+          "source": "",
+          "enchant": 2661,
+          "gems": [
+            32194,
+            32226,
+            32226
+          ]
+        }
+      ],
+      "wrist": [
+        {
+          "itemId": 32324,
+          "rank": 1,
+          "name": "Insidious Bands",
+          "source": "",
+          "enchant": 1593,
+          "gems": [
+            32194
+          ]
+        }
+      ],
+      "hands": [
+        {
+          "itemId": 31001,
+          "rank": 1,
+          "name": "Gronnstalker's Gloves",
+          "source": "",
+          "enchant": 2564,
+          "gems": [
+            32194
+          ]
+        }
+      ],
+      "waist": [
+        {
+          "itemId": 30879,
+          "rank": 1,
+          "name": "Don Alejandro's Money Belt",
+          "source": "",
+          "gems": [
+            32194,
+            32194
+          ]
+        }
+      ],
+      "legs": [
+        {
+          "itemId": 31005,
+          "rank": 1,
+          "name": "Gronnstalker's Leggings",
+          "source": "",
+          "enchant": 3012,
+          "gems": [
+            32194
+          ]
+        }
+      ],
+      "feet": [
+        {
+          "itemId": 32366,
+          "rank": 1,
+          "name": "Shadowmaster's Boots",
+          "source": "",
+          "enchant": 2657,
+          "gems": [
+            32194,
+            32194
+          ]
+        }
+      ],
+      "finger": [
+        {
+          "itemId": 33496,
+          "rank": 1,
+          "name": "Signet of Primal Wrath",
+          "source": ""
+        },
+        {
+          "itemId": 29301,
+          "rank": 2,
+          "name": "Band of the Eternal Champion",
+          "source": ""
+        }
+      ],
+      "trinket": [
+        {
+          "itemId": 33831,
+          "rank": 1,
+          "name": "Berserker's Call",
+          "source": ""
+        },
+        {
+          "itemId": 28830,
+          "rank": 2,
+          "name": "Dragonspine Trophy",
+          "source": ""
+        }
+      ],
+      "ranged": [
+        {
+          "itemId": 30906,
+          "rank": 1,
+          "name": "Bristleblitz Striker",
+          "source": "",
+          "enchant": 2724
+        }
+      ],
+      "weaponConfig": "mainhand_offhand",
+      "mainhand": [
+        {
+          "itemId": 29993,
+          "rank": 1,
+          "name": "Twinblade of the Phoenix",
+          "source": "",
+          "enchant": 2670,
+          "gems": [
+            32194,
+            32194,
+            32194
+          ]
+        }
+      ]
+    },
+    "beast_mastery_hunter@2h_6p": {
+      "_source": "wowsims-preset",
+      "_preset": "presets/hunter_dps/phase_4/bm/2h_6p.gear.json",
+      "head": [
+        {
+          "itemId": 32235,
+          "rank": 1,
+          "name": "Cursed Vision of Sargeras",
+          "source": "",
+          "enchant": 3003,
+          "gems": [
+            32409,
+            32194
+          ]
+        }
+      ],
+      "neck": [
+        {
+          "itemId": 32591,
+          "rank": 1,
+          "name": "Choker of Serrated Blades",
+          "source": ""
+        }
+      ],
+      "shoulder": [
+        {
+          "itemId": 31006,
+          "rank": 1,
+          "name": "Gronnstalker's Spaulders",
+          "source": "",
+          "enchant": 2717,
+          "gems": [
+            32194,
+            32194
+          ]
+        }
+      ],
+      "back": [
+        {
+          "itemId": 32323,
+          "rank": 1,
+          "name": "Shadowmoon Destroyer's Drape",
+          "source": "",
+          "enchant": 368
+        }
+      ],
+      "chest": [
+        {
+          "itemId": 31004,
+          "rank": 1,
+          "name": "Gronnstalker's Chestguard",
+          "source": "",
+          "enchant": 2661,
+          "gems": [
+            32194,
+            32226,
+            32226
+          ]
+        }
+      ],
+      "wrist": [
+        {
+          "itemId": 32324,
+          "rank": 1,
+          "name": "Insidious Bands",
+          "source": "",
+          "enchant": 1593,
+          "gems": [
+            32222
+          ]
+        }
+      ],
+      "hands": [
+        {
+          "itemId": 31001,
+          "rank": 1,
+          "name": "Gronnstalker's Gloves",
+          "source": "",
+          "enchant": 2564,
+          "gems": [
+            32194
+          ]
+        }
+      ],
+      "waist": [
+        {
+          "itemId": 30879,
+          "rank": 1,
+          "name": "Don Alejandro's Money Belt",
+          "source": "",
+          "gems": [
+            32194,
+            32194
+          ]
+        }
+      ],
+      "legs": [
+        {
+          "itemId": 31005,
+          "rank": 1,
+          "name": "Gronnstalker's Leggings",
+          "source": "",
+          "enchant": 3012,
+          "gems": [
+            32194
+          ]
+        }
+      ],
+      "feet": [
+        {
+          "itemId": 32366,
+          "rank": 1,
+          "name": "Shadowmaster's Boots",
+          "source": "",
+          "enchant": 2657,
+          "gems": [
+            32194,
+            32222
+          ]
+        }
+      ],
+      "finger": [
+        {
+          "itemId": 33496,
+          "rank": 1,
+          "name": "Signet of Primal Wrath",
+          "source": ""
+        },
+        {
+          "itemId": 32497,
+          "rank": 2,
+          "name": "Stormrage Signet Ring",
+          "source": ""
+        }
+      ],
+      "trinket": [
+        {
+          "itemId": 33831,
+          "rank": 1,
+          "name": "Berserker's Call",
+          "source": ""
+        },
+        {
+          "itemId": 28830,
+          "rank": 2,
+          "name": "Dragonspine Trophy",
+          "source": ""
+        }
+      ],
+      "ranged": [
+        {
+          "itemId": 30906,
+          "rank": 1,
+          "name": "Bristleblitz Striker",
+          "source": "",
+          "enchant": 2724
+        }
+      ],
+      "weaponConfig": "mainhand_offhand",
+      "mainhand": [
+        {
+          "itemId": 29993,
+          "rank": 1,
+          "name": "Twinblade of the Phoenix",
+          "source": "",
+          "enchant": 2670,
+          "gems": [
+            32194,
+            32194,
+            32194
+          ]
+        }
+      ]
+    },
+    "beast_mastery_hunter@2h_9p": {
+      "_source": "wowsims-preset",
+      "_preset": "presets/hunter_dps/phase_4/bm/2h_9p.gear.json",
+      "head": [
+        {
+          "itemId": 32235,
+          "rank": 1,
+          "name": "Cursed Vision of Sargeras",
+          "source": "",
+          "enchant": 3003,
+          "gems": [
+            32409,
+            32194
+          ]
+        }
+      ],
+      "neck": [
+        {
+          "itemId": 32260,
+          "rank": 1,
+          "name": "Choker of Endless Nightmares",
+          "source": ""
+        }
+      ],
+      "shoulder": [
+        {
+          "itemId": 31006,
+          "rank": 1,
+          "name": "Gronnstalker's Spaulders",
+          "source": "",
+          "enchant": 2986,
+          "gems": [
+            32222,
+            32212
+          ]
+        }
+      ],
+      "back": [
+        {
+          "itemId": 32323,
+          "rank": 1,
+          "name": "Shadowmoon Destroyer's Drape",
+          "source": "",
+          "enchant": 368
+        }
+      ],
+      "chest": [
+        {
+          "itemId": 31004,
+          "rank": 1,
+          "name": "Gronnstalker's Chestguard",
+          "source": "",
+          "enchant": 2661,
+          "gems": [
+            32194,
+            32222,
+            32226
+          ]
+        }
+      ],
+      "wrist": [
+        {
+          "itemId": 32324,
+          "rank": 1,
+          "name": "Insidious Bands",
+          "source": "",
+          "enchant": 1593,
+          "gems": [
+            32220
+          ]
+        }
+      ],
+      "hands": [
+        {
+          "itemId": 31001,
+          "rank": 1,
+          "name": "Gronnstalker's Gloves",
+          "source": "",
+          "enchant": 2564,
+          "gems": [
+            32194
+          ]
+        }
+      ],
+      "waist": [
+        {
+          "itemId": 32346,
+          "rank": 1,
+          "name": "Boneweave Girdle",
+          "source": ""
+        }
+      ],
+      "legs": [
+        {
+          "itemId": 31005,
+          "rank": 1,
+          "name": "Gronnstalker's Leggings",
+          "source": "",
+          "enchant": 3012,
+          "gems": [
+            32194
+          ]
+        }
+      ],
+      "feet": [
+        {
+          "itemId": 32366,
+          "rank": 1,
+          "name": "Shadowmaster's Boots",
+          "source": "",
+          "enchant": 2657,
+          "gems": [
+            32194,
+            32220
+          ]
+        }
+      ],
+      "finger": [
+        {
+          "itemId": 33496,
+          "rank": 1,
+          "name": "Signet of Primal Wrath",
+          "source": ""
+        },
+        {
+          "itemId": 32497,
+          "rank": 2,
+          "name": "Stormrage Signet Ring",
+          "source": ""
+        }
+      ],
+      "trinket": [
+        {
+          "itemId": 33831,
+          "rank": 1,
+          "name": "Berserker's Call",
+          "source": ""
+        },
+        {
+          "itemId": 28830,
+          "rank": 2,
+          "name": "Dragonspine Trophy",
+          "source": ""
+        }
+      ],
+      "ranged": [
+        {
+          "itemId": 30906,
+          "rank": 1,
+          "name": "Bristleblitz Striker",
+          "source": "",
+          "enchant": 2724
+        }
+      ],
+      "weaponConfig": "mainhand_offhand",
+      "mainhand": [
+        {
+          "itemId": 29993,
+          "rank": 1,
+          "name": "Twinblade of the Phoenix",
+          "source": "",
+          "enchant": 2670,
+          "gems": [
+            32194,
+            32194,
+            32194
+          ]
+        }
+      ]
+    },
+    "beast_mastery_hunter@dw_6p": {
+      "_source": "wowsims-preset",
+      "_preset": "presets/hunter_dps/phase_4/bm/dw_6p.gear.json",
+      "head": [
+        {
+          "itemId": 32235,
+          "rank": 1,
+          "name": "Cursed Vision of Sargeras",
+          "source": "",
+          "enchant": 3003,
+          "gems": [
+            32409,
+            32194
+          ]
+        }
+      ],
+      "neck": [
+        {
+          "itemId": 32591,
+          "rank": 1,
+          "name": "Choker of Serrated Blades",
+          "source": ""
+        }
+      ],
+      "shoulder": [
+        {
+          "itemId": 31006,
+          "rank": 1,
+          "name": "Gronnstalker's Spaulders",
+          "source": "",
+          "enchant": 2717,
+          "gems": [
+            32194,
+            32194
+          ]
+        }
+      ],
+      "back": [
+        {
+          "itemId": 32323,
+          "rank": 1,
+          "name": "Shadowmoon Destroyer's Drape",
+          "source": "",
+          "enchant": 368
+        }
+      ],
+      "chest": [
+        {
+          "itemId": 31004,
+          "rank": 1,
+          "name": "Gronnstalker's Chestguard",
+          "source": "",
+          "enchant": 2661,
+          "gems": [
+            32194,
+            32226,
+            32226
+          ]
+        }
+      ],
+      "wrist": [
+        {
+          "itemId": 32324,
+          "rank": 1,
+          "name": "Insidious Bands",
+          "source": "",
+          "enchant": 1593,
+          "gems": [
+            32222
+          ]
+        }
+      ],
+      "hands": [
+        {
+          "itemId": 31001,
+          "rank": 1,
+          "name": "Gronnstalker's Gloves",
+          "source": "",
+          "enchant": 2564,
+          "gems": [
+            32194
+          ]
+        }
+      ],
+      "waist": [
+        {
+          "itemId": 30879,
+          "rank": 1,
+          "name": "Don Alejandro's Money Belt",
+          "source": "",
+          "gems": [
+            32194,
+            32194
+          ]
+        }
+      ],
+      "legs": [
+        {
+          "itemId": 31005,
+          "rank": 1,
+          "name": "Gronnstalker's Leggings",
+          "source": "",
+          "enchant": 3012,
+          "gems": [
+            32194
+          ]
+        }
+      ],
+      "feet": [
+        {
+          "itemId": 32366,
+          "rank": 1,
+          "name": "Shadowmaster's Boots",
+          "source": "",
+          "enchant": 2657,
+          "gems": [
+            32194,
+            32222
+          ]
+        }
+      ],
+      "finger": [
+        {
+          "itemId": 33496,
+          "rank": 1,
+          "name": "Signet of Primal Wrath",
+          "source": ""
+        },
+        {
+          "itemId": 32497,
+          "rank": 2,
+          "name": "Stormrage Signet Ring",
+          "source": ""
+        }
+      ],
+      "trinket": [
+        {
+          "itemId": 33831,
+          "rank": 1,
+          "name": "Berserker's Call",
+          "source": ""
+        },
+        {
+          "itemId": 28830,
+          "rank": 2,
+          "name": "Dragonspine Trophy",
+          "source": ""
+        }
+      ],
+      "ranged": [
+        {
+          "itemId": 30906,
+          "rank": 1,
+          "name": "Bristleblitz Striker",
+          "source": "",
+          "enchant": 2724
+        }
+      ],
+      "weaponConfig": "mainhand_offhand",
+      "mainhand": [
+        {
+          "itemId": 33389,
+          "rank": 1,
+          "name": "Dagger of Bad Mojo",
+          "source": "",
+          "enchant": 3222
+        }
+      ],
+      "offhand": [
+        {
+          "itemId": 33389,
+          "rank": 1,
+          "name": "Dagger of Bad Mojo",
+          "source": "",
+          "enchant": 3222
+        }
+      ]
+    },
+    "beast_mastery_hunter@dw_9p": {
+      "_source": "wowsims-preset",
+      "_preset": "presets/hunter_dps/phase_4/bm/dw_9p.gear.json",
+      "head": [
+        {
+          "itemId": 32235,
+          "rank": 1,
+          "name": "Cursed Vision of Sargeras",
+          "source": "",
+          "enchant": 3003,
+          "gems": [
+            32409,
+            32194
+          ]
+        }
+      ],
+      "neck": [
+        {
+          "itemId": 32260,
+          "rank": 1,
+          "name": "Choker of Endless Nightmares",
+          "source": ""
+        }
+      ],
+      "shoulder": [
+        {
+          "itemId": 31006,
+          "rank": 1,
+          "name": "Gronnstalker's Spaulders",
+          "source": "",
+          "enchant": 2986,
+          "gems": [
+            32222,
+            32212
+          ]
+        }
+      ],
+      "back": [
+        {
+          "itemId": 32323,
+          "rank": 1,
+          "name": "Shadowmoon Destroyer's Drape",
+          "source": "",
+          "enchant": 368
+        }
+      ],
+      "chest": [
+        {
+          "itemId": 31004,
+          "rank": 1,
+          "name": "Gronnstalker's Chestguard",
+          "source": "",
+          "enchant": 2661,
+          "gems": [
+            32194,
+            32222,
+            32226
+          ]
+        }
+      ],
+      "wrist": [
+        {
+          "itemId": 32324,
+          "rank": 1,
+          "name": "Insidious Bands",
+          "source": "",
+          "enchant": 1593,
+          "gems": [
+            32220
+          ]
+        }
+      ],
+      "hands": [
+        {
+          "itemId": 31001,
+          "rank": 1,
+          "name": "Gronnstalker's Gloves",
+          "source": "",
+          "enchant": 2564,
+          "gems": [
+            32194
+          ]
+        }
+      ],
+      "waist": [
+        {
+          "itemId": 32346,
+          "rank": 1,
+          "name": "Boneweave Girdle",
+          "source": ""
+        }
+      ],
+      "legs": [
+        {
+          "itemId": 31005,
+          "rank": 1,
+          "name": "Gronnstalker's Leggings",
+          "source": "",
+          "enchant": 3012,
+          "gems": [
+            32194
+          ]
+        }
+      ],
+      "feet": [
+        {
+          "itemId": 32366,
+          "rank": 1,
+          "name": "Shadowmaster's Boots",
+          "source": "",
+          "enchant": 2657,
+          "gems": [
+            32194,
+            32220
+          ]
+        }
+      ],
+      "finger": [
+        {
+          "itemId": 33496,
+          "rank": 1,
+          "name": "Signet of Primal Wrath",
+          "source": ""
+        },
+        {
+          "itemId": 32497,
+          "rank": 2,
+          "name": "Stormrage Signet Ring",
+          "source": ""
+        }
+      ],
+      "trinket": [
+        {
+          "itemId": 33831,
+          "rank": 1,
+          "name": "Berserker's Call",
+          "source": ""
+        },
+        {
+          "itemId": 28830,
+          "rank": 2,
+          "name": "Dragonspine Trophy",
+          "source": ""
+        }
+      ],
+      "ranged": [
+        {
+          "itemId": 30906,
+          "rank": 1,
+          "name": "Bristleblitz Striker",
+          "source": "",
+          "enchant": 2724
+        }
+      ],
+      "weaponConfig": "mainhand_offhand",
+      "mainhand": [
+        {
+          "itemId": 33389,
+          "rank": 1,
+          "name": "Dagger of Bad Mojo",
+          "source": "",
+          "enchant": 3222
+        }
+      ],
+      "offhand": [
+        {
+          "itemId": 33389,
+          "rank": 1,
+          "name": "Dagger of Bad Mojo",
+          "source": "",
+          "enchant": 3222
+        }
+      ]
+    },
+    "survival_hunter@2h_6p": {
+      "_source": "wowsims-preset",
+      "_preset": "presets/hunter_dps/phase_4/sv/2h_6p.gear.json",
+      "head": [
+        {
+          "itemId": 32235,
+          "rank": 1,
+          "name": "Cursed Vision of Sargeras",
+          "source": "",
+          "enchant": 3003,
+          "gems": [
+            32409,
+            32194
+          ]
+        }
+      ],
+      "neck": [
+        {
+          "itemId": 30017,
+          "rank": 1,
+          "name": "Telonicus's Pendant of Mayhem",
+          "source": ""
+        }
+      ],
+      "shoulder": [
+        {
+          "itemId": 31006,
+          "rank": 1,
+          "name": "Gronnstalker's Spaulders",
+          "source": "",
+          "enchant": 2986,
+          "gems": [
+            32194,
+            32194
+          ]
+        }
+      ],
+      "back": [
+        {
+          "itemId": 29994,
+          "rank": 1,
+          "name": "Thalassian Wildercloak",
+          "source": "",
+          "enchant": 368
+        }
+      ],
+      "chest": [
+        {
+          "itemId": 31004,
+          "rank": 1,
+          "name": "Gronnstalker's Chestguard",
+          "source": "",
+          "enchant": 2661,
+          "gems": [
+            32194,
+            32226,
+            32226
+          ]
+        }
+      ],
+      "wrist": [
+        {
+          "itemId": 32324,
+          "rank": 1,
+          "name": "Insidious Bands",
+          "source": "",
+          "enchant": 1593,
+          "gems": [
+            32194
+          ]
+        }
+      ],
+      "hands": [
+        {
+          "itemId": 31001,
+          "rank": 1,
+          "name": "Gronnstalker's Gloves",
+          "source": "",
+          "enchant": 2564,
+          "gems": [
+            32194
+          ]
+        }
+      ],
+      "waist": [
+        {
+          "itemId": 30879,
+          "rank": 1,
+          "name": "Don Alejandro's Money Belt",
+          "source": "",
+          "gems": [
+            32194,
+            32194
+          ]
+        }
+      ],
+      "legs": [
+        {
+          "itemId": 31005,
+          "rank": 1,
+          "name": "Gronnstalker's Leggings",
+          "source": "",
+          "enchant": 3012,
+          "gems": [
+            32194
+          ]
+        }
+      ],
+      "feet": [
+        {
+          "itemId": 32366,
+          "rank": 1,
+          "name": "Shadowmaster's Boots",
+          "source": "",
+          "enchant": 2657,
+          "gems": [
+            32194,
+            32194
+          ]
+        }
+      ],
+      "finger": [
+        {
+          "itemId": 33496,
+          "rank": 1,
+          "name": "Signet of Primal Wrath",
+          "source": ""
+        },
+        {
+          "itemId": 29301,
+          "rank": 2,
+          "name": "Band of the Eternal Champion",
+          "source": ""
+        }
+      ],
+      "trinket": [
+        {
+          "itemId": 33831,
+          "rank": 1,
+          "name": "Berserker's Call",
+          "source": ""
+        },
+        {
+          "itemId": 28830,
+          "rank": 2,
+          "name": "Dragonspine Trophy",
+          "source": ""
+        }
+      ],
+      "ranged": [
+        {
+          "itemId": 30906,
+          "rank": 1,
+          "name": "Bristleblitz Striker",
+          "source": "",
+          "enchant": 2724
+        }
+      ],
+      "weaponConfig": "mainhand_offhand",
+      "mainhand": [
+        {
+          "itemId": 29993,
+          "rank": 1,
+          "name": "Twinblade of the Phoenix",
+          "source": "",
+          "enchant": 2670,
+          "gems": [
+            32194,
+            32194,
+            32194
+          ]
+        }
+      ]
+    },
+    "survival_hunter@2h_9p": {
+      "_source": "wowsims-preset",
+      "_preset": "presets/hunter_dps/phase_4/sv/2h_9p.gear.json",
+      "head": [
+        {
+          "itemId": 31003,
+          "rank": 1,
+          "name": "Gronnstalker's Helmet",
+          "source": "",
+          "enchant": 3003,
+          "gems": [
+            32194,
+            32409
+          ]
+        }
+      ],
+      "neck": [
+        {
+          "itemId": 30017,
+          "rank": 1,
+          "name": "Telonicus's Pendant of Mayhem",
+          "source": ""
+        }
+      ],
+      "shoulder": [
+        {
+          "itemId": 31006,
+          "rank": 1,
+          "name": "Gronnstalker's Spaulders",
+          "source": "",
+          "enchant": 2986,
+          "gems": [
+            32194,
+            32194
+          ]
+        }
+      ],
+      "back": [
+        {
+          "itemId": 29994,
+          "rank": 1,
+          "name": "Thalassian Wildercloak",
+          "source": "",
+          "enchant": 368
+        }
+      ],
+      "chest": [
+        {
+          "itemId": 31004,
+          "rank": 1,
+          "name": "Gronnstalker's Chestguard",
+          "source": "",
+          "enchant": 2661,
+          "gems": [
+            32194,
+            32226,
+            32226
+          ]
+        }
+      ],
+      "wrist": [
+        {
+          "itemId": 32324,
+          "rank": 1,
+          "name": "Insidious Bands",
+          "source": "",
+          "enchant": 1593,
+          "gems": [
+            32220
+          ]
+        }
+      ],
+      "hands": [
+        {
+          "itemId": 31001,
+          "rank": 1,
+          "name": "Gronnstalker's Gloves",
+          "source": "",
+          "enchant": 2564,
+          "gems": [
+            32194
+          ]
+        }
+      ],
+      "waist": [
+        {
+          "itemId": 30040,
+          "rank": 1,
+          "name": "Belt of Deep Shadow",
+          "source": "",
+          "gems": [
+            32194,
+            32194
+          ]
+        }
+      ],
+      "legs": [
+        {
+          "itemId": 30900,
+          "rank": 1,
+          "name": "Bow-stitched Leggings",
+          "source": "",
+          "enchant": 3012,
+          "gems": [
+            32194,
+            32194,
+            32194
+          ]
+        }
+      ],
+      "feet": [
+        {
+          "itemId": 32366,
+          "rank": 1,
+          "name": "Shadowmaster's Boots",
+          "source": "",
+          "enchant": 2657,
+          "gems": [
+            32194,
+            32220
+          ]
+        }
+      ],
+      "finger": [
+        {
+          "itemId": 33496,
+          "rank": 1,
+          "name": "Signet of Primal Wrath",
+          "source": ""
+        },
+        {
+          "itemId": 30052,
+          "rank": 2,
+          "name": "Ring of Lethality",
+          "source": ""
+        }
+      ],
+      "trinket": [
+        {
+          "itemId": 32505,
+          "rank": 1,
+          "name": "Madness of the Betrayer",
+          "source": ""
+        },
+        {
+          "itemId": 28830,
+          "rank": 2,
+          "name": "Dragonspine Trophy",
+          "source": ""
+        }
+      ],
+      "ranged": [
+        {
+          "itemId": 30906,
+          "rank": 1,
+          "name": "Bristleblitz Striker",
+          "source": "",
+          "enchant": 2724
+        }
+      ],
+      "weaponConfig": "mainhand_offhand",
+      "mainhand": [
+        {
+          "itemId": 29993,
+          "rank": 1,
+          "name": "Twinblade of the Phoenix",
+          "source": "",
+          "enchant": 2670,
+          "gems": [
+            32194,
+            32194,
+            32194
+          ]
+        }
+      ]
+    },
+    "survival_hunter@dw_6p": {
+      "_source": "wowsims-preset",
+      "_preset": "presets/hunter_dps/phase_4/sv/dw_6p.gear.json",
+      "head": [
+        {
+          "itemId": 32235,
+          "rank": 1,
+          "name": "Cursed Vision of Sargeras",
+          "source": "",
+          "enchant": 3003,
+          "gems": [
+            32409,
+            32194
+          ]
+        }
+      ],
+      "neck": [
+        {
+          "itemId": 30017,
+          "rank": 1,
+          "name": "Telonicus's Pendant of Mayhem",
+          "source": ""
+        }
+      ],
+      "shoulder": [
+        {
+          "itemId": 31006,
+          "rank": 1,
+          "name": "Gronnstalker's Spaulders",
+          "source": "",
+          "enchant": 2986,
+          "gems": [
+            32194,
+            32194
+          ]
+        }
+      ],
+      "back": [
+        {
+          "itemId": 29994,
+          "rank": 1,
+          "name": "Thalassian Wildercloak",
+          "source": "",
+          "enchant": 368
+        }
+      ],
+      "chest": [
+        {
+          "itemId": 31004,
+          "rank": 1,
+          "name": "Gronnstalker's Chestguard",
+          "source": "",
+          "enchant": 2661,
+          "gems": [
+            32194,
+            32226,
+            32226
+          ]
+        }
+      ],
+      "wrist": [
+        {
+          "itemId": 32324,
+          "rank": 1,
+          "name": "Insidious Bands",
+          "source": "",
+          "enchant": 1593,
+          "gems": [
+            32194
+          ]
+        }
+      ],
+      "hands": [
+        {
+          "itemId": 31001,
+          "rank": 1,
+          "name": "Gronnstalker's Gloves",
+          "source": "",
+          "enchant": 2564,
+          "gems": [
+            32194
+          ]
+        }
+      ],
+      "waist": [
+        {
+          "itemId": 30879,
+          "rank": 1,
+          "name": "Don Alejandro's Money Belt",
+          "source": "",
+          "gems": [
+            32194,
+            32194
+          ]
+        }
+      ],
+      "legs": [
+        {
+          "itemId": 31005,
+          "rank": 1,
+          "name": "Gronnstalker's Leggings",
+          "source": "",
+          "enchant": 3012,
+          "gems": [
+            32194
+          ]
+        }
+      ],
+      "feet": [
+        {
+          "itemId": 32366,
+          "rank": 1,
+          "name": "Shadowmaster's Boots",
+          "source": "",
+          "enchant": 2657,
+          "gems": [
+            32194,
+            32194
+          ]
+        }
+      ],
+      "finger": [
+        {
+          "itemId": 33496,
+          "rank": 1,
+          "name": "Signet of Primal Wrath",
+          "source": ""
+        },
+        {
+          "itemId": 29301,
+          "rank": 2,
+          "name": "Band of the Eternal Champion",
+          "source": ""
+        }
+      ],
+      "trinket": [
+        {
+          "itemId": 33831,
+          "rank": 1,
+          "name": "Berserker's Call",
+          "source": ""
+        },
+        {
+          "itemId": 28830,
+          "rank": 2,
+          "name": "Dragonspine Trophy",
+          "source": ""
+        }
+      ],
+      "ranged": [
+        {
+          "itemId": 30906,
+          "rank": 1,
+          "name": "Bristleblitz Striker",
+          "source": "",
+          "enchant": 2724
+        }
+      ],
+      "weaponConfig": "mainhand_offhand",
+      "mainhand": [
+        {
+          "itemId": 33389,
+          "rank": 1,
+          "name": "Dagger of Bad Mojo",
+          "source": "",
+          "enchant": 3222
+        }
+      ],
+      "offhand": [
+        {
+          "itemId": 33389,
+          "rank": 1,
+          "name": "Dagger of Bad Mojo",
+          "source": "",
+          "enchant": 3222
+        }
+      ]
+    },
+    "survival_hunter@dw_9p": {
+      "_source": "wowsims-preset",
+      "_preset": "presets/hunter_dps/phase_4/sv/dw_9p.gear.json",
+      "head": [
+        {
+          "itemId": 31003,
+          "rank": 1,
+          "name": "Gronnstalker's Helmet",
+          "source": "",
+          "enchant": 3003,
+          "gems": [
+            32194,
+            32409
+          ]
+        }
+      ],
+      "neck": [
+        {
+          "itemId": 30017,
+          "rank": 1,
+          "name": "Telonicus's Pendant of Mayhem",
+          "source": ""
+        }
+      ],
+      "shoulder": [
+        {
+          "itemId": 31006,
+          "rank": 1,
+          "name": "Gronnstalker's Spaulders",
+          "source": "",
+          "enchant": 2986,
+          "gems": [
+            32194,
+            32194
+          ]
+        }
+      ],
+      "back": [
+        {
+          "itemId": 29994,
+          "rank": 1,
+          "name": "Thalassian Wildercloak",
+          "source": "",
+          "enchant": 368
+        }
+      ],
+      "chest": [
+        {
+          "itemId": 31004,
+          "rank": 1,
+          "name": "Gronnstalker's Chestguard",
+          "source": "",
+          "enchant": 2661,
+          "gems": [
+            32194,
+            32226,
+            32226
+          ]
+        }
+      ],
+      "wrist": [
+        {
+          "itemId": 32324,
+          "rank": 1,
+          "name": "Insidious Bands",
+          "source": "",
+          "enchant": 1593,
+          "gems": [
+            32220
+          ]
+        }
+      ],
+      "hands": [
+        {
+          "itemId": 31001,
+          "rank": 1,
+          "name": "Gronnstalker's Gloves",
+          "source": "",
+          "enchant": 2564,
+          "gems": [
+            32194
+          ]
+        }
+      ],
+      "waist": [
+        {
+          "itemId": 30040,
+          "rank": 1,
+          "name": "Belt of Deep Shadow",
+          "source": "",
+          "gems": [
+            32194,
+            32194
+          ]
+        }
+      ],
+      "legs": [
+        {
+          "itemId": 30900,
+          "rank": 1,
+          "name": "Bow-stitched Leggings",
+          "source": "",
+          "enchant": 3012,
+          "gems": [
+            32194,
+            32194,
+            32194
+          ]
+        }
+      ],
+      "feet": [
+        {
+          "itemId": 32366,
+          "rank": 1,
+          "name": "Shadowmaster's Boots",
+          "source": "",
+          "enchant": 2657,
+          "gems": [
+            32194,
+            32220
+          ]
+        }
+      ],
+      "finger": [
+        {
+          "itemId": 33496,
+          "rank": 1,
+          "name": "Signet of Primal Wrath",
+          "source": ""
+        },
+        {
+          "itemId": 30052,
+          "rank": 2,
+          "name": "Ring of Lethality",
+          "source": ""
+        }
+      ],
+      "trinket": [
+        {
+          "itemId": 32505,
+          "rank": 1,
+          "name": "Madness of the Betrayer",
+          "source": ""
+        },
+        {
+          "itemId": 28830,
+          "rank": 2,
+          "name": "Dragonspine Trophy",
+          "source": ""
+        }
+      ],
+      "ranged": [
+        {
+          "itemId": 30906,
+          "rank": 1,
+          "name": "Bristleblitz Striker",
+          "source": "",
+          "enchant": 2724
+        }
+      ],
+      "weaponConfig": "mainhand_offhand",
+      "mainhand": [
+        {
+          "itemId": 33389,
+          "rank": 1,
+          "name": "Dagger of Bad Mojo",
+          "source": "",
+          "enchant": 3222
+        }
+      ],
+      "offhand": [
+        {
+          "itemId": 33389,
+          "rank": 1,
+          "name": "Dagger of Bad Mojo",
+          "source": "",
+          "enchant": 3222
         }
       ]
     }
